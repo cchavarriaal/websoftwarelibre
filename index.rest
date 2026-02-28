@@ -1,5 +1,34 @@
 ###
 @BASE_URL = http://localhost
+@AUTH_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImVzdGViYW4ucGVyZXo3NSIsImlhdCI6MTc3MjIzNzk0MCwiZXhwIjoxNzcyMjM4NTQwfQ.xP3U6ZINR_A-CZ7Rq6NLA6KeYJ5-z9IZ0i89tmFoZMo
+
+
+POST {{ BASE_URL }}/Usuarios/autenticar HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "username": "esteban.perez75",
+  "password_hash": "pruebatoken"
+}
+
+
+///Valida el token enviado en la cabecera de autorización.
+///El resultado es un objeto con la información del usuario asociado al token, incluyendo su rol y
+///nombre de usuario. Si el token es inválido o ha expirado, el resultado será false.
+###
+
+POST {{ BASE_URL }}/Usuarios/validarToken HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "username": "esteban.perez75",
+  "password_hash": "pruebatoken"
+}
+
 
 ///Lista un usuario específico segun el parametro enviado en el body de la solicitud. 
 ///El resultado es un arreglo con un solo objeto, el cual contiene los datos del usuario solicitado. 
