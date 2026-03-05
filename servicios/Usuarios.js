@@ -1,14 +1,38 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const { ejecutarConsulta } = require('../db.js');
-const usuarios = require('../servicios/Usuarios.js');
+const jwt = require('jsonwebtoken');
 
-class Usuarios{
-    constructor() { };
+class Usuarios {
+    constructor() { }
 
     PalabraSecreta = "MiPalabraSecreta";
 
-    async Autenticacion(username, ClaveSinEncriptar) {
+    async usuarioslistar() {
+        return await ejecutarConsulta("SELECT * FROM `planillasweb`.`usuarios` ORDER BY username ASC");
+    }
+
+    async usuarioslistarEspecifico(username) {
+        return await ejecutarConsulta("SELECT * FROM `planillasweb`.`usuarios` WHERE username = ?", [username]);
+    }
+
+    async usuarioscrear(d) {
+        return await ejecutarConsulta(
+            "INSERT INTO `planillasweb`.`usuarios` (username, password_hash, rol, empleado_id, estado, pregunta_seguridad, respuesta_seguridad) VALUES (?,?,?,?,?,?,?)",
+            [d.username, d.password_hash, d.rol, d.empleado_id, d.estado, d.pregunta_seguridad, d.respuesta_seguridad]
+        );
+    }
+
+
+    async usuariosactualizar(id, d) {
+        return await ejecutarConsulta(
+            "UPDATE `planillasweb`.`usuarios` SET username=?, rol=?, empleado_id=?, estado=?, pregunta_seguridad=?, respuesta_seguridad=? WHERE id=?",
+            [d.username, d.rol, d.empleado_id, d.estado, d.pregunta_seguridad, d.respuesta_seguridad, id]
+        );
+    }
+    async usuarioseliminar(id) {
+        return await ejecutarConsulta("DELETE FROM `planillasweb`.`usuarios` WHERE id=?", [id]);
+    }
+    
+        async Autenticacion(username, ClaveSinEncriptar) {
         // Consultar en la base de datos si el usuario y la clave coinciden
         const resultado = await ejecutarConsulta('SELECT * FROM usuarios WHERE username = ?', [username]);
         

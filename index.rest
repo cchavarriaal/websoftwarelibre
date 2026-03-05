@@ -1,47 +1,50 @@
 ###
 @BASE_URL = http://localhost
-@AUTH_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImVzdGViYW4ucGVyZXo3NSIsImlhdCI6MTc3MjIzNzk0MCwiZXhwIjoxNzcyMjM4NTQwfQ.xP3U6ZINR_A-CZ7Rq6NLA6KeYJ5-z9IZ0i89tmFoZMo
+@AUTH_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNhbWFudGhhLmNoYXZhcnJpYSIsImlhdCI6MTc3MjcwMTU3OSwiZXhwIjoxNzcyNzAyMTc5fQ.flaEM4pTdQdM8XkavK3Ctm8en4qWvIhYkJqd0cNrVHk
 
 
-POST {{ BASE_URL }}/Usuarios/autenticar HTTP/1.1
+### ==========================================
+### MÓDULO: USUARIOS Y AUTENTICACIÓN
+### ==========================================
+
+### --- AUTENTICAR ---
+### Valida credenciales y retorna un token JWT
+POST {{ BASE_URL }}/usuarios/autenticar HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "username": "esteban.perez75",
-  "password_hash": "pruebatoken"
+  "username": "samantha.chavarria",
+  "password_hash": "bcrypt_hash_simulado"
 }
 
-
-///Valida el token enviado en la cabecera de autorización.
-///El resultado es un objeto con la información del usuario asociado al token, incluyendo su rol y
-///nombre de usuario. Si el token es inválido o ha expirado, el resultado será false.
-###
-
-POST {{ BASE_URL }}/Usuarios/validarToken HTTP/1.1
+### --- VALIDAR TOKEN ---
+### Valida el token enviado en la cabecera de autorización.
+### El resultado es un objeto con la información del usuario asociado al token.
+POST {{ BASE_URL }}/usuarios/validarToken HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "username": "esteban.perez75",
-  "password_hash": "pruebatoken"
+  "username": "samantha.chavarria",
+  "password_hash": "bcrypt_hash_simulado"
 }
 
 
-///Lista un usuario específico segun el parametro enviado en el body de la solicitud. 
-///El resultado es un arreglo con un solo objeto, el cual contiene los datos del usuario solicitado. 
-///Si el usuario no existe, el arreglo estará vacío.
-###
-POST {{ BASE_URL }}/Servicio1/listar HTTP/1.1
+### --- LISTAR USUARIO ESPECÍFICO ---
+### Lista un usuario específico segun el parametro enviado en el body de la solicitud. 
+POST {{ BASE_URL }}/Usuarios/usuarioslistarEspecifico HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "Usuario": "beatriz.pérez1"
+  "username": "esteban.perez75"
 }
+
+
 
 ### ==========================================
 ### SUBGRUPO 1: GESTIÓN DE PERSONAL
@@ -49,12 +52,12 @@ Origin: {{ BASE_URL }}
 
 ### --- EMPLEADOS ---
 ### Listar
-GET {{ BASE_URL }}/Empleados/empleadoslistar HTTP/1.1
+GET {{ BASE_URL }}/empleados/empleadoslistar HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 ### Crear
-POST {{ BASE_URL }}/Empleados/empleadoscrear HTTP/1.1
+POST {{ BASE_URL }}/empleados/empleadoscrear HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
@@ -69,29 +72,32 @@ Content-Type: application/json
 }
 
 ### Actualizar
-PUT {{ BASE_URL }}/Servicio1/empleadosactualizar/1 HTTP/1.1
+PUT {{ BASE_URL }}/empleados/empleadosactualizar/1 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
+    "codigo_empleado": "EMP-2026001",
     "nombre": "Mario",
     "apellido": "Chaves Rojas",
+    "dni": "5-2058-4208",
+    "fecha_ingreso": "2022-02-06",
     "salario_base": 800000,
     "puesto_id": 2
 }
 
 ### Eliminar
-DELETE {{ BASE_URL }}/Servicio1/empleadoseliminar/1 HTTP/1.1
+DELETE {{ BASE_URL }}/empleados/empleadoseliminar/1 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
 
 ### --- DEPARTAMENTOS ---
 ### Listar
-GET {{ BASE_URL }}/Servicio1/departamentoslistar HTTP/1.1
+GET {{ BASE_URL }}/departamentos/departamentoslistar HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
 ### Crear
-POST {{ BASE_URL }}/Servicio1/departamentoscrear HTTP/1.1
+POST {{ BASE_URL }}/departamentos/departamentoscrear HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
@@ -100,7 +106,7 @@ Content-Type: application/json
 }
 
 ### Actualizar
-PUT {{ BASE_URL }}/Servicio1/departamentosactualizar/1 HTTP/1.1
+PUT {{ BASE_URL }}/departamentos/departamentosactualizar/1 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
@@ -109,17 +115,17 @@ Content-Type: application/json
 }
 
 ### Eliminar
-DELETE {{ BASE_URL }}/Servicio1/departamentoseliminar/1 HTTP/1.1
+DELETE {{ BASE_URL }}/departamentos/departamentoseliminar/1 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
 
 ### --- PUESTOS ---
 ### Listar
-GET {{ BASE_URL }}/Servicio1/puestoslistar HTTP/1.1
+GET {{ BASE_URL }}/puestos/puestoslistar HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
 ### Crear
-POST {{ BASE_URL }}/Servicio1/puestoscrear HTTP/1.1
+POST {{ BASE_URL }}/puestos/puestoscrear HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
@@ -130,7 +136,7 @@ Content-Type: application/json
 }
 
 ### Actualizar
-PUT {{ BASE_URL }}/Servicio1/puestosactualizar/1 HTTP/1.1
+PUT {{ BASE_URL }}/puestos/puestosactualizar/1 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
@@ -141,7 +147,7 @@ Content-Type: application/json
 }
 
 ### Eliminar
-DELETE {{ BASE_URL }}/Servicio1/puestoseliminar/1 HTTP/1.1
+DELETE {{ BASE_URL }}/puestos/puestoseliminar/1 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
 
@@ -151,11 +157,11 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 
 ### --- MOVIMIENTOS ---
 ### Listar
-GET {{ BASE_URL }}/Servicio1/movimientos_planillalistar HTTP/1.1
+GET {{ BASE_URL }}/movimientos_planilla/movimientos_planillalistar HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
 ### Crear
-POST {{ BASE_URL }}/Servicio1/movimientos_planillacrear HTTP/1.1
+POST {{ BASE_URL }}/movimientos_planilla/movimientos_planillacrear HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
@@ -167,17 +173,17 @@ Content-Type: application/json
 }
 
 ### Eliminar
-DELETE {{ BASE_URL }}/Servicio1/movimientos_planillaeliminar/1 HTTP/1.1
+DELETE {{ BASE_URL }}/movimientos_planilla/movimientos_planillaeliminar/1 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
 
 ### --- PERIODOS ---
 ### Listar
-GET {{ BASE_URL }}/Servicio1/periodos_planillalistar HTTP/1.1
+GET {{ BASE_URL }}/periodos_planilla/periodos_planillalistar HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
 ### Crear
-POST {{ BASE_URL }}/Servicio1/periodos_planillacrear HTTP/1.1
+POST {{ BASE_URL }}/periodos_planilla/periodos_planillacrear HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
@@ -189,7 +195,7 @@ Content-Type: application/json
 }
 
 ### Actualizar
-PUT {{ BASE_URL }}/Servicio1/periodos_planillaactualizar/1 HTTP/1.1
+PUT {{ BASE_URL }}/periodos_planilla/periodos_planillaactualizar/1 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
@@ -200,37 +206,35 @@ Content-Type: application/json
     "estado": "Cerrado"
 }
 
-
 ### --- CONCEPTOS ---
 ### Listar
-GET {{ BASE_URL }}/Servicio1/conceptoslistar HTTP/1.1
+GET {{ BASE_URL }}/concepto/conceptoslistar HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
 ### Crear
-POST {{ BASE_URL }}/Servicio1/conceptoscrear HTTP/1.1
+POST {{ BASE_URL }}/concepto/conceptoscrear HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
     "nombre": "Bono Nocturno",
     "tipo": "Ingreso",
-    "es_ley": 0
+    "porcentaje": 0
 }
 
-
 ### Actualizar
-PUT {{ BASE_URL }}/Servicio1/conceptosactualizar/1 HTTP/1.1
+PUT {{ BASE_URL }}/concepto/conceptosactualizar/1 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
     "nombre": "Bono Nocturno Especial",
     "tipo": "Ingreso",
-    "es_ley": 1
+    "porcentaje": 1
 }
 
 ### Eliminar
-DELETE {{ BASE_URL }}/Servicio1/conceptoseliminar/1 HTTP/1.1
+DELETE {{ BASE_URL }}/concepto/conceptoseliminar/23 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
 
@@ -240,47 +244,62 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 
 ### --- USUARIOS ---
 ### Listar
-GET {{ BASE_URL }}/Servicio1/usuarioslistar HTTP/1.1
+GET {{ BASE_URL }}/usuarios/usuarioslistar HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
 ### Crear
-POST {{ BASE_URL }}/Servicio1/usuarioscrear HTTP/1.1
+POST {{ BASE_URL }}/usuarios/usuarioscrear HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
-    "username": "cristopher.chavarria",
+    "username": "samantha.chavarria",
     "password_hash": "bcrypt_hash_simulado",
     "rol": "Empleado",
     "empleado_id": 100,
+    "estado": 1,
     "pregunta_seguridad": "¿Color favorito?",
-    "respuesta_seguridad": "Verde",
-    "estado": 1
+    "respuesta_seguridad": "Verde"
 }
 
 ### Actualizar
-PUT {{ BASE_URL }}/Servicio1/usuariosactualizar/1 HTTP/1.1
+PUT {{ BASE_URL }}/usuarios/usuariosactualizar/1 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
     "username": "mario.chaves.admin",
     "rol": "Administrador",
+    "empleado_id": 1,
     "estado": 1,
     "pregunta_seguridad": "¿Color favorito?",
     "respuesta_seguridad": "Azul"
 }
 
 ### Eliminar
-DELETE {{ BASE_URL }}/Servicio1/usuarioseliminar/1 HTTP/1.1
+DELETE {{ BASE_URL }}/usuarios/usuarioseliminar/1 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
 
 ### --- AUDITORÍA ---
 ### Listar
-GET {{ BASE_URL }}/Servicio1/auditorialistar HTTP/1.1
+GET {{ BASE_URL }}/auditoria/auditorialistar HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
-### Eliminar (Limpieza)
-DELETE {{ BASE_URL }}/Servicio1/auditoriaeliminar/1 HTTP/1.1
+### Agregar registro de auditoría
+POST {{ BASE_URL }}/auditoria/auditoriacrear HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+
+{
+  "usuario_id": 24,
+  "tabla_afectada": "empleados",
+  "registro_id": 74,
+  "accion": "UPDATE",
+  "valor_anterior": {
+    "salario": 550000
+  },
+  "valor_nuevo": {
+    "salario": 50000
+  }
+}

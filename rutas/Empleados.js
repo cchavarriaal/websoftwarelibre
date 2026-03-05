@@ -1,16 +1,9 @@
 const express = require('express');
 const Router = express.Router();
 
-const Empleados = require('../servicios/Empleados.js');
+const Empleados = require('../servicios/empleados.js');
 
-Router.post('/listar', async (solicitud, respuesta, next) => {
-  return respuesta.json(await Empleados.listar(solicitud.body));
-});
-// ==========================================
-// SUBGRUPO: PERSONAL Y ESTRUCTURA
-// ==========================================
-
-// Empleados
+// Empleados routes
 Router.get('/empleadoslistar', async (solicitud, respuesta, next) => {
   return respuesta.json(await Empleados.empleadoslistar());
 });

@@ -98,15 +98,8 @@ class Servicio1 {
   // SUBGRUPO 4: SEGURIDAD Y USUARIOS
   // ==========================================
 
-  async usuarioscrear(d) {
-    return await ejecutarConsulta("INSERT INTO `planillasweb`.`usuarios` (username, password_hash, rol, empleado_id, pregunta_seguridad, respuesta_seguridad, estado) VALUES (?,?,?,?,?,?,?)", [d.username, d.password_hash, d.rol, d.empleado_id, d.pregunta_seguridad, d.respuesta_seguridad, d.estado]);
-  }
-  async usuariosactualizar(id, d) {
-    return await ejecutarConsulta("UPDATE `planillasweb`.`usuarios` SET username=?, rol=?, estado=?, pregunta_seguridad=?, respuesta_seguridad=? WHERE id=?", [d.username, d.rol, d.estado, d.pregunta_seguridad, d.respuesta_seguridad, id]);
-  }
-  async usuarioseliminar(id) {
-    return await ejecutarConsulta("DELETE FROM `planillasweb`.`usuarios` WHERE id=?", [id]);
-  }
+ 
+
 
   // ==========================================
   // SUBGRUPO 5: AUDITORÍA
