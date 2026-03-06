@@ -1,11 +1,7 @@
 ###
 @BASE_URL = http://localhost
-@AUTH_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNhbWFudGhhLmNoYXZhcnJpYSIsImlhdCI6MTc3MjgxODYwOCwiZXhwIjoxNzcyODE5MjA4fQ.gmT7ZEO794Jy7a6XH1d66z4UQazoacX7h4C4h87RtRY
+@AUTH_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNyaXN0b3BoZXIuY2hhdmFycmlhIiwiaWF0IjoxNzcyODMwMTY0LCJleHAiOjE3NzI4MzA3NjR9.IpmWVe7lzoBL4GQpsr61A2jBm3YCL9tn6miHiXjbmR0
 
-
-### ==========================================
-### MÓDULO: USUARIOS Y AUTENTICACIÓN
-### ==========================================
 
 ### --- AUTENTICAR ---
 ### Valida credenciales y retorna un token JWT
@@ -15,7 +11,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "username": "samantha.chavarria",
+  "username": "cristopher.chavarria",
   "password_hash": "bcrypt_hash_simulado"
 }
 
@@ -28,7 +24,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "username": "samantha.chavarria",
+  "username": "cristopher.chavarria",
   "password_hash": "bcrypt_hash_simulado"
 }
 
@@ -41,7 +37,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "username": "samantha.chavarria"
+  "username": "cristopher.chavarria"
 }
 
 ### --- USUARIOS ---
@@ -56,7 +52,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "username": "usuario.prueba"
+  "username": "cristopher.chavarria"
 }
 
 ### Crear
