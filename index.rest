@@ -1,6 +1,6 @@
 ###
 @BASE_URL = http://localhost
-@AUTH_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNhbWFudGhhLmNoYXZhcnJpYSIsImlhdCI6MTc3Mjc4MDQyMywiZXhwIjoxNzcyNzgxMDIzfQ.jF9wtOB76Vec7iFXWwOhY_UOqjHF1-1q5ipdlYzAAAw
+@AUTH_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNhbWFudGhhLmNoYXZhcnJpYSIsImlhdCI6MTc3MjgxODYwOCwiZXhwIjoxNzcyODE5MjA4fQ.gmT7ZEO794Jy7a6XH1d66z4UQazoacX7h4C4h87RtRY
 
 
 ### ==========================================
@@ -33,7 +33,22 @@ Origin: {{ BASE_URL }}
 }
 
 
-### --- LISTAR USUARIO ESPECÍFICO ---
+### --- DESAUTENTICAR ---
+### Borra el token del usuario en la base de datos
+POST {{ BASE_URL }}/usuarios/desautenticar HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "username": "samantha.chavarria"
+}
+
+### --- USUARIOS ---
+### Listar
+GET {{ BASE_URL }}/usuarios/usuarioslistar HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+
 ### Lista un usuario específico segun el parametro enviado en el body de la solicitud. 
 POST {{ BASE_URL }}/Usuarios/usuarioslistarEspecifico HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
@@ -41,14 +56,42 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "username": "esteban.perez75"
+  "username": "usuario.prueba"
 }
 
+### Crear
+POST {{ BASE_URL }}/usuarios/usuarioscrear HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
 
+{
+    "username": "usuario.prueba2",
+    "password_hash": "bcrypt_hash_simulado",
+    "rol": "Empleado",
+    "empleado_id": 101,
+    "estado": 1,
+    "pregunta_seguridad": "¿Color favorito?",
+    "respuesta_seguridad": "Verde"
+}
 
-### ==========================================
-### SUBGRUPO 1: GESTIÓN DE PERSONAL
-### ==========================================
+### Actualizar
+PUT {{ BASE_URL }}/usuarios/usuariosactualizar/78 HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+
+{
+    "username": "usuario.prueba",
+    "rol": "Administrador",
+    "empleado_id": 101,
+    "estado": 1,
+    "pregunta_seguridad": "¿Color favorito?",
+    "respuesta_seguridad": "Negro"
+}
+
+### Eliminar
+DELETE {{ BASE_URL }}/usuarios/usuarioseliminar/78 HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+
 
 ### --- EMPLEADOS ---
 ### Listar
@@ -62,32 +105,32 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
-    "codigo_empleado": "EMP-2026101",
+    "codigo_empleado": "EMP-2026102",
     "nombre": "Cristopher",
-    "apellido": "Chaves",
-    "dni": "2-0123-0456",
+    "apellido": "Chavarria",
+    "dni": "2-0123-0033",
     "fecha_ingreso": "2026-02-06",
-    "salario_base": 750000,
+    "salario_base": 2050000,
     "puesto_id": 2
 }
 
 ### Actualizar
-PUT {{ BASE_URL }}/empleados/empleadosactualizar/1 HTTP/1.1
+PUT {{ BASE_URL }}/empleados/empleadosactualizar/103 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
-    "codigo_empleado": "EMP-2026001",
-    "nombre": "Mario",
-    "apellido": "Chaves Rojas",
-    "dni": "5-2058-4208",
-    "fecha_ingreso": "2022-02-06",
-    "salario_base": 800000,
+    "codigo_empleado": "EMP-2026102",
+    "nombre": "Cristopher",
+    "apellido": "Alvarez",
+    "dni": "2-0123-0033",
+    "fecha_ingreso": "2026-02-06",
+    "salario_base": 2050000,
     "puesto_id": 2
 }
 
 ### Eliminar
-DELETE {{ BASE_URL }}/empleados/empleadoseliminar/1 HTTP/1.1
+DELETE {{ BASE_URL }}/empleados/empleadoseliminar/103 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
 
@@ -102,11 +145,11 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
-    "nombre": "Recursos Humanos Prueba"
+    "nombre": "Recursos Humanos Explotacion"
 }
 
 ### Actualizar
-PUT {{ BASE_URL }}/departamentos/departamentosactualizar/1 HTTP/1.1
+PUT {{ BASE_URL }}/departamentos/departamentosactualizar/21 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
@@ -115,7 +158,7 @@ Content-Type: application/json
 }
 
 ### Eliminar
-DELETE {{ BASE_URL }}/departamentos/departamentoseliminar/1 HTTP/1.1
+DELETE {{ BASE_URL }}/departamentos/departamentoseliminar/21 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
 
@@ -130,30 +173,26 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
-    "nombre": "Analista Senior",
+    "nombre": "Analista Junior",
     "salario_base_sugerido": 1250000,
     "departamento_id": 1
 }
 
 ### Actualizar
-PUT {{ BASE_URL }}/puestos/puestosactualizar/1 HTTP/1.1
+PUT {{ BASE_URL }}/puestos/puestosactualizar/16 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
-    "nombre": "Analista Principal",
+    "nombre": "Analista Junior Process",
     "salario_base_sugerido": 1350000,
     "departamento_id": 1
 }
 
 ### Eliminar
-DELETE {{ BASE_URL }}/puestos/puestoseliminar/1 HTTP/1.1
+DELETE {{ BASE_URL }}/puestos/puestoseliminar/16 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
-
-### ==========================================
-### SUBGRUPO 2: OPERACIONES DE PLANILLA
-### ==========================================
 
 ### --- MOVIMIENTOS ---
 ### Listar
@@ -166,14 +205,14 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
-    "empleado_id": 1,
+    "empleado_id": 101,
     "periodo_id": 1,
     "concepto_id": 3,
     "monto_calculado": 15000.50
 }
 
 ### Eliminar
-DELETE {{ BASE_URL }}/movimientos_planilla/movimientos_planillaeliminar/1 HTTP/1.1
+DELETE {{ BASE_URL }}/movimientos_planilla/movimientos_planillaeliminar/101 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
 
@@ -188,9 +227,9 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
-    "nombre_periodo": "Marzo 2026",
-    "fecha_inicio": "2026-03-01",
-    "fecha_fin": "2026-03-31",
+    "nombre_periodo": "Febrero 2026",
+    "fecha_inicio": "2026-02-01",
+    "fecha_fin": "2026-02-28",
     "estado": "Abierto"
 }
 
@@ -200,9 +239,9 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
-    "nombre_periodo": "Marzo 2026 Editado",
-    "fecha_inicio": "2026-03-01",
-    "fecha_fin": "2026-03-31",
+    "nombre_periodo": "Enero 2026 Editado",
+    "fecha_inicio": "2026-01-01",
+    "fecha_fin": "2026-01-31",
     "estado": "Cerrado"
 }
 
@@ -219,66 +258,24 @@ Content-Type: application/json
 {
     "nombre": "Bono Nocturno",
     "tipo": "Ingreso",
-    "porcentaje": 0
+    "es_ley": 1
 }
 
 ### Actualizar
-PUT {{ BASE_URL }}/concepto/conceptosactualizar/1 HTTP/1.1
+PUT {{ BASE_URL }}/concepto/conceptosactualizar/21 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
     "nombre": "Bono Nocturno Especial",
     "tipo": "Ingreso",
-    "porcentaje": 1
+    "es_ley": 1
 }
 
 ### Eliminar
-DELETE {{ BASE_URL }}/concepto/conceptoseliminar/23 HTTP/1.1
+DELETE {{ BASE_URL }}/concepto/conceptoseliminar/21 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
-
-### ==========================================
-### SUBGRUPO 3: SEGURIDAD Y AUDITORÍA
-### ==========================================
-
-### --- USUARIOS ---
-### Listar
-GET {{ BASE_URL }}/usuarios/usuarioslistar HTTP/1.1
-Authorization: Bearer {{ AUTH_TOKEN }}
-
-### Crear
-POST {{ BASE_URL }}/usuarios/usuarioscrear HTTP/1.1
-Authorization: Bearer {{ AUTH_TOKEN }}
-Content-Type: application/json
-
-{
-    "username": "samantha.chavarria",
-    "password_hash": "bcrypt_hash_simulado",
-    "rol": "Empleado",
-    "empleado_id": 100,
-    "estado": 1,
-    "pregunta_seguridad": "¿Color favorito?",
-    "respuesta_seguridad": "Verde"
-}
-
-### Actualizar
-PUT {{ BASE_URL }}/usuarios/usuariosactualizar/1 HTTP/1.1
-Authorization: Bearer {{ AUTH_TOKEN }}
-Content-Type: application/json
-
-{
-    "username": "mario.chaves.admin",
-    "rol": "Administrador",
-    "empleado_id": 1,
-    "estado": 1,
-    "pregunta_seguridad": "¿Color favorito?",
-    "respuesta_seguridad": "Azul"
-}
-
-### Eliminar
-DELETE {{ BASE_URL }}/usuarios/usuarioseliminar/1 HTTP/1.1
-Authorization: Bearer {{ AUTH_TOKEN }}
 
 
 ### --- AUDITORÍA ---
@@ -292,14 +289,14 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
-  "usuario_id": 24,
-  "tabla_afectada": "empleados",
-  "registro_id": 74,
+  "usuario_id": 23,
+  "tabla_afectada": "conceptos",
+  "registro_id": 21,
   "accion": "UPDATE",
   "valor_anterior": {
-    "salario": 550000
+    "nombre": "Bono Nocturno Especial"
   },
   "valor_nuevo": {
-    "salario": 50000
+    "nombre": "Bono Nocturno Especial Editado"
   }
 }
