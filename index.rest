@@ -1,6 +1,6 @@
 ###
 @BASE_URL = http://localhost
-@AUTH_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNhbWFudGhhLmNoYXZhcnJpYSIsImlhdCI6MTc3MjcwMTU3OSwiZXhwIjoxNzcyNzAyMTc5fQ.flaEM4pTdQdM8XkavK3Ctm8en4qWvIhYkJqd0cNrVHk
+@AUTH_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNhbWFudGhhLmNoYXZhcnJpYSIsImlhdCI6MTc3Mjc4MDQyMywiZXhwIjoxNzcyNzgxMDIzfQ.jF9wtOB76Vec7iFXWwOhY_UOqjHF1-1q5ipdlYzAAAw
 
 
 ### ==========================================
@@ -102,7 +102,7 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
-    "nombre": "Recursos Humanos"
+    "nombre": "Recursos Humanos Prueba"
 }
 
 ### Actualizar
@@ -111,7 +111,7 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
-    "nombre": "Talento Humano"
+    "nombre": "Talento Humano Prueba"
 }
 
 ### Eliminar
