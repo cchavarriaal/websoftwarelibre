@@ -1,0 +1,404 @@
+<style>
+  :host {
+    display: block;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #f0f4f8;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    --primary-dark: #0b1121;
+    --secondary-dark: #151e32;
+    --accent: #00e5ff;
+    --accent-hover: #00b8cc;
+    --text-main: #f0f4f8;
+    --text-muted: #a0aec0;
+  }
+
+  .landing-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--primary-dark);
+    /* Subtle background dark gradient with glowing spots */
+    background-image: 
+      radial-gradient(circle at 10% 40%, rgba(0, 229, 255, 0.08), transparent 30%),
+      radial-gradient(circle at 90% 70%, rgba(0, 102, 255, 0.06), transparent 30%);
+    background-attachment: fixed;
+  }
+
+  /* Header / Nav */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 3rem;
+    background: rgba(11, 17, 33, 0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+  }
+
+  .logo-container img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.4));
+  }
+
+  .nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  /* Separator */
+  .nav-item:not(:last-child)::after {
+    content: "";
+    display: block;
+    width:  3px;
+    height: 18px;
+    background-color: rgba(138, 43, 226, 0.4); /* Dark purple somewhat transparent */
+    margin: 0 0.8rem;
+  }
+
+  .nav-link {
+    text-decoration: none;
+    color: var(--text-main);
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+  }
+
+  .nav-link:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--accent);
+  }
+
+  /* Dropdown Styles */
+  .dropdown {
+    position: relative;
+  }
+  
+  .dropdown-icon {
+    font-size: 0.65rem;
+    opacity: 0.7;
+    transition: transform 0.2s ease;
+    margin-left: 2px;
+  }
+
+  .dropdown:hover .dropdown-icon {
+    transform: rotate(180deg);
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 280px;
+    background: var(--secondary-dark);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.8rem 0;
+    margin-top: 0.5rem;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(15px);
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    z-index: 200;
+  }
+
+  .dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.8rem 1.5rem;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+
+  .dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--accent);
+    padding-left: 1.8rem;
+  }
+
+  .user-menu {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.3rem 1rem 0.3rem 0.3rem;
+    border-radius: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .user-menu:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #0066ff, var(--accent));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+    box-shadow: 0 0 12px rgba(0, 229, 255, 0.4);
+  }
+
+  /* Main / Hero Area */
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4rem 6rem;
+    gap: 5rem;
+  }
+
+  .hero-text {
+    flex: 1;
+    max-width: 650px;
+  }
+
+  .tagline {
+    display: inline-block;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 1rem;
+    background: rgba(0, 229, 255, 0.1);
+    padding: 0.4rem 1rem;
+    border-radius: 4px; border: 1px solid rgba(0, 229, 255, 0.2);
+  }
+
+  .hero-text h1 {
+    font-size: 4rem;
+    line-height: 1.15;
+    color: white;
+    margin-bottom: 1.5rem;
+    letter-spacing: -1px;
+    font-weight: 800;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .hero-text h1 span {
+    background: linear-gradient(90deg, #ffffff, var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-text p {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    margin-bottom: 2.8rem;
+    line-height: 1.7;
+    font-weight: 400;
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 1.2rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2.5rem;
+    background: var(--accent);
+    color: var(--primary-dark);
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 30px rgba(0, 229, 255, 0.5);
+    background: #ffffff;
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: none;
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: none;
+    border-color: rgba(255, 255, 255, 0.4);
+    color: white;
+  }
+
+  .hero-image {
+    flex: 1.2;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    perspective: 1500px;
+  }
+
+  .hero-image img {
+    max-width: 100%;
+    width: 650px;
+    border-radius: 12px;
+    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.6));
+    animation: float 7s ease-in-out infinite;
+    transform-style: preserve-3d;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0px) rotateX(4deg) rotateY(-4deg); }
+    50% { transform: translateY(-18px) rotateX(7deg) rotateY(-1deg); }
+    100% { transform: translateY(0px) rotateX(4deg) rotateY(-4deg); }
+  }
+
+  @media (max-width: 1024px) {
+    main {
+      flex-direction: column;
+      text-align: center;
+      padding: 3rem 2rem;
+    }
+    .hero-text {
+      margin-bottom: 3rem;
+    }
+    .btn-group {
+      justify-content: center;
+    }
+    .nav-menu {
+      display: none; /* Emulate mobile menu hidden state */
+    }
+    .logo-container {
+      font-size: 1.2rem;
+    }
+  }
+</style>
+
+<div class="landing-container">
+  <header>
+    <div class="logo-container">
+      <img src="assets/images/planilla_pro_logo.png" alt="PlanillaPro Logo">
+      PlanillaPro
+    </div>
+    
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/">Inicio</a>
+      </li>
+      
+      <li class="nav-item dropdown">
+        <a class="nav-link" href="javascript:void(0)">
+          Mantenimientos 
+          <span class="dropdown-icon">▼</span>
+        </a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" routerLink="/usuarios">👨‍💼 Usuarios / Administradores</a>
+          <a class="dropdown-item" routerLink="/empleados">👥 Empleados & Colaboradores</a>
+          <a class="dropdown-item" routerLink="/departamentos">🏢 Departamentos</a>
+          <a class="dropdown-item" routerLink="/puestos">💼 Puestos de Trabajo</a>
+          <a class="dropdown-item" routerLink="/conceptos">📝 Conceptos de Ingreso / Deducción</a>
+          <a class="dropdown-item" routerLink="/horarios">⏰ Gestión de Horarios</a>
+        </div>
+      </li>
+
+      <li class="nav-item dropdown">
+        <a class="nav-link" href="javascript:void(0)">
+          Pagos & Planillas 
+          <span class="dropdown-icon">▼</span>
+        </a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" routerLink="/calculo-planilla">⚙️ Cálculo de Planilla</a>
+          <a class="dropdown-item" routerLink="/ingreso-horas">⏱️ Ingreso de Horas/Marcas</a>
+          <a class="dropdown-item" routerLink="/historial-pagos">📊 Historial de Pagos</a>
+          <a class="dropdown-item" routerLink="/aprobaciones">✅ Panel de Aprobaciones</a>
+        </div>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/reportes">Reportes</a>
+      </li>
+    </ul>
+
+    <div class="user-menu">
+      <div class="user-avatar">AD</div>
+      <span>Admin Usuario</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero-text">
+      <span class="tagline">Portal Interno de Recursos Humanos</span>
+      <h1>Gestión Global de <span>Planillas</span> y Nómina</h1>
+      <p>Bienvenido al sistema central de administración salarial. Utilice esta herramienta para calcular la nómina del periodo, registrar marcas de asistencia, aplicar deducciones correspondientes y gestionar los expedientes de todos los colaboradores de la empresa.</p>
+      
+      <div class="btn-group">
+        <button class="btn" routerLink="/calculo-planilla">Procesar Planilla</button>
+        <button class="btn btn-secondary">Directorio de Empleados</button>
+      </div>
+    </div>
+    
+    <div class="hero-image">
+      <img src="assets/images/payroll_3d_illustration.png" alt="Payroll 3D Dashboard Illustration">
+    </div>
+  </main>
+</div>
+
+<router-outlet />
