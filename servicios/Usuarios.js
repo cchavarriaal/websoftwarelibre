@@ -16,8 +16,8 @@ class Usuarios {
 
     async usuarioscrear(d) {
         return await ejecutarConsulta(
-            "INSERT INTO `planillasweb`.`usuarios` (username, password_hash, rol, empleado_id, estado, pregunta_seguridad, respuesta_seguridad) VALUES (?,?,?,?,?,?,?)",
-            [d.username, d.password_hash, d.rol, d.empleado_id, d.estado, d.pregunta_seguridad, d.respuesta_seguridad]
+            "INSERT INTO `planillasweb`.`usuarios` (username, password_hash, rol, empleado_id, estado, pregunta_seguridad, respuesta_seguridad, token) VALUES (?,?,?,?,?,?,?,?)",
+            [d.username, d.password_hash, d.rol, d.empleado_id, d.estado, d.pregunta_seguridad, d.respuesta_seguridad, null]
         );
     }
 
@@ -103,8 +103,9 @@ class Usuarios {
         }
     };
 
-    async DesAutenticacion(CorreoElectronico) {
+    async DesAutenticacion(username) {
         // Borrar del usuario el token que tenga
+        return await ejecutarConsulta('UPDATE usuarios SET token = NULL WHERE username = ?', [username]);
     }
 };
 
