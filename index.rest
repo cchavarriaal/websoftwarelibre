@@ -101,8 +101,8 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
-    "codigo_empleado": "EMP-2026102",
-    "nombre": "Cristopher",
+    "codigo_empleado": "EMP-2026123",
+    "nombre": "David",
     "apellido": "Chavarria",
     "dni": "2-0123-0033",
     "fecha_ingreso": "2026-02-06",
@@ -111,12 +111,12 @@ Content-Type: application/json
 }
 
 ### Actualizar
-PUT {{ BASE_URL }}/empleados/empleadosactualizar/103 HTTP/1.1
+PUT {{ BASE_URL }}/empleados/empleadosactualizar/104 HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
-    "codigo_empleado": "EMP-2026102",
+    "codigo_empleado": "EMP-2026123",
     "nombre": "Cristopher",
     "apellido": "Alvarez",
     "dni": "2-0123-0033",
