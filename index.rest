@@ -46,7 +46,7 @@ GET {{ BASE_URL }}/usuarios/usuarioslistar HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 
 ### Lista un usuario específico segun el parametro enviado en el body de la solicitud. 
-POST {{ BASE_URL }}/Usuarios/usuarioslistarEspecifico HTTP/1.1
+POST {{ BASE_URL }}/usuarios/usuarioslistarEspecifico HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 Origin: {{ BASE_URL }}
