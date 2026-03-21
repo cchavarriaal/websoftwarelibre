@@ -15,21 +15,71 @@ class Usuarios {
     }
 
     async usuarioscrear(d) {
-        return await ejecutarConsulta(
+        let empleadoId = d.empleado_id;
+
+        // Crea el empleado automáticamente si no provee el empleado_id
+        if (!empleadoId) {
+            const fechaIngreso = new Date().toISOString().slice(0, 10);
+            const resEmpleado = await ejecutarConsulta(
+                "INSERT INTO `planillasweb`.`empleados` (codigo_empleado, nombre, apellido, dni, fecha_ingreso, salario_base, puesto_id) VALUES (?,?,?,?,?,?,?)",
+                [`USR-${Date.now()}`, d.username, 'Autogenerado', '000000000', fechaIngreso, 0, null]
+            );
+            
+            if (resEmpleado && resEmpleado.insertId) {
+                empleadoId = resEmpleado.insertId;
+            } else {
+                return { error: "No se pudo autogenerar el empleado en la base de datos." };
+            }
+        }
+
+        const result = await ejecutarConsulta(
             "INSERT INTO `planillasweb`.`usuarios` (username, password_hash, rol, empleado_id, estado, pregunta_seguridad, respuesta_seguridad, token) VALUES (?,?,?,?,?,?,?,?)",
-            [d.username, d.password_hash, d.rol, d.empleado_id, d.estado, d.pregunta_seguridad, d.respuesta_seguridad, null]
+            [d.username, d.password_hash, d.rol, empleadoId, d.estado, d.pregunta_seguridad, d.respuesta_seguridad, null]
         );
+
+        if (result && result.insertId) {
+            await ejecutarConsulta(
+                "INSERT INTO `planillasweb`.`auditoria` (usuario_id, tabla_afectada, registro_id, accion, valor_anterior, valor_nuevo) VALUES (?,?,?,?,?,?)",
+                [d.usuario_accion_id || null, 'usuarios', result.insertId, 'INSERT', null, JSON.stringify(d)]
+            );
+        }
+
+        return result;
     }
 
 
     async usuariosactualizar(id, d) {
-        return await ejecutarConsulta(
+        const filas = await ejecutarConsulta("SELECT * FROM `planillasweb`.`usuarios` WHERE id=?", [id]);
+        const valor_anterior = filas.length > 0 ? filas[0] : null;
+
+        const result = await ejecutarConsulta(
             "UPDATE `planillasweb`.`usuarios` SET username=?, rol=?, empleado_id=?, estado=?, pregunta_seguridad=?, respuesta_seguridad=? WHERE id=?",
             [d.username, d.rol, d.empleado_id, d.estado, d.pregunta_seguridad, d.respuesta_seguridad, id]
         );
+
+        if (result && result.affectedRows > 0) {
+            await ejecutarConsulta(
+                "INSERT INTO `planillasweb`.`auditoria` (usuario_id, tabla_afectada, registro_id, accion, valor_anterior, valor_nuevo) VALUES (?,?,?,?,?,?)",
+                [d.usuario_accion_id || null, 'usuarios', id, 'UPDATE', JSON.stringify(valor_anterior), JSON.stringify(d)]
+            );
+        }
+
+        return result;
     }
     async usuarioseliminar(id) {
-        return await ejecutarConsulta("DELETE FROM `planillasweb`.`usuarios` WHERE id=?", [id]);
+        const filas = await ejecutarConsulta("SELECT * FROM `planillasweb`.`usuarios` WHERE id=?", [id]);
+        const valor_anterior = filas.length > 0 ? filas[0] : null;
+
+        const result = await ejecutarConsulta("DELETE FROM `planillasweb`.`usuarios` WHERE id=?", [id]);
+
+        if (result && result.affectedRows > 0) {
+            await ejecutarConsulta(
+                "INSERT INTO `planillasweb`.`auditoria` (usuario_id, tabla_afectada, registro_id, accion, valor_anterior, valor_nuevo) VALUES (?,?,?,?,?,?)",
+                [null, 'usuarios', id, 'DELETE', JSON.stringify(valor_anterior), null]
+            );
+        }
+
+        return result;
     }
     
         async Autenticacion(username, ClaveSinEncriptar) {

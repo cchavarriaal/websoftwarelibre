@@ -61,10 +61,10 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 
 {
-    "username": "usuario.prueba2",
+    "username": "usuario.prueba5",
     "password_hash": "bcrypt_hash_simulado",
     "rol": "Empleado",
-    "empleado_id": 101,
+    "empleado_id": 105,
     "estado": 1,
     "pregunta_seguridad": "¿Color favorito?",
     "respuesta_seguridad": "Verde"
