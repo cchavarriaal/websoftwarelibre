@@ -1,1 +1,126 @@
-<p>usuarios works!</p>
+<div class="crud-container">
+  <div class="page-header">
+    <h1 class="page-title">Administración de Usuarios</h1>
+    <button class="btn-primary">
+      <span class="icon">+</span> Nuevo Usuario
+    </button>
+  </div>
+
+  <div class="crud-layout">
+    <!-- Secion 1: Tabla de Registros -->
+    <div class="table-card glass-panel">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Rol</th>
+            <th>ID Cod</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Fila estática 1 -->
+          <tr>
+            <td>
+              <div class="user-info">
+                <div class="avatar" style="--bg: #00e5ff;">CC</div>
+                <div class="details">
+                  <span class="username">cristopher.chavarria</span>
+                  <span class="sub-text">Creado: 2026</span>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-admin">Administrador</span></td>
+            <td>101</td>
+            <td><span class="status-indicator active">Activo</span></td>
+            <td>
+              <div class="action-buttons">
+                <button class="icon-btn edit-btn" title="Editar Usuarios">✏️</button>
+                <button class="icon-btn delete-btn" title="Eliminar Usuarios">🗑️</button>
+              </div>
+            </td>
+          </tr>
+          <!-- Fila estática 2 -->
+          <tr>
+            <td>
+              <div class="user-info">
+                <div class="avatar" style="--bg: #8a2be2;">U5</div>
+                <div class="details">
+                  <span class="username">usuario.prueba5</span>
+                  <span class="sub-text">Reciente</span>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-empleado">Empleado</span></td>
+            <td>105</td>
+            <td><span class="status-indicator inactive">Inactivo</span></td>
+            <td>
+              <div class="action-buttons">
+                <button class="icon-btn edit-btn" title="Editar Usuarios">✏️</button>
+                <button class="icon-btn delete-btn" title="Eliminar Usuarios">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Sección 2: Panel Lateral de Formulario -->
+    <div class="form-card glass-panel">
+      <div class="form-header">
+        <h2>Detalle del Usuario</h2>
+        <button class="close-btn">✕</button>
+      </div>
+      
+      <form class="modern-form">
+        <div class="form-group">
+          <label>Nombre de Usuario <span style="color:#ef4444">*</span></label>
+          <input type="text" placeholder="Ej. jperez" value="cristopher.chavarria" class="form-control" required maxlength="100" name="username">
+        </div>
+
+        <div class="form-group">
+          <label>Rol de Sistema <span style="color:#ef4444">*</span></label>
+          <select class="form-control" required name="rol">
+            <option value="Administrador" selected>Administrador</option>
+            <option value="Recursos Humanos">Recursos Humanos</option>
+            <option value="Contador">Contador</option>
+            <option value="Empleado">Empleado</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>ID Empleado Vinculado <span style="color:var(--text-muted); font-weight:normal; font-size:0.75rem;">(Opcional)</span></label>
+          <input type="number" value="101" class="form-control" placeholder="ID en base de datos" name="empleado_id">
+        </div>
+
+        <div class="form-group twocol">
+          <div class="col">
+            <label>Pregunta Seguridad <span style="color:var(--text-muted); font-weight:normal; font-size:0.75rem;">(Opcional)</span></label>
+            <input type="text" value="¿Color favorito?" class="form-control" maxlength="255" name="pregunta_seguridad">
+          </div>
+          <div class="col">
+            <label>Respuesta <span style="color:var(--text-muted); font-weight:normal; font-size:0.75rem;">(Opcional)</span></label>
+            <input type="password" value="********" class="form-control" maxlength="255" name="respuesta_seguridad">
+          </div>
+        </div>
+
+        <div class="form-group toggle-group">
+          <label class="state-label">Estado de Acceso</label>
+          <div class="toggle-container">
+            <label class="switch">
+              <input type="checkbox" checked>
+              <span class="slider round"></span>
+            </label>
+            <span class="toggle-text active">Cuenta Activa</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary">Cancelar</button>
+          <button type="button" class="btn-primary">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,1 +1,101 @@
-<p>auditoria works!</p>
+<div class="crud-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Bitácora de Auditoría</h1>
+      <p class="subtitle">Registro inmutable de actividades y cambios del sistema</p>
+    </div>
+    <div class="header-actions">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Buscar por tabla o acción..." class="form-control search-input">
+      </div>
+      <button class="btn-secondary">
+        <span class="icon">⬇️</span> Descargar LOG
+      </button>
+    </div>
+  </div>
+
+  <div class="full-width-layout">
+    <div class="table-card glass-panel">
+      <table class="modern-table logs-table">
+        <thead>
+          <tr>
+            <th>Fecha / Hora</th>
+            <th>ID Usuario</th>
+            <th>Acción</th>
+            <th>Tabla Afectada</th>
+            <th>Identificador Registro</th>
+            <th>Visualizador Json</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Fila 1 -->
+          <tr>
+            <td>
+              <div class="timestamp">
+                <span class="date">Hoy</span>
+                <span class="time">10:45 AM</span>
+              </div>
+            </td>
+            <td>
+              <div class="user-chip">
+                <div class="chip-avatar" style="--bg: #10b981;">AD</div>
+                <span>UsuarID: 23</span>
+              </div>
+            </td>
+            <td><span class="badge badge-update">UPDATE</span></td>
+            <td><span class="table-name">conceptos</span></td>
+            <td><b>21</b></td>
+            <td>
+              <button class="btn-text view-diff">Ver Cambios 👁️</button>
+            </td>
+          </tr>
+          
+          <!-- Fila 2 -->
+          <tr>
+            <td>
+              <div class="timestamp">
+                <span class="date">Hoy</span>
+                <span class="time">09:12 AM</span>
+              </div>
+            </td>
+            <td>
+               <div class="user-chip">
+                <div class="chip-avatar" style="--bg: #3b82f6;">EMP</div>
+                <span>UsuarID: 101</span>
+              </div>
+            </td>
+            <td><span class="badge badge-insert">INSERT</span></td>
+            <td><span class="table-name">movimientos_planilla</span></td>
+            <td><b>89</b></td>
+            <td>
+              <button class="btn-text view-diff">Ver Nuevo Reg 👁️</button>
+            </td>
+          </tr>
+
+          <!-- Fila 3 -->
+           <tr>
+            <td>
+              <div class="timestamp">
+                <span class="date">Ayer</span>
+                <span class="time">16:30 PM</span>
+              </div>
+            </td>
+            <td>
+               <div class="user-chip">
+                <div class="chip-avatar" style="--bg: #ef4444;">SYS</div>
+                <span>UsuarID: 5</span>
+              </div>
+            </td>
+            <td><span class="badge badge-delete">DELETE</span></td>
+            <td><span class="table-name">empleados</span></td>
+            <td><b>103</b></td>
+            <td>
+              <button class="btn-text view-diff">Ver Borrado 👁️</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

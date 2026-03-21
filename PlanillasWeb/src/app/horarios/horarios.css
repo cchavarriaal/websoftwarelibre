@@ -15,24 +15,20 @@
 
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; }
 .page-title { font-size: 2.2rem; font-weight: 800; margin: 0; background: linear-gradient(90deg, #ffffff, var(--accent)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-.crud-layout.wide-layout { display: grid; grid-template-columns: 1fr 480px; gap: 2rem; }
-@media (max-width: 1400px) { .crud-layout.wide-layout { grid-template-columns: 1fr; } }
+.crud-layout { display: grid; grid-template-columns: 1fr 400px; gap: 2rem; }
+@media (max-width: 1400px) { .crud-layout { grid-template-columns: 1fr; } }
 .glass-panel { background: var(--panel-bg); backdrop-filter: blur(12px); border: 1px solid var(--panel-border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); overflow: hidden; }
 .modern-table { width: 100%; border-collapse: collapse; }
 .modern-table th { text-align: left; padding: 1.2rem 1.5rem; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; border-bottom: 1px solid var(--panel-border); background: rgba(0, 0, 0, 0.2); }
 .modern-table td { padding: 1rem 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.04); vertical-align: middle; }
 .modern-table tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
 .user-info { display: flex; align-items: center; gap: 1rem; }
-.avatar { width: 36px; height: 36px; border-radius: 50%; background-color: var(--bg, #4a5568); display: flex; align-items: center; justify-content: center; font-size: 1rem; color: #fff; box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
+.avatar { width: 36px; height: 36px; border-radius: 50%; background-color: var(--bg, #4a5568); display: flex; align-items: center; justify-content: center; font-size: 1rem; color: #fff; box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
 .details { display: flex; flex-direction: column; }
 .username { font-weight: 600; font-size: 1rem; }
 .sub-text { font-size: 0.8rem; color: var(--text-muted); }
 .badge { padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
-.badge-default { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.2); }
-.badge-money { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-family: monospace; font-size: 0.9rem; }
-.badge-deduction { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); font-family: monospace; font-size: 0.9rem; }
-.badge-depto { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); font-family: monospace; }
-.table-name { font-family: monospace; color: #a78bfa; background: rgba(139, 92, 246, 0.1); padding: 0.3rem 0.6rem; border-radius: 4px; }
+.badge-default { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.2); font-family: monospace; }
 .action-buttons { display: flex; gap: 0.5rem; }
 .icon-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
 .icon-btn:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
@@ -49,8 +45,6 @@
 .form-group label { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
 .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .form-control { background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 0.8rem 1rem; border-radius: 6px; font-size: 0.95rem; width: 100%; box-sizing: border-box; }
+.form-control.date-input { color-scheme: dark; font-family: monospace; }
 .form-control:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.15); }
-.input-with-icon { position: relative; display: flex; align-items: center; }
-.currency-symbol { position: absolute; left: 1rem; color: var(--text-muted); font-weight: 800; }
-.form-control.with-icon { padding-left: 2.2rem; }
 .form-actions { display: flex; justify-content: flex-end; gap: 1rem; padding-top: 1.5rem; border-top: 1px solid var(--panel-border); }

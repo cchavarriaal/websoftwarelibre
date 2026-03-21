@@ -107,7 +107,8 @@ Content-Type: application/json
     "dni": "2-0123-0033",
     "fecha_ingreso": "2026-02-06",
     "salario_base": 2050000,
-    "puesto_id": 2
+    "puesto_id": 2,
+    "horario_id": 1
 }
 
 ### Actualizar
@@ -122,7 +123,8 @@ Content-Type: application/json
     "dni": "2-0123-0033",
     "fecha_ingreso": "2026-02-06",
     "salario_base": 2050000,
-    "puesto_id": 2
+    "puesto_id": 2,
+    "horario_id": 1
 }
 
 ### Eliminar
@@ -296,3 +298,37 @@ Content-Type: application/json
     "nombre": "Bono Nocturno Especial Editado"
   }
 }
+
+
+### --- HORARIOS ---
+### Listar
+GET {{ BASE_URL }}/horarios/horarioslistar HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+
+### Crear
+POST {{ BASE_URL }}/horarios/horarioscrear HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+
+{
+    "nombre": "Jornada de Fin de Semana",
+    "hora_entrada": "08:00:00",
+    "hora_salida": "17:00:00",
+    "dias_laborables": "S-D"
+}
+
+### Actualizar
+PUT {{ BASE_URL }}/horarios/horariosactualizar/5 HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+
+{
+    "nombre": "Jornada Fin de Semana Modificada",
+    "hora_entrada": "07:00:00",
+    "hora_salida": "16:00:00",
+    "dias_laborables": "S-D"
+}
+
+### Eliminar
+DELETE {{ BASE_URL }}/horarios/horarioseliminar/5 HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}

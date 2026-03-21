@@ -341,7 +341,7 @@
     
     <ul class="nav-menu">
       <li class="nav-item">
-        <a class="nav-link" routerLink="/">Inicio</a>
+        <a class="nav-link" href="/">Inicio</a>
       </li>
       
       <li class="nav-item dropdown">
@@ -350,12 +350,12 @@
           <span class="dropdown-icon">▼</span>
         </a>
         <div class="dropdown-menu">
-          <a class="dropdown-item" routerLink="/usuarios">👨‍💼 Usuarios / Administradores</a>
-          <a class="dropdown-item" routerLink="/empleados">👥 Empleados & Colaboradores</a>
-          <a class="dropdown-item" routerLink="/departamentos">🏢 Departamentos</a>
-          <a class="dropdown-item" routerLink="/puestos">💼 Puestos de Trabajo</a>
-          <a class="dropdown-item" routerLink="/concepto">📝 Conceptos de Ingreso / Deducción</a>
-          <a class="dropdown-item" routerLink="/horarios">⏰ Gestión de Horarios</a>
+          <a class="dropdown-item" href="/usuarios">👨‍💼 Usuarios / Administradores</a>
+          <a class="dropdown-item" href="/empleados">👥 Empleados & Colaboradores</a>
+          <a class="dropdown-item" href="/departamentos">🏢 Departamentos</a>
+          <a class="dropdown-item" href="/puestos">💼 Puestos de Trabajo</a>
+          <a class="dropdown-item" href="/concepto">📝 Conceptos de Ingreso / Deducción</a>
+          <a class="dropdown-item" href="/horarios">⏰ Gestión de Horarios</a>
         </div>
       </li>
 
@@ -365,15 +365,22 @@
           <span class="dropdown-icon">▼</span>
         </a>
         <div class="dropdown-menu">
-          <a class="dropdown-item" routerLink="/periodos-planilla">⚙️ Cálculo de Planilla</a>
-          <a class="dropdown-item" routerLink="/movimientos-planilla">⏱️ Ingreso de Horas/Marcas</a>
-          <a class="dropdown-item" routerLink="/historial-pagos">📊 Historial de Pagos</a>
-          <a class="dropdown-item" routerLink="/aprobaciones">✅ Panel de Aprobaciones</a>
+          <a class="dropdown-item" href="/periodos-planilla">⚙️ Cálculo de Planilla</a>
+          <a class="dropdown-item" href="/movimientos-planilla">⏱️ Ingreso de Horas/Marcas</a>
+          <a class="dropdown-item" href="/historial-pagos">📊 Historial de Pagos</a>
+          <a class="dropdown-item" href="/aprobaciones">✅ Panel de Aprobaciones</a>
         </div>
       </li>
 
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/reportes">Reportes</a>
+      <li class="nav-item dropdown">
+        <a class="nav-link" href="javascript:void(0)">
+          Reportes & Logs
+          <span class="dropdown-icon">▼</span>
+        </a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="/reportes">📈 Reportes Generales</a>
+          <a class="dropdown-item" href="/auditoria">🛡️ Bitácora de Auditoría</a>
+        </div>
       </li>
     </ul>
 
@@ -390,7 +397,7 @@
       <p>Bienvenido al sistema central de administración salarial. Utilice esta herramienta para calcular la nómina del periodo, registrar marcas de asistencia, aplicar deducciones correspondientes y gestionar los expedientes de todos los colaboradores de la empresa.</p>
       
       <div class="btn-group">
-        <button class="btn" routerLink="/calculo-planilla">Procesar Planilla</button>
+        <a class="btn" href="/calculo-planilla">Procesar Planilla</a>
         <button class="btn btn-secondary">Directorio de Empleados</button>
       </div>
     </div>

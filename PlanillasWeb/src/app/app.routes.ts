@@ -6,6 +6,7 @@ import { Puestos } from './puestos/puestos';
 import { PeriodosPlanilla } from './periodos-planilla/periodos-planilla';
 import { MovimientosPlanilla } from './movimientos-planilla/movimientos-planilla';
 import { Concepto } from './concepto/concepto';
+import { Auditoria } from './auditoria/auditoria';
 
 export const routes: Routes = [
     { path: 'usuarios', component: Usuarios },
@@ -14,5 +15,6 @@ export const routes: Routes = [
     { path: 'puestos', component: Puestos },
     { path: 'periodos-planilla', component: PeriodosPlanilla },
     { path: 'movimientos-planilla', component: MovimientosPlanilla },
-    { path: 'concepto', component: Concepto }
+    { path: 'concepto', component: Concepto },
+    { path: 'auditoria', component: Auditoria }
 ];

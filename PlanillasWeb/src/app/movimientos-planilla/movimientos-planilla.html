@@ -1,1 +1,114 @@
-<p>movimientos-planilla works!</p>
+<div class="crud-container">
+  <div class="page-header">
+    <h1 class="page-title">Movimientos en Planilla</h1>
+    <button class="btn-primary">
+      <span class="icon">+</span> Registrar Movimiento
+    </button>
+  </div>
+
+  <div class="crud-layout wide-layout">
+    <!-- Tabla -->
+    <div class="table-card glass-panel" style="overflow-x: auto;">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Transacción</th>
+            <th>Empleado (ID)</th>
+            <th>Periodo (ID)</th>
+            <th>Concepto (ID)</th>
+            <th>Monto</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="table-name">MOV-00105</span></td>
+            <td>
+              <div class="user-info">
+                <div class="avatar" style="--bg: #10b981;">ID</div>
+                <div class="details">
+                  <span class="username">ID: 15</span>
+                  <span class="sub-text">Asignado</span>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-default">Periodo: 2</span></td>
+            <td><span class="badge badge-depto">Cpto: 4</span></td>
+            <td><span class="badge badge-money">₡ 45,000.00</span></td>
+            <td>
+              <div class="action-buttons">
+                <button class="icon-btn edit-btn" title="Editar">✏️</button>
+                <button class="icon-btn delete-btn" title="Eliminar">🗑️</button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="table-name">MOV-00106</span></td>
+            <td>
+              <div class="user-info">
+                <div class="avatar" style="--bg: #ef4444;">ID</div>
+                <div class="details">
+                  <span class="username">ID: 2</span>
+                  <span class="sub-text">Asignado</span>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-default">Periodo: 2</span></td>
+            <td><span class="badge badge-depto">Cpto: 1</span></td>
+            <td><span class="badge badge-deduction">-₡ 90,384.85</span></td>
+            <td>
+              <div class="action-buttons">
+                <button class="icon-btn edit-btn" title="Editar">✏️</button>
+                <button class="icon-btn delete-btn" title="Eliminar">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Formulario -->
+    <div class="form-card glass-panel" style="align-self: start;">
+      <div class="form-header">
+        <h2>Detalle del Movimiento</h2>
+        <button class="close-btn">✕</button>
+      </div>
+      
+      <form class="modern-form">
+        
+        <div class="form-group twocol">
+          <div class="col">
+            <label>ID del Empleado <span style="color:var(--text-muted); font-size:0.75rem;">(Opcional)</span></label>
+            <input type="number" value="15" class="form-control" name="empleado_id" placeholder="Ej: 15">
+          </div>
+          <div class="col">
+            <label>ID del Periodo <span style="color:var(--text-muted); font-size:0.75rem;">(Opcional)</span></label>
+            <input type="number" value="2" class="form-control" name="periodo_id" placeholder="Ej: 2">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>ID del Concepto Salarial <span style="color:var(--text-muted); font-size:0.75rem;">(Opcional)</span></label>
+          <div class="input-with-icon">
+             <span class="currency-symbol" style="font-size: 0.9rem;">#</span>
+             <input type="number" value="4" class="form-control with-icon" name="concepto_id" placeholder="Ej: 4">
+          </div>
+        </div>
+
+        <div class="form-group">
+            <label>Monto Calculado <span style="color:#ef4444">*</span></label>
+            <div class="input-with-icon">
+                <span class="currency-symbol">₡</span>
+                <input type="number" value="45000.00" class="form-control with-icon" required step="0.01" name="monto_calculado">
+            </div>
+            <small style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 0.3rem;">Nota: Para deducciones, puede dejarse en positivo y el sistema lo restará.</small>
+        </div>
+
+        <div class="form-actions fixed-actions" style="margin-top: 2rem;">
+          <button type="button" class="btn-secondary">Cancelar</button>
+          <button type="button" class="btn-primary">Registrar Movimiento</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

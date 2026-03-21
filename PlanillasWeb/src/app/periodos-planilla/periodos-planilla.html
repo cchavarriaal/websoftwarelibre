@@ -1,1 +1,107 @@
-<p>periodos-planilla works!</p>
+<div class="crud-container">
+  <div class="page-header">
+    <h1 class="page-title">Periodos de Planilla</h1>
+    <button class="btn-primary">
+      <span class="icon">+</span> Abrir Nuevo Periodo
+    </button>
+  </div>
+
+  <div class="crud-layout wide-layout">
+    <!-- Tabla -->
+    <div class="table-card glass-panel" style="overflow-x: auto;">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Nombre del Periodo</th>
+            <th>Apertura</th>
+            <th>Cierre</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="user-info">
+                <div class="avatar" style="--bg: #3b82f6;">📅</div>
+                <div class="details">
+                  <span class="username">Febrero 2026</span>
+                  <span class="sub-text">Quincenal 2</span>
+                </div>
+              </div>
+            </td>
+            <td>01-Feb-2026</td>
+            <td>28-Feb-2026</td>
+            <td><span class="badge badge-success">Abierto</span></td>
+            <td>
+              <div class="action-buttons">
+                <button class="icon-btn edit-btn" title="Editar">✏️</button>
+                <button class="icon-btn delete-btn" title="Eliminar">🗑️</button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="user-info">
+                <div class="avatar" style="--bg: #64748b;">📅</div>
+                <div class="details">
+                  <span class="username">Enero 2026</span>
+                  <span class="sub-text">Cierre Mensual</span>
+                </div>
+              </div>
+            </td>
+            <td>01-Ene-2026</td>
+            <td>31-Ene-2026</td>
+            <td><span class="badge badge-closed">Cerrado</span></td>
+            <td>
+              <div class="action-buttons">
+                <button class="icon-btn edit-btn" title="Editar">✏️</button>
+                <button class="icon-btn delete-btn" title="Eliminar">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Formulario -->
+    <div class="form-card glass-panel" style="align-self: start;">
+      <div class="form-header">
+        <h2>Gestión de Periodos</h2>
+        <button class="close-btn">✕</button>
+      </div>
+      
+      <form class="modern-form">
+        <div class="form-group">
+          <label>Nombre del Periodo <span style="color:#ef4444">*</span></label>
+          <input type="text" value="Febrero 2026" class="form-control" required maxlength="100" name="nombre_periodo">
+        </div>
+
+        <div class="form-group twocol">
+          <div class="col">
+            <label>Fecha de Inicio <span style="color:#ef4444">*</span></label>
+            <input type="date" value="2026-02-01" class="form-control date-input" required name="fecha_inicio">
+          </div>
+          <div class="col">
+            <label>Fecha de Cierre <span style="color:#ef4444">*</span></label>
+            <input type="date" value="2026-02-28" class="form-control date-input" required name="fecha_fin">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Estado Organizativo <span style="color:var(--text-muted); font-size:0.75rem;">(Opcional)</span></label>
+          <select class="form-control" name="estado">
+            <option value="Abierto" selected>🟢 Abierto (Activo)</option>
+            <option value="Procesado">🟡 Procesado (Auditoría)</option>
+            <option value="Cerrado">🔴 Cerrado (Historial)</option>
+          </select>
+        </div>
+
+        <div class="form-actions fixed-actions" style="margin-top: 2rem;">
+          <button type="button" class="btn-secondary">Cancelar</button>
+          <button type="button" class="btn-primary">Guardar Periodo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

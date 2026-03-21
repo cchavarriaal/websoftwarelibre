@@ -8,14 +8,14 @@ class Empleados {
   }
   async empleadoscrear(d) {
     return await ejecutarConsulta(
-      "INSERT INTO `planillasweb`.`empleados` (codigo_empleado, nombre, apellido, dni, fecha_ingreso, salario_base, puesto_id) VALUES (?,?,?,?,?,?,?)",
-      [d.codigo_empleado, d.nombre, d.apellido, d.dni, d.fecha_ingreso, d.salario_base, d.puesto_id]
+      "INSERT INTO `planillasweb`.`empleados` (codigo_empleado, nombre, apellido, dni, fecha_ingreso, salario_base, puesto_id, horario_id) VALUES (?,?,?,?,?,?,?,?)",
+      [d.codigo_empleado, d.nombre, d.apellido, d.dni, d.fecha_ingreso, d.salario_base, d.puesto_id, d.horario_id]
     );
   }
   async empleadosactualizar(id, d) {
     return await ejecutarConsulta(
-      "UPDATE `planillasweb`.`empleados` SET codigo_empleado=?, nombre=?, apellido=?, dni=?, fecha_ingreso=?, salario_base=?, puesto_id=? WHERE id=?",
-      [d.codigo_empleado, d.nombre, d.apellido, d.dni, d.fecha_ingreso, d.salario_base, d.puesto_id, id]
+      "UPDATE `planillasweb`.`empleados` SET codigo_empleado=?, nombre=?, apellido=?, dni=?, fecha_ingreso=?, salario_base=?, puesto_id=?, horario_id=? WHERE id=?",
+      [d.codigo_empleado, d.nombre, d.apellido, d.dni, d.fecha_ingreso, d.salario_base, d.puesto_id, d.horario_id, id]
     );
   }
   async empleadoseliminar(id) {

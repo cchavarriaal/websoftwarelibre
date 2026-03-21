@@ -1,1 +1,129 @@
-<p>empleados works!</p>
+<div class="crud-container">
+  <div class="page-header">
+    <h1 class="page-title">Directorio de Empleados</h1>
+    <button class="btn-primary">
+      <span class="icon">+</span> Nuevo Empleado
+    </button>
+  </div>
+
+  <div class="crud-layout wide-layout">
+    <!-- Sección 1: Tabla de Registros -->
+    <div class="table-card glass-panel" style="overflow-x: auto;">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Expediente</th>
+            <th>Nombres y Apellidos</th>
+            <th>DNI / Identificación</th>
+            <th>Fecha Ingreso</th>
+            <th>Salario Base</th>
+            <th>ID Pto.</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Fila estática 1 -->
+          <tr>
+            <td><span class="table-name">EMP-2026101</span></td>
+            <td>
+              <div class="user-info">
+                <div class="avatar" style="--bg: #10b981;">MC</div>
+                <div class="details">
+                  <span class="username">Mario Chaves</span>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-default">2-0123-0456</span></td>
+            <td>06-Feb-2026</td>
+            <td><span class="badge badge-money">₡ 750,000.00</span></td>
+            <td>2</td>
+            <td>
+              <div class="action-buttons">
+                <button class="icon-btn edit-btn" title="Editar Expediente">✏️</button>
+                <button class="icon-btn delete-btn" title="Dar de Baja">🗑️</button>
+              </div>
+            </td>
+          </tr>
+          <!-- Fila estática 2 -->
+          <tr>
+            <td><span class="table-name">EMP-2026002</span></td>
+            <td>
+              <div class="user-info">
+                <div class="avatar" style="--bg: #f59e0b;">ER</div>
+                <div class="details">
+                  <span class="username">Esteban Ramírez</span>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-default">5-4973-0821</span></td>
+            <td>22-Jul-2018</td>
+            <td><span class="badge badge-money">₡ 934,693.38</span></td>
+            <td>6</td>
+            <td>
+              <div class="action-buttons">
+                <button class="icon-btn edit-btn" title="Editar Expediente">✏️</button>
+                <button class="icon-btn delete-btn" title="Dar de Baja">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Sección 2: Panel Lateral de Formulario -->
+    <div class="form-card glass-panel" style="align-self: start;">
+      <div class="form-header">
+        <h2>Ficha de Empleado</h2>
+        <button class="close-btn">✕</button>
+      </div>
+      
+      <form class="modern-form">
+        <div class="form-group twocol">
+          <div class="col">
+            <label>Código <span style="color:#ef4444">*</span></label>
+            <input type="text" value="EMP-2026101" class="form-control" required maxlength="20" name="codigo_empleado">
+          </div>
+          <div class="col">
+            <label>DNI / Cédula <span style="color:#ef4444">*</span></label>
+            <input type="text" value="2-0123-0456" class="form-control" required maxlength="20" name="dni">
+          </div>
+        </div>
+
+        <div class="form-group twocol">
+          <div class="col">
+            <label>Nombres <span style="color:#ef4444">*</span></label>
+            <input type="text" value="Mario" class="form-control" required maxlength="100" name="nombre">
+          </div>
+          <div class="col">
+            <label>Apellidos <span style="color:#ef4444">*</span></label>
+            <input type="text" value="Chaves" class="form-control" required maxlength="100" name="apellido">
+          </div>
+        </div>
+
+        <div class="form-group twocol">
+            <div class="col">
+                <label>F. Ingreso <span style="color:#ef4444">*</span></label>
+                <input type="date" value="2026-02-06" class="form-control date-input" required name="fecha_ingreso">
+            </div>
+            <div class="col">
+                <label>Salario Neto <span style="color:#ef4444">*</span></label>
+                <div class="input-with-icon">
+                  <span class="currency-symbol">₡</span>
+                  <input type="number" value="750000.00" class="form-control with-icon" required step="0.01" name="salario_base">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+          <label>Asignación de Puesto (ID) <span style="color:var(--text-muted); font-size:0.75rem;">(Opcional)</span></label>
+          <input type="number" value="2" class="form-control" name="puesto_id" placeholder="Ej: 2">
+        </div>
+
+        <div class="form-actions fixed-actions" style="margin-top: 2rem;">
+          <button type="button" class="btn-secondary">Cancelar</button>
+          <button type="button" class="btn-primary">Guardar Expediente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
