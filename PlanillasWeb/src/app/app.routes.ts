@@ -7,8 +7,10 @@ import { PeriodosPlanilla } from './periodos-planilla/periodos-planilla';
 import { MovimientosPlanilla } from './movimientos-planilla/movimientos-planilla';
 import { Concepto } from './concepto/concepto';
 import { Auditoria } from './auditoria/auditoria';
+import { Inicio } from './inicio/inicio';
 
 export const routes: Routes = [
+    { path: '', component: Inicio },
     { path: 'usuarios', component: Usuarios },
     { path: 'empleados', component: Empleados },
     { path: 'departamentos', component: Departamentos },

@@ -1,7 +1,7 @@
 <div class="crud-container">
   <div class="page-header">
     <h1 class="page-title">Directorio de Empleados</h1>
-    <button class="btn-primary">
+    <button class="btn-primary" (click)="resetForm()">
       <span class="icon">+</span> Nuevo Empleado
     </button>
   </div>
@@ -18,54 +18,43 @@
             <th>Fecha Ingreso</th>
             <th>Salario Base</th>
             <th>ID Pto.</th>
+            <th>ID Hor.</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <!-- Fila estática 1 -->
-          <tr>
-            <td><span class="table-name">EMP-2026101</span></td>
-            <td>
-              <div class="user-info">
-                <div class="avatar" style="--bg: #10b981;">MC</div>
-                <div class="details">
-                  <span class="username">Mario Chaves</span>
+          @for (empleado of empleados(); track empleado.id) {
+            <tr>
+              <td><span class="table-name">{{ empleado.codigo_empleado }}</span></td>
+              <td>
+                <div class="user-info">
+                  <div class="avatar" style="--bg: #10b981;">
+                    {{ empleado.nombre.charAt(0).toUpperCase() }}{{ empleado.apellido.charAt(0).toUpperCase() }}
+                  </div>
+                  <div class="details">
+                    <span class="username">{{ empleado.nombre }} {{ empleado.apellido }}</span>
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td><span class="badge badge-default">2-0123-0456</span></td>
-            <td>06-Feb-2026</td>
-            <td><span class="badge badge-money">₡ 750,000.00</span></td>
-            <td>2</td>
-            <td>
-              <div class="action-buttons">
-                <button class="icon-btn edit-btn" title="Editar Expediente">✏️</button>
-                <button class="icon-btn delete-btn" title="Dar de Baja">🗑️</button>
-              </div>
-            </td>
-          </tr>
-          <!-- Fila estática 2 -->
-          <tr>
-            <td><span class="table-name">EMP-2026002</span></td>
-            <td>
-              <div class="user-info">
-                <div class="avatar" style="--bg: #f59e0b;">ER</div>
-                <div class="details">
-                  <span class="username">Esteban Ramírez</span>
+              </td>
+              <td><span class="badge badge-default">{{ empleado.dni }}</span></td>
+              <td>{{ empleado.fecha_ingreso | date:'dd-MMM-yyyy' }}</td>
+              <td><span class="badge badge-money">{{ empleado.salario_base | currency:'CRC':'symbol-narrow':'1.2-2' }}</span></td>
+              <td>{{ empleado.puesto_id || 'N/A' }}</td>
+              <td>{{ empleado.horario_id || 'N/A' }}</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="icon-btn edit-btn" title="Editar Expediente" (click)="editEmpleado(empleado)">✏️</button>
+                  <button class="icon-btn delete-btn" title="Dar de Baja" (click)="deleteEmpleado(empleado.id!)">🗑️</button>
                 </div>
-              </div>
-            </td>
-            <td><span class="badge badge-default">5-4973-0821</span></td>
-            <td>22-Jul-2018</td>
-            <td><span class="badge badge-money">₡ 934,693.38</span></td>
-            <td>6</td>
-            <td>
-              <div class="action-buttons">
-                <button class="icon-btn edit-btn" title="Editar Expediente">✏️</button>
-                <button class="icon-btn delete-btn" title="Dar de Baja">🗑️</button>
-              </div>
-            </td>
-          </tr>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                No hay empleados registrados o cargando...
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
     </div>
@@ -73,55 +62,65 @@
     <!-- Sección 2: Panel Lateral de Formulario -->
     <div class="form-card glass-panel" style="align-self: start;">
       <div class="form-header">
-        <h2>Ficha de Empleado</h2>
-        <button class="close-btn">✕</button>
+        <h2>{{ isEditing() ? 'Editar Expediente' : 'Ficha de Empleado' }}</h2>
+        <button class="close-btn" (click)="resetForm()">✕</button>
       </div>
       
-      <form class="modern-form">
+      <form class="modern-form" (ngSubmit)="saveEmpleado()">
         <div class="form-group twocol">
           <div class="col">
             <label>Código <span style="color:#ef4444">*</span></label>
-            <input type="text" value="EMP-2026101" class="form-control" required maxlength="20" name="codigo_empleado">
+            <input type="text" class="form-control" required maxlength="20" name="codigo_empleado" [(ngModel)]="currentEmpleado().codigo_empleado">
           </div>
           <div class="col">
             <label>DNI / Cédula <span style="color:#ef4444">*</span></label>
-            <input type="text" value="2-0123-0456" class="form-control" required maxlength="20" name="dni">
+            <input type="text" class="form-control" required maxlength="20" name="dni" [(ngModel)]="currentEmpleado().dni">
           </div>
         </div>
 
         <div class="form-group twocol">
           <div class="col">
             <label>Nombres <span style="color:#ef4444">*</span></label>
-            <input type="text" value="Mario" class="form-control" required maxlength="100" name="nombre">
+            <input type="text" class="form-control" required maxlength="100" name="nombre" [(ngModel)]="currentEmpleado().nombre">
           </div>
           <div class="col">
             <label>Apellidos <span style="color:#ef4444">*</span></label>
-            <input type="text" value="Chaves" class="form-control" required maxlength="100" name="apellido">
+            <input type="text" class="form-control" required maxlength="100" name="apellido" [(ngModel)]="currentEmpleado().apellido">
           </div>
         </div>
 
         <div class="form-group twocol">
             <div class="col">
                 <label>F. Ingreso <span style="color:#ef4444">*</span></label>
-                <input type="date" value="2026-02-06" class="form-control date-input" required name="fecha_ingreso">
+                <input type="date" class="form-control date-input" required name="fecha_ingreso" [(ngModel)]="currentEmpleado().fecha_ingreso">
             </div>
             <div class="col">
                 <label>Salario Neto <span style="color:#ef4444">*</span></label>
                 <div class="input-with-icon">
                   <span class="currency-symbol">₡</span>
-                  <input type="number" value="750000.00" class="form-control with-icon" required step="0.01" name="salario_base">
+                  <input type="number" class="form-control with-icon" required step="0.01" name="salario_base" [(ngModel)]="currentEmpleado().salario_base">
                 </div>
             </div>
         </div>
 
-        <div class="form-group">
-          <label>Asignación de Puesto (ID) <span style="color:var(--text-muted); font-size:0.75rem;">(Opcional)</span></label>
-          <input type="number" value="2" class="form-control" name="puesto_id" placeholder="Ej: 2">
+        <div class="form-group twocol">
+          <div class="col">
+            <label>Puesto (ID) <span style="color:var(--text-muted); font-size:0.75rem;">(Opc.)</span></label>
+            <input type="number" class="form-control" name="puesto_id" placeholder="Ej: 2" [(ngModel)]="currentEmpleado().puesto_id">
+          </div>
+          <div class="col">
+            <label>Horario (ID) <span style="color:var(--text-muted); font-size:0.75rem;">(Opc.)</span></label>
+            <input type="number" class="form-control" name="horario_id" placeholder="Ej: 1" [(ngModel)]="currentEmpleado().horario_id">
+          </div>
         </div>
 
         <div class="form-actions fixed-actions" style="margin-top: 2rem;">
-          <button type="button" class="btn-secondary">Cancelar</button>
-          <button type="button" class="btn-primary">Guardar Expediente</button>
+          <button type="button" class="btn-secondary" (click)="resetForm()">
+            {{ isEditing() ? 'Cancelar' : 'Limpiar' }}
+          </button>
+          <button type="submit" class="btn-primary" [disabled]="!currentEmpleado().codigo_empleado || !currentEmpleado().nombre || !currentEmpleado().dni">
+            {{ isEditing() ? 'Actualizar' : 'Guardar Expediente' }}
+          </button>
         </div>
       </form>
     </div>

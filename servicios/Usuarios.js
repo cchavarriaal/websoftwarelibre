@@ -20,9 +20,10 @@ class Usuarios {
         // Crea el empleado automáticamente si no provee el empleado_id
         if (!empleadoId) {
             const fechaIngreso = new Date().toISOString().slice(0, 10);
+            const ts = Date.now().toString();
             const resEmpleado = await ejecutarConsulta(
                 "INSERT INTO `planillasweb`.`empleados` (codigo_empleado, nombre, apellido, dni, fecha_ingreso, salario_base, puesto_id) VALUES (?,?,?,?,?,?,?)",
-                [`USR-${Date.now()}`, d.username, 'Autogenerado', '000000000', fechaIngreso, 0, null]
+                [`USR-${ts}`, d.username, 'Autogenerado', `TMP-${ts.slice(-9)}`, fechaIngreso, 0, null]
             );
             
             if (resEmpleado && resEmpleado.insertId) {
