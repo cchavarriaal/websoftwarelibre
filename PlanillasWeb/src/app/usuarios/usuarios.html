@@ -1,26 +1,38 @@
 <div class="crud-container">
   <div class="page-header">
     <h1 class="page-title">Administración de Usuarios</h1>
-    <button class="btn-primary" (click)="resetForm()">
-      <span class="icon">+</span> Nuevo Usuario
-    </button>
+    @if (showForm()) {
+      <button class="btn-secondary" (click)="resetForm()">
+        <span class="icon">⬅</span> Volver
+      </button>
+    }
   </div>
 
-  <div class="crud-layout">
+  <div class="crud-layout wide-layout">
+    @if (!showForm()) {
     <!-- Sección 1: Tabla de Registros -->
-    <div class="table-card glass-panel">
+    <div class="table-card glass-panel" style="width: 100%">
+      <div class="search-filter-bar">
+        <button class="btn-primary" (click)="createNew()">
+          <span class="icon">+</span> Nuevo Usuario
+        </button>
+        <div class="input-with-icon search-input">
+          <span class="currency-symbol">🔍</span>
+          <input type="text" class="form-control with-icon" placeholder="Buscar usuario por nombre, rol, empleado..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+        </div>
+      </div>
       <table class="modern-table">
         <thead>
           <tr>
             <th>Usuario</th>
             <th>Rol</th>
-            <th>ID Empleado</th>
+            <th>Empleado Asignado</th>
             <th>Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          @for (usuario of usuarios(); track usuario.id) {
+          @for (usuario of filteredUsuarios(); track usuario.id) {
             <tr>
               <td>
                 <div class="user-info">
@@ -34,7 +46,7 @@
                 </div>
               </td>
               <td><span class="badge" [class.badge-admin]="usuario.rol === 'Administrador'" [class.badge-empleado]="usuario.rol !== 'Administrador'">{{ usuario.rol }}</span></td>
-              <td>{{ usuario.empleado_id || 'N/A' }}</td>
+              <td>{{ usuario.empleado_nombre || 'Sin Empleado (ID: ' + (usuario.empleado_id || 'N/A') + ')' }}</td>
               <td>
                 @if (usuario.estado === 1) {
                   <span class="status-indicator active">Activo</span>
@@ -59,9 +71,9 @@
         </tbody>
       </table>
     </div>
-
+    } @else {
     <!-- Sección 2: Panel Lateral de Formulario -->
-    <div class="form-card glass-panel">
+    <div class="form-card glass-panel" style="width: 100%">
       <div class="form-header">
         <h2>{{ isEditing() ? 'Editar Usuario' : 'Detalle del Usuario' }}</h2>
         <button class="close-btn" (click)="resetForm()">✕</button>
@@ -70,7 +82,7 @@
       <form class="modern-form" (ngSubmit)="saveUsuario()">
         <div class="form-group">
           <label>Nombre de Usuario <span style="color:#ef4444">*</span></label>
-          <input type="text" placeholder="Ej. jperez" class="form-control" required maxlength="100" name="username" [(ngModel)]="currentUsuario().username">
+          <input type="text" placeholder="Ej. jperez" class="form-control" required maxlength="100" name="username" [(ngModel)]="currentUsuario().username" [readonly]="isEditing()">
         </div>
 
         <div class="form-group">
@@ -93,8 +105,13 @@
         </div>
 
         <div class="form-group">
-          <label>ID Empleado Vinculado <span style="color:var(--text-muted); font-weight:normal; font-size:0.75rem;">(Opcional)</span></label>
-          <input type="number" class="form-control" placeholder="ID en base de datos" name="empleado_id" [(ngModel)]="currentUsuario().empleado_id">
+          <label>Empleado Vinculado <span style="color:var(--text-muted); font-weight:normal; font-size:0.75rem;">(Opcional)</span></label>
+          <select class="form-control" name="empleado_id" [(ngModel)]="currentUsuario().empleado_id">
+            <option [ngValue]="undefined">-- Seleccionar empleado --</option>
+            @for (emp of empleados(); track emp.id) {
+              <option [ngValue]="emp.id">{{ emp.nombre }} {{ emp.apellido }} ({{ emp.dni }})</option>
+            }
+          </select>
         </div>
 
         <div class="form-group twocol">
@@ -131,5 +148,6 @@
         </div>
       </form>
     </div>
+    }
   </div>
 </div>

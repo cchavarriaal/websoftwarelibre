@@ -1,14 +1,33 @@
 <div class="crud-container">
   <div class="page-header">
     <h1 class="page-title">Gestión de Puestos</h1>
-    <button class="btn-primary">
-      <span class="icon">+</span> Nuevo Puesto
-    </button>
+    @if (showForm()) {
+      <button class="btn-secondary" (click)="resetForm()">
+        <span class="icon">⬅</span> Volver
+      </button>
+    }
   </div>
 
   <div class="crud-layout">
+    @if (!showForm()) {
     <!-- Sección 1: Tabla de Registros -->
-    <div class="table-card glass-panel">
+    <div class="table-card glass-panel" style="width: 100%">
+      <div class="search-filter-bar">
+        <button class="btn-primary" (click)="createNew()">
+          <span class="icon">+</span> Nuevo Puesto
+        </button>
+        <div class="input-with-icon search-input" style="flex: 1; display: flex; gap: 0.5rem;">
+          <div style="position: relative; flex: 1;">
+            <span class="currency-symbol">🔍</span>
+            <input type="text" class="form-control with-icon" placeholder="Buscar puesto por nombre, depto, ID..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+          </div>
+          @if (searchTerm()) {
+            <button class="btn-secondary" (click)="clearStorage()" style="white-space: nowrap;">
+              ✕ Limpiar Filtro
+            </button>
+          }
+        </div>
+      </div>
       <table class="modern-table">
         <thead>
           <tr>
@@ -19,86 +38,72 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Fila estática 1 -->
+          @for (item of filteredItems(); track item.id) {
           <tr>
             <td>
               <div class="user-info">
                 <div class="avatar" style="--bg: #3b82f6;">💼</div>
                 <div class="details">
-                  <span class="username">Analista Junior</span>
-                  <span class="sub-text">Cód: 16</span>
+                  <span class="username">{{ item.nombre }}</span>
+                  <span class="sub-text">Cód: {{ item.id }}</span>
                 </div>
               </div>
             </td>
-            <td><span class="badge badge-money">₡ 1,250,000.00</span></td>
-            <td><span class="badge badge-depto">Recursos Humanos (ID: 1)</span></td>
+            <td><span class="badge badge-money">{{ item.salario_base_sugerido | currency:'CRC':'symbol-narrow':'1.2-2' }}</span></td>
+            <td><span class="badge badge-depto">Depto: {{ item.departamento_nombre || 'N/A' }}</span></td>
             <td>
               <div class="action-buttons">
-                <button class="icon-btn edit-btn" title="Editar Puesto">✏️</button>
-                <button class="icon-btn delete-btn" title="Eliminar Puesto">🗑️</button>
+                <button class="icon-btn edit-btn" title="Editar Puesto" (click)="editItem(item)">✏️</button>
+                <button class="icon-btn delete-btn" title="Eliminar Puesto" (click)="deleteItem(item.id!)">🗑️</button>
               </div>
             </td>
           </tr>
-          <!-- Fila estática 2 -->
-          <tr>
-            <td>
-              <div class="user-info">
-                <div class="avatar" style="--bg: #8b5cf6;">🚀</div>
-                <div class="details">
-                  <span class="username">Desarrollador Senior</span>
-                  <span class="sub-text">Cód: 25</span>
-                </div>
-              </div>
-            </td>
-            <td><span class="badge badge-money">₡ 2,500,000.00</span></td>
-            <td><span class="badge badge-depto">Tecnología e Info (ID: 2)</span></td>
-            <td>
-              <div class="action-buttons">
-                <button class="icon-btn edit-btn" title="Editar Puesto">✏️</button>
-                <button class="icon-btn delete-btn" title="Eliminar Puesto">🗑️</button>
-              </div>
-            </td>
-          </tr>
+          } @empty {
+            <tr><td colspan="4" style="text-align: center; padding: 2rem;">No hay puestos registrados.</td></tr>
+          }
         </tbody>
       </table>
     </div>
-
+    } @else {
     <!-- Sección 2: Panel Lateral de Formulario -->
-    <div class="form-card glass-panel">
+    <div class="form-card glass-panel" style="width: 100%">
       <div class="form-header">
-        <h2>Detalles del Puesto</h2>
-        <button class="close-btn">✕</button>
+        <h2>{{ isEditing() ? 'Editar Puesto' : 'Detalles del Puesto' }}</h2>
+        <button class="close-btn" (click)="resetForm()">✕</button>
       </div>
       
-      <form class="modern-form">
+      <form class="modern-form" (ngSubmit)="saveItem()">
         <div class="form-group">
           <label>Nombre del Puesto <span style="color:#ef4444">*</span></label>
-          <input type="text" placeholder="Ej. Arquitecto de Software" value="Analista Junior" class="form-control" required maxlength="100" name="nombre">
+          <input type="text" placeholder="Ej. Arquitecto de Software" class="form-control" required maxlength="100" name="nombre" [(ngModel)]="currentItem().nombre">
         </div>
 
         <div class="form-group">
           <label>Salario Base Sugerido (Colones) <span style="color:var(--text-muted); font-weight:normal; font-size:0.75rem;">(Opcional)</span></label>
           <div class="input-with-icon">
             <span class="currency-symbol">₡</span>
-            <input type="number" value="1250000" class="form-control with-icon" placeholder="0.00" name="salario_base_sugerido">
+            <input type="number" class="form-control with-icon" placeholder="0.00" name="salario_base_sugerido" [(ngModel)]="currentItem().salario_base_sugerido">
           </div>
         </div>
 
         <div class="form-group">
           <label>Departamento Principal <span style="color:var(--text-muted); font-weight:normal; font-size:0.75rem;">(Opcional)</span></label>
-          <select class="form-control" name="departamento_id">
-            <option value="">-- Sin Asignar --</option>
-            <option value="1" selected>Recursos Humanos (ID: 1)</option>
-            <option value="2">Tecnología e Info (ID: 2)</option>
-            <option value="3">Finanzas y Contabilidad (ID: 3)</option>
+          <select class="form-control" name="departamento_id" [(ngModel)]="currentItem().departamento_id">
+            <option [ngValue]="undefined">-- Sin Asignar --</option>
+            @for (d of departamentos(); track d.id) {
+              <option [ngValue]="d.id">{{ d.nombre }}</option>
+            }
           </select>
         </div>
 
         <div class="form-actions fixed-actions">
-          <button type="button" class="btn-secondary">Cancelar</button>
-          <button type="button" class="btn-primary">Guardar Puesto</button>
+          <button type="button" class="btn-secondary" (click)="resetForm()">Cancelar</button>
+          <button type="submit" class="btn-primary" [disabled]="!currentItem().nombre">
+            {{ isEditing() ? 'Actualizar' : 'Guardar' }}
+          </button>
         </div>
       </form>
     </div>
+    }
   </div>
 </div>

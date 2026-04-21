@@ -1,14 +1,26 @@
 <div class="crud-container">
   <div class="page-header">
     <h1 class="page-title">Periodos de Planilla</h1>
-    <button class="btn-primary">
-      <span class="icon">+</span> Abrir Nuevo Periodo
-    </button>
+    @if (showForm()) {
+      <button class="btn-secondary" (click)="resetForm()">
+        <span class="icon">⬅</span> Volver
+      </button>
+    }
   </div>
 
   <div class="crud-layout wide-layout">
+    @if (!showForm()) {
     <!-- Tabla -->
-    <div class="table-card glass-panel" style="overflow-x: auto;">
+    <div class="table-card glass-panel" style="overflow-x: auto; width: 100%">
+      <div class="search-filter-bar">
+        <button class="btn-primary" (click)="createNew()">
+          <span class="icon">+</span> Abrir Nuevo Periodo
+        </button>
+        <div class="input-with-icon search-input">
+          <span class="currency-symbol">🔍</span>
+          <input type="text" class="form-control with-icon" placeholder="Buscar periodo por nombre, estado..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+        </div>
+      </div>
       <table class="modern-table">
         <thead>
           <tr>
@@ -20,88 +32,80 @@
           </tr>
         </thead>
         <tbody>
+          @for (item of filteredItems(); track item.id) {
           <tr>
             <td>
               <div class="user-info">
-                <div class="avatar" style="--bg: #3b82f6;">📅</div>
+                <div class="avatar" [ngStyle]="{'--bg': item.estado === 'Abierto' ? '#3b82f6' : (item.estado === 'Procesado' ? '#eab308' : '#64748b')}">📅</div>
                 <div class="details">
-                  <span class="username">Febrero 2026</span>
-                  <span class="sub-text">Quincenal 2</span>
+                  <span class="username">{{ item.nombre_periodo }}</span>
+                  <span class="sub-text">ID: {{ item.id }}</span>
                 </div>
               </div>
             </td>
-            <td>01-Feb-2026</td>
-            <td>28-Feb-2026</td>
-            <td><span class="badge badge-success">Abierto</span></td>
+            <td>{{ item.fecha_inicio | date:'dd-MMM-yyyy' }}</td>
+            <td>{{ item.fecha_fin | date:'dd-MMM-yyyy' }}</td>
+            <td>
+              <span class="badge" [ngClass]="item.estado === 'Abierto' ? 'badge-success' : (item.estado === 'Cerrado' ? 'badge-closed' : 'badge-default')">
+                {{ item.estado }}
+              </span>
+            </td>
             <td>
               <div class="action-buttons">
-                <button class="icon-btn edit-btn" title="Editar">✏️</button>
-                <button class="icon-btn delete-btn" title="Eliminar">🗑️</button>
+                <button class="icon-btn view-btn" title="Ver Movimientos" (click)="viewMovimientos(item)">📋</button>
+                <button class="icon-btn edit-btn" title="Editar" (click)="editItem(item)">✏️</button>
+                <button class="icon-btn delete-btn" title="Eliminar" (click)="deleteItem(item.id!)">🗑️</button>
               </div>
             </td>
           </tr>
-          <tr>
-            <td>
-              <div class="user-info">
-                <div class="avatar" style="--bg: #64748b;">📅</div>
-                <div class="details">
-                  <span class="username">Enero 2026</span>
-                  <span class="sub-text">Cierre Mensual</span>
-                </div>
-              </div>
-            </td>
-            <td>01-Ene-2026</td>
-            <td>31-Ene-2026</td>
-            <td><span class="badge badge-closed">Cerrado</span></td>
-            <td>
-              <div class="action-buttons">
-                <button class="icon-btn edit-btn" title="Editar">✏️</button>
-                <button class="icon-btn delete-btn" title="Eliminar">🗑️</button>
-              </div>
-            </td>
-          </tr>
+          } @empty {
+            <tr><td colspan="5" style="text-align: center; padding: 2rem;">No hay periodos registrados.</td></tr>
+          }
         </tbody>
       </table>
     </div>
-
+    } @else {
     <!-- Formulario -->
-    <div class="form-card glass-panel" style="align-self: start;">
+    <div class="form-card glass-panel" style="align-self: start; width: 100%">
       <div class="form-header">
-        <h2>Gestión de Periodos</h2>
-        <button class="close-btn">✕</button>
+        <h2>{{ isEditing() ? 'Editar Periodo' : 'Gestión de Periodos' }}</h2>
+        <button class="close-btn" (click)="resetForm()">✕</button>
       </div>
       
-      <form class="modern-form">
+      <form class="modern-form" (ngSubmit)="saveItem()">
         <div class="form-group">
           <label>Nombre del Periodo <span style="color:#ef4444">*</span></label>
-          <input type="text" value="Febrero 2026" class="form-control" required maxlength="100" name="nombre_periodo">
+          <input type="text" class="form-control" required maxlength="100" name="nombre_periodo" [(ngModel)]="currentItem().nombre_periodo">
         </div>
 
         <div class="form-group twocol">
           <div class="col">
             <label>Fecha de Inicio <span style="color:#ef4444">*</span></label>
-            <input type="date" value="2026-02-01" class="form-control date-input" required name="fecha_inicio">
+            <input type="date" class="form-control date-input" required name="fecha_inicio" [(ngModel)]="currentItem().fecha_inicio">
           </div>
           <div class="col">
             <label>Fecha de Cierre <span style="color:#ef4444">*</span></label>
-            <input type="date" value="2026-02-28" class="form-control date-input" required name="fecha_fin">
+            <input type="date" class="form-control date-input" required name="fecha_fin" [(ngModel)]="currentItem().fecha_fin">
           </div>
         </div>
 
         <div class="form-group">
           <label>Estado Organizativo <span style="color:var(--text-muted); font-size:0.75rem;">(Opcional)</span></label>
-          <select class="form-control" name="estado">
-            <option value="Abierto" selected>🟢 Abierto (Activo)</option>
+          <select class="form-control" name="estado" [(ngModel)]="currentItem().estado">
+            <option value="Abierto">🟢 Abierto (Activo)</option>
             <option value="Procesado">🟡 Procesado (Auditoría)</option>
             <option value="Cerrado">🔴 Cerrado (Historial)</option>
           </select>
         </div>
 
         <div class="form-actions fixed-actions" style="margin-top: 2rem;">
-          <button type="button" class="btn-secondary">Cancelar</button>
-          <button type="button" class="btn-primary">Guardar Periodo</button>
+          <button type="button" class="btn-secondary" (click)="resetForm()">Cancelar</button>
+          <button type="submit" class="btn-primary" [disabled]="!currentItem().nombre_periodo || !currentItem().fecha_inicio || !currentItem().fecha_fin">
+            {{ isEditing() ? 'Actualizar' : 'Guardar' }}
+          </button>
         </div>
       </form>
     </div>
+    }
   </div>
 </div>

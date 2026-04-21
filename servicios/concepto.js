@@ -28,6 +28,10 @@ class Conceptos {
     return result;
   }
 
+  async conceptosbuscarPorNombre(nombre) {
+    return await ejecutarConsulta("SELECT * FROM `planillasweb`.`conceptos` WHERE nombre LIKE ?", [`%${nombre}%`]);
+  }
+
     };
 
 

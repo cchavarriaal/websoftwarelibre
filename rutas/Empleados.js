@@ -16,5 +16,8 @@ Router.put('/empleadosactualizar/:id', async (solicitud, respuesta, next) => {
 Router.delete('/empleadoseliminar/:id', async (solicitud, respuesta, next) => {
   return respuesta.json(await Empleados.empleadoseliminar(solicitud.params.id));
 });
+Router.get('/siguientecodigo', async (solicitud, respuesta, next) => {
+  return respuesta.json(await Empleados.siguientecodigo());
+});
 
 module.exports = Router;

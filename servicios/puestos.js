@@ -4,14 +4,19 @@ class Puestos {
     constructor() { }
 
     async puestoslistar() {
-        return await ejecutarConsulta("SELECT * FROM `planillasweb`.`puestos` ORDER BY nombre ASC");
+        return await ejecutarConsulta(`
+            SELECT p.*, d.nombre AS departamento_nombre 
+            FROM planillasweb.puestos p 
+            LEFT JOIN planillasweb.departamentos d ON p.departamento_id = d.id 
+            ORDER BY p.nombre ASC
+        `);
     }
     async puestoscrear(d) {
         const result = await ejecutarConsulta(
             "INSERT INTO `planillasweb`.`puestos` (nombre, salario_base_sugerido, departamento_id) VALUES (?,?,?)",
             [d.nombre, d.salario_base_sugerido, d.departamento_id]
         );
-        if (result && result.insertId) { await ejecutarConsulta("INSERT INTO `planillasweb`.`auditoria` (usuario_id, tabla_afectada, registro_id, accion, valor_anterior, valor_nuevo) VALUES (?,?,?,?,?,?)", [d.usuario_accion_id || null, 'puestos', result.insertId, 'INSERT', null, JSON.stringify(d)]); }
+        if (result && result.insertId) { await ejecutarConsulta("INSERT INTO `planillasweb`.`auditoria` (usuario_id, tabla_afectada, registro_id, accion, valor_anterior, valor_nuevo) VALUES (?,?,?,?,?,?)", [d.usuario_accion_id || null, 'puestos', result.insertId, 'INSERT', null, JSON.stringify(d.departamento_id)]); }
         return result;
     }
     async puestosactualizar(id, d) {

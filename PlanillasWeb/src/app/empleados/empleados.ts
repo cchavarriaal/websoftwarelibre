@@ -1,7 +1,9 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { NotificationService } from '../services/notification.service';
+import { Router } from '@angular/router';
 
 interface Empleado {
   id?: number;
@@ -12,7 +14,11 @@ interface Empleado {
   fecha_ingreso: string;
   salario_base: number;
   puesto_id?: number;
+  puesto_nombre?: string;
   horario_id?: number;
+  horario_nombre?: string;
+  cuenta_iban?: string;
+  banco?: string;
 }
 
 @Component({
@@ -24,64 +30,96 @@ interface Empleado {
 export class Empleados implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = 'http://localhost/empleados/';
+  private readonly router = inject(Router);
 
   protected readonly empleados = signal<Empleado[]>([]);
+  protected readonly searchTerm = signal('');
+  protected readonly filteredEmpleados = computed(() => {
+    const term = this.searchTerm().toLowerCase();
+    if (!term) return this.empleados();
+    return this.empleados().filter(e => 
+      (e.nombre?.toLowerCase() || '').includes(term) ||
+      (e.apellido?.toLowerCase() || '').includes(term) ||
+      (e.dni?.toLowerCase() || '').includes(term) ||
+      (e.codigo_empleado?.toLowerCase() || '').includes(term) ||
+      (e.puesto_nombre?.toLowerCase() || '').includes(term)
+    );
+  });
+  protected readonly puestos = signal<any[]>([]);
+  protected readonly horarios = signal<any[]>([]);
   protected readonly currentEmpleado = signal<Empleado>(this.getEmptyEmpleado());
   protected readonly isEditing = signal(false);
+  protected readonly showForm = signal(false);
+  private readonly notify = inject(NotificationService);
 
   ngOnInit() {
     this.loadEmpleados();
+    this.loadPuestos();
+    this.loadHorarios();
+  }
+
+  protected loadPuestos() {
+    this.http.get<any[]>('http://localhost/puestos/puestoslistar').subscribe({
+      next: (data: any) => this.puestos.set(Array.isArray(data) ? data : [])
+    });
+  }
+
+  protected loadHorarios() {
+    this.http.get<any[]>('http://localhost/horarios/horarioslistar').subscribe({
+      next: (data: any) => this.horarios.set(Array.isArray(data) ? data : [])
+    });
   }
 
   private getEmptyEmpleado(): Empleado {
     const today = new Date().toISOString().split('T')[0];
     return {
-      codigo_empleado: `EMP-${new Date().getFullYear()}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+      codigo_empleado: '',
       nombre: '',
       apellido: '',
       dni: '',
       fecha_ingreso: today,
       salario_base: 0,
       puesto_id: undefined,
-      horario_id: undefined
+      horario_id: undefined,
+      cuenta_iban: '',
+      banco: ''
     };
   }
 
   protected loadEmpleados() {
     this.http.get<Empleado[]>(this.apiUrl + 'empleadoslistar').subscribe({
       next: (data: any) => {
-        if (data && data.error) { alert('Error BD: ' + data.error); }
+        if (data && data.error) { this.notify.error('Error', data.error); }
         this.empleados.set(Array.isArray(data) ? data : []);
       },
-      error: (err) => alert('Error cargando empleados: ' + err.message),
+      error: (err) => this.notify.error('Error', 'Falla de API: ' + err.message),
     });
   }
 
   protected saveEmpleado() {
     const empleado = this.currentEmpleado();
-    // Normalize empty strings
     if (empleado.puesto_id === '' as any) empleado.puesto_id = undefined;
     if (empleado.horario_id === '' as any) empleado.horario_id = undefined;
 
     if (this.isEditing() && empleado.id) {
       this.http.put(`${this.apiUrl}empleadosactualizar/${empleado.id}`, empleado).subscribe({
         next: (res: any) => {
-          if (res && res.error) { alert('Error servidor: ' + res.error); return; }
+          if (res && res.error) { this.notify.error('Error', res.error); return; }
           this.loadEmpleados();
           this.resetForm();
-          alert('Actualizado correctamente');
+          this.notify.success('Éxito', 'Empleado actualizado correctamente');
         },
-        error: (err) => alert('Error de red/HTTP: ' + err.message),
+        error: (err) => this.notify.error('Error', err.message),
       });
     } else {
       this.http.post(this.apiUrl + 'empleadoscrear', empleado).subscribe({
         next: (res: any) => {
-          if (res && res.error) { alert('Error servidor: ' + res.error); return; }
+          if (res && res.error) { this.notify.error('Error', res.error); return; }
           this.loadEmpleados();
           this.resetForm();
-          alert('Creado correctamente');
+          this.notify.success('Éxito', 'Empleado creado correctamente');
         },
-        error: (err) => alert('Error de red/HTTP: ' + err.message),
+        error: (err) => this.notify.error('Error', err.message),
       });
     }
   }
@@ -94,13 +132,25 @@ export class Empleados implements OnInit {
     }
     this.currentEmpleado.set({ ...empleado, fecha_ingreso: fi });
     this.isEditing.set(true);
+    this.showForm.set(true);
   }
 
-  protected deleteEmpleado(id: number) {
-    if (confirm('¿Estás seguro de dar de baja este empleado?')) {
+  // ✏️ ESCRIBE en localStorage y navega a la página de detalle
+  protected viewInAnotherPage(empleado: Empleado) {
+    // Guardamos el objeto completo como JSON para poder leer todos sus campos
+    localStorage.setItem('selectedEmpleado', JSON.stringify(empleado));
+    this.router.navigate(['/detalle-empleado']);
+  }
+
+  protected async deleteEmpleado(id: number) {
+    const confirmed = await this.notify.confirm('¿Eliminar Empleado?', 'Se dará de baja al empleado de forma permanente.');
+    if (confirmed) {
       this.http.delete(`${this.apiUrl}empleadoseliminar/${id}`).subscribe({
-        next: () => this.loadEmpleados(),
-        error: (err) => console.error('Error deleting empleado', err),
+        next: () => {
+          this.loadEmpleados();
+          this.notify.success('Eliminado', 'Empleado dado de baja.');
+        },
+        error: (err) => this.notify.error('Error', err.message),
       });
     }
   }
@@ -108,5 +158,12 @@ export class Empleados implements OnInit {
   protected resetForm() {
     this.currentEmpleado.set(this.getEmptyEmpleado());
     this.isEditing.set(false);
+    this.showForm.set(false);
+  }
+
+  protected createNew() {
+    this.resetForm();
+    this.currentEmpleado.update(e => ({ ...e, codigo_empleado: 'Auto-generado por DB' }));
+    this.showForm.set(true);
   }
 }

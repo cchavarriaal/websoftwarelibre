@@ -1,14 +1,26 @@
 <div class="crud-container">
   <div class="page-header">
     <h1 class="page-title">Conceptos Salariales</h1>
-    <button class="btn-primary">
-      <span class="icon">+</span> Nuevo Concepto
-    </button>
+    @if (showForm()) {
+      <button class="btn-secondary" (click)="resetForm()">
+        <span class="icon">⬅</span> Volver
+      </button>
+    }
   </div>
 
   <div class="crud-layout">
+    @if (!showForm()) {
     <!-- Sección 1: Tabla de Registros -->
-    <div class="table-card glass-panel">
+    <div class="table-card glass-panel" style="width: 100%">
+      <div class="search-filter-bar">
+        <button class="btn-primary" (click)="createNew()">
+          <span class="icon">+</span> Nuevo Concepto
+        </button>
+        <div class="input-with-icon search-input">
+          <span class="currency-symbol">🔍</span>
+          <input type="text" class="form-control with-icon" placeholder="Buscar concepto por nombre, tipo o ID..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+        </div>
+      </div>
       <table class="modern-table">
         <thead>
           <tr>
@@ -19,87 +31,56 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Fila estática 1 -->
+          @for (item of filteredItems(); track item.id) {
           <tr>
             <td>
               <div class="user-info">
-                <div class="avatar" style="--bg: #10b981;">💰</div>
+                <div class="avatar" [ngStyle]="{'--bg': item.tipo === 'Ingreso' ? '#10b981' : '#ef4444'}">
+                  {{ item.tipo === 'Ingreso' ? '💰' : '📉' }}
+                </div>
                 <div class="details">
-                  <span class="username">Bono Nocturno Especial</span>
-                  <span class="sub-text">Cód: 21</span>
+                  <span class="username">{{ item.nombre }}</span>
+                  <span class="sub-text">Cód: {{ item.id }}</span>
                 </div>
               </div>
             </td>
-            <td><span class="badge badge-ingreso">Ingreso</span></td>
-            <td><span class="status-indicator active">Sí, Obligatorio</span></td>
+            <td><span class="badge" [ngClass]="item.tipo === 'Ingreso' ? 'badge-ingreso' : 'badge-deduccion'">{{ item.tipo }}</span></td>
+            <td>
+              <span class="status-indicator" [ngClass]="item.es_ley ? 'active' : 'inactive'">
+                {{ item.es_ley ? 'Sí, Obligatorio' : 'No, Voluntario' }}
+              </span>
+            </td>
             <td>
               <div class="action-buttons">
-                <button class="icon-btn edit-btn" title="Editar Concepto">✏️</button>
-                <button class="icon-btn delete-btn" title="Eliminar Concepto">🗑️</button>
+                <button class="icon-btn edit-btn" title="Editar Concepto" (click)="editItem(item)">✏️</button>
+                <button class="icon-btn delete-btn" title="Eliminar Concepto" (click)="deleteItem(item.id!)">🗑️</button>
               </div>
             </td>
           </tr>
-          <!-- Fila estática 2 -->
-          <tr>
-            <td>
-              <div class="user-info">
-                <div class="avatar" style="--bg: #ef4444;">📉</div>
-                <div class="details">
-                  <span class="username">CCSS - Enfermedad y Maternidad</span>
-                  <span class="sub-text">Cód: 22</span>
-                </div>
-              </div>
-            </td>
-            <td><span class="badge badge-deduccion">Deducción</span></td>
-            <td><span class="status-indicator active">Sí, Obligatorio</span></td>
-            <td>
-              <div class="action-buttons">
-                <button class="icon-btn edit-btn" title="Editar Concepto">✏️</button>
-                <button class="icon-btn delete-btn" title="Eliminar Concepto">🗑️</button>
-              </div>
-            </td>
-          </tr>
-          <!-- Fila estática 3 -->
-          <tr>
-            <td>
-              <div class="user-info">
-                <div class="avatar" style="--bg: #8b5cf6;">💵</div>
-                <div class="details">
-                  <span class="username">Ahorro Voluntario Asociación</span>
-                  <span class="sub-text">Cód: 23</span>
-                </div>
-              </div>
-            </td>
-            <td><span class="badge badge-deduccion">Deducción</span></td>
-            <td><span class="status-indicator inactive">No, Voluntario</span></td>
-            <td>
-              <div class="action-buttons">
-                <button class="icon-btn edit-btn" title="Editar Concepto">✏️</button>
-                <button class="icon-btn delete-btn" title="Eliminar Concepto">🗑️</button>
-              </div>
-            </td>
-          </tr>
+          } @empty {
+            <tr><td colspan="4" style="text-align: center; padding: 2rem;">No hay conceptos registrados.</td></tr>
+          }
         </tbody>
       </table>
     </div>
-
+    } @else {
     <!-- Sección 2: Panel Lateral de Formulario -->
-    <div class="form-card glass-panel">
+    <div class="form-card glass-panel" style="width: 100%">
       <div class="form-header">
-        <h2>Detalles del Concepto</h2>
-        <button class="close-btn">✕</button>
+        <h2>{{ isEditing() ? 'Editar Concepto' : 'Nuevo Concepto' }}</h2>
+        <button class="close-btn" (click)="resetForm()">✕</button>
       </div>
       
-      <form class="modern-form">
+      <form class="modern-form" (ngSubmit)="saveItem()">
         <div class="form-group">
           <label>Nombre del Concepto <span style="color:#ef4444">*</span></label>
-          <input type="text" placeholder="Ej. Aguinaldo, Horas Extras, CCSS..." value="Bono Nocturno Especial" class="form-control" required maxlength="100" name="nombre">
+          <input type="text" placeholder="Ej. Aguinaldo, Horas Extras, CCSS..." class="form-control" required maxlength="100" name="nombre" [(ngModel)]="currentItem().nombre">
         </div>
 
         <div class="form-group">
           <label>Tipo de Concepto <span style="color:#ef4444">*</span></label>
-          <select class="form-control" required name="tipo">
-            <option value="Ingreso" selected>📈 Ingreso (Aumenta salario)</option>
+          <select class="form-control" required name="tipo" [(ngModel)]="currentItem().tipo">
+            <option value="Ingreso">📈 Ingreso (Aumenta salario)</option>
             <option value="Deduccion">📉 Deducción (Reduce salario)</option>
           </select>
         </div>
@@ -108,19 +89,24 @@
           <label class="state-label">¿Es obligatorio por Ley?</label>
           <div class="toggle-container">
             <label class="switch">
-              <input type="checkbox" checked>
+              <input type="checkbox" name="es_ley" [ngModel]="currentItem().es_ley === 1" (ngModelChange)="currentItem().es_ley = $event ? 1 : 0">
               <span class="slider round"></span>
             </label>
-            <span class="toggle-text active">Requerido por Ley</span>
+            <span class="toggle-text" [ngClass]="currentItem().es_ley ? 'active' : ''">
+              {{ currentItem().es_ley ? 'Requerido por Ley' : 'Voluntario/Interno' }}
+            </span>
           </div>
           <small style="color: rgba(255,255,255,0.4); font-size:0.75rem; display:block; margin-top:0.4rem;">Indica si este concepto es 100% legal (Cargas sociales) o si es interno.</small>
         </div>
 
         <div class="form-actions fixed-actions">
-          <button type="button" class="btn-secondary">Cancelar</button>
-          <button type="button" class="btn-primary">Guardar Concepto</button>
+          <button type="button" class="btn-secondary" (click)="resetForm()">Cancelar</button>
+          <button type="submit" class="btn-primary" [disabled]="!currentItem().nombre">
+            {{ isEditing() ? 'Actualizar' : 'Guardar' }}
+          </button>
         </div>
       </form>
     </div>
+    }
   </div>
 </div>

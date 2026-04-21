@@ -29,6 +29,10 @@ class Horarios {
     if (result && result.affectedRows > 0) { await ejecutarConsulta("INSERT INTO `planillasweb`.`auditoria` (usuario_id, tabla_afectada, registro_id, accion, valor_anterior, valor_nuevo) VALUES (?,?,?,?,?,?)", [null, 'horarios', id, 'DELETE', JSON.stringify(filas[0] || null), null]); }
     return result;
   }
+
+  async horariosbuscarPorNombre(nombre) {
+    return await ejecutarConsulta("SELECT * FROM `planillasweb`.`horarios` WHERE nombre LIKE ?", [`%${nombre}%`]);
+  }
 }
 
 module.exports = new Horarios();

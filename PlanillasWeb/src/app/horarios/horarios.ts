@@ -3,36 +3,38 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from '../services/notification.service';
-import { Router } from '@angular/router';
 
-export interface Departamento {
+export interface Horario {
   id?: number;
   nombre: string;
+  hora_entrada: string;
+  hora_salida: string;
+  dias_laborables: string;
 }
 
 @Component({
-  selector: 'app-departamentos',
+  selector: 'app-horarios',
   imports: [FormsModule, CommonModule],
-  templateUrl: './departamentos.html',
-  styleUrl: './departamentos.css',
+  templateUrl: './horarios.html',
+  styleUrl: './horarios.css',
 })
-export class Departamentos implements OnInit {
+export class Horarios implements OnInit {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost/departamentos/';
+  private readonly apiUrl = 'http://localhost/horarios/';
   private readonly notify = inject(NotificationService);
-  private readonly router = inject(Router);
 
-  protected readonly items = signal<Departamento[]>([]);
+  protected readonly items = signal<Horario[]>([]);
   protected readonly searchTerm = signal('');
   protected readonly filteredItems = computed(() => {
     const term = this.searchTerm().toLowerCase();
     if (!term) return this.items();
     return this.items().filter(item => 
       (item.nombre?.toLowerCase() || '').includes(term) ||
+      (item.dias_laborables?.toLowerCase() || '').includes(term) ||
       (item.id?.toString() || '').includes(term)
     );
   });
-  protected readonly currentItem = signal<Departamento>(this.getEmptyItem());
+  protected readonly currentItem = signal<Horario>(this.getEmptyItem());
   protected readonly isEditing = signal(false);
   protected readonly showForm = signal(false);
 
@@ -40,12 +42,12 @@ export class Departamentos implements OnInit {
     this.loadItems();
   }
 
-  private getEmptyItem(): Departamento {
-    return { nombre: '' };
+  private getEmptyItem(): Horario {
+    return { nombre: '', hora_entrada: '08:00', hora_salida: '17:00', dias_laborables: 'L-V' };
   }
 
   protected loadItems() {
-    this.http.get<Departamento[]>(this.apiUrl + 'departamentoslistar').subscribe({
+    this.http.get<Horario[]>(this.apiUrl + 'horarioslistar').subscribe({
       next: (data: any) => this.items.set(Array.isArray(data) ? data : []),
       error: (err) => this.notify.error('Error', 'Falla al cargar: ' + err.message),
     });
@@ -54,35 +56,29 @@ export class Departamentos implements OnInit {
   protected saveItem() {
     const item = this.currentItem();
     if (this.isEditing() && item.id) {
-      this.http.put(`${this.apiUrl}departamentosactualizar/${item.id}`, item).subscribe({
-        next: () => { this.loadItems(); this.resetForm(); this.notify.success('Éxito', 'Departamento actualizado'); },
+      this.http.put(`${this.apiUrl}horariosactualizar/${item.id}`, item).subscribe({
+        next: () => { this.loadItems(); this.resetForm(); this.notify.success('Éxito', 'Horario actualizado'); },
         error: (err) => this.notify.error('Error', err.message),
       });
     } else {
-      this.http.post(this.apiUrl + 'departamentoscrear', item).subscribe({
-        next: () => { this.loadItems(); this.resetForm(); this.notify.success('Éxito', 'Departamento creado'); },
+      this.http.post(this.apiUrl + 'horarioscrear', item).subscribe({
+        next: () => { this.loadItems(); this.resetForm(); this.notify.success('Éxito', 'Horario creado'); },
         error: (err) => this.notify.error('Error', err.message),
       });
     }
   }
 
-  protected editItem(item: Departamento) {
+  protected editItem(item: Horario) {
     this.currentItem.set({ ...item });
     this.isEditing.set(true);
     this.showForm.set(true);
   }
 
-  // ✏️ ESCRIBE en localStorage y navega a puestos
-  protected viewPuestos(departamento: Departamento) {
-    localStorage.setItem('selectedDepartamento', JSON.stringify(departamento));
-    this.router.navigate(['/puestos']);
-  }
-
   protected async deleteItem(id: number) {
-    if (await this.notify.confirm('¿Eliminar departamento?', 'Esta acción no se puede deshacer.')) {
-      this.http.delete(`${this.apiUrl}departamentoseliminar/${id}`).subscribe({
-        next: () => { this.loadItems(); this.notify.success('Éxito', 'Departamento eliminado'); },
-        error: (err) => this.notify.error('Error', 'No se pudo eliminar: ' + err.message),
+    if (await this.notify.confirm('¿Eliminar horario?', 'Esta acción no se puede deshacer.')) {
+      this.http.delete(`${this.apiUrl}horarioseliminar/${id}`).subscribe({
+        next: () => { this.loadItems(); this.notify.success('Éxito', 'Horario eliminado'); },
+        error: (err) => this.notify.error('Error', err.message),
       });
     }
   }

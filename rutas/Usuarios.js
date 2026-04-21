@@ -1,7 +1,7 @@
 const express = require('express');
 const Router = express.Router();
 
-const Usuarios = require('../servicios/usuarios.js');
+const Usuarios = require('../servicios/Usuarios.js');
 
 // Usuarios routes
 Router.get('/usuarioslistar', async (solicitud, respuesta, next) => {

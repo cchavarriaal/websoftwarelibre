@@ -1,10 +1,299 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;800&display=swap');
+
+:root {
+  --primary-bg: #0b1120;
+  --secondary-bg: #1e293b;
+  --panel-bg: rgba(30, 41, 59, 0.6);
+  --panel-border: rgba(255, 255, 255, 0.1);
+  --accent: #0ea5e9;
+  --accent-hover: #38bdf8;
+  --accent-glow: rgba(14, 165, 233, 0.5);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --success: #10b981;
+  --success-glow: rgba(16, 185, 129, 0.4);
+  --danger: #ef4444;
+  --warning: #f59e0b;
+}
 
 body, html {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
-  background-color: #0b1121; /* Matches var(--primary-dark) from app.html */
-  overflow-x: hidden;
+  min-height: 100vh;
+  background: radial-gradient(circle at top right, #1e293b 0%, #0b1120 70%) fixed;
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Global Typography */
+h1, h2, h3 {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+/* Layout container adjustments */
+.crud-container {
+  padding: 2rem 4rem !important;
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+/* Glass Panels with Premium 3D depth */
+.glass-panel {
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)) !important;
+  backdrop-filter: blur(24px) saturate(150%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.7), 
+              0 0 20px rgba(0, 0, 0, 0.4) inset !important;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease !important;
+}
+
+.table-card {
+  padding: 2rem !important;
+}
+
+.form-card {
+  padding: 3rem !important;
+}
+
+/* 3D Modern Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, #0284c7, #2563eb) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+  border-top: 1px solid rgba(255,255,255,0.4) !important;
+  box-shadow: 0 10px 20px var(--accent-glow), inset 0 -3px 5px rgba(0,0,0,0.3) !important;
+  border-radius: 10px !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700 !important;
+  font-family: 'Outfit', sans-serif !important;
+  transform: translateY(0);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  padding: 1rem 2rem !important;
+}
+
+.btn-primary:hover {
+  transform: translateY(-4px) scale(1.02) !important;
+  box-shadow: 0 15px 30px var(--accent-glow), inset 0 -2px 5px rgba(0,0,0,0.2) !important;
+  filter: brightness(1.15);
+}
+
+.btn-primary:active {
+  transform: translateY(1px) !important;
+  box-shadow: 0 5px 10px var(--accent-glow) !important;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-top: 1px solid rgba(255,255,255,0.2) !important;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3) !important;
+  border-radius: 10px !important;
+  color: var(--text-muted) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  padding: 1rem 2rem !important;
+  font-family: 'Outfit', sans-serif !important;
+}
+
+.btn-secondary:hover {
+  color: #fff !important;
+  background: rgba(255,255,255,0.1) !important;
+  border-color: rgba(255,255,255,0.3) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.4) !important;
+}
+
+/* Tables with Premium 3D Floating Rows */
+.modern-table {
+  border-collapse: separate !important;
+  border-spacing: 0 12px !important;
+  margin-top: -12px;
+}
+
+.modern-table th {
+  background: transparent !important;
+  border: none !important;
+  color: var(--accent-hover) !important;
+  font-weight: 800 !important;
+  font-size: 0.95rem !important;
+  letter-spacing: 1.5px !important;
+  padding-bottom: 0.5rem !important;
+}
+
+.modern-table tbody tr {
+  background: linear-gradient(90deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.5)) !important;
+  box-shadow: 0 6px 10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  border-radius: 12px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.modern-table tbody tr:hover {
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.1), rgba(15, 23, 42, 0.8)) !important;
+  transform: scale(1.01) translateY(-3px) !important;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+  z-index: 10;
+  position: relative;
+}
+
+.modern-table td {
+  border: none !important;
+  padding: 1.2rem 1.5rem !important;
+}
+.modern-table td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+.modern-table td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+
+/* Premium 3D Form Inputs */
+.form-group label {
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  color: #cbd5e1 !important;
+  margin-bottom: 0.5rem;
+}
+
+.form-control {
+  background: rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  border-top: 1px solid rgba(0,0,0,0.5) !important;
+  box-shadow: inset 0 3px 6px rgba(0,0,0,0.6) !important;
+  border-radius: 10px !important;
+  padding: 1rem 1.2rem !important;
+  color: #fff !important;
+  font-size: 1rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.form-control:focus {
+  background: rgba(15, 23, 42, 0.8) !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-glow), inset 0 2px 4px rgba(0,0,0,0.5) !important;
+  transform: translateY(-1px);
+}
+
+select.form-control option {
+  background: #0f172a;
+  color: #fff;
+  padding: 10px;
+}
+
+/* 3D Badges */
+.badge {
+  box-shadow: 0 3px 6px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.3) !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6) !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 20px !important;
+  letter-spacing: 0.5px;
+}
+.badge-money {
+  background: linear-gradient(135deg, #10b981, #047857) !important;
+  color: #fff !important;
+  border: none !important;
+  font-family: 'Outfit', monospace !important;
+  font-size: 1rem !important;
+}
+.badge-default {
+  background: linear-gradient(135deg, #64748b, #334155) !important;
+  border: none !important;
+}
+.badge-depto {
+  background: linear-gradient(135deg, #8b5cf6, #5b21b6) !important;
+  border: none !important;
+  color: #fff !important;
+}
+
+/* 3D Avatars */
+.avatar {
+  background: linear-gradient(135deg, var(--accent), #2563eb) !important;
+  box-shadow: 0 6px 15px var(--accent-glow), inset 0 2px 3px rgba(255,255,255,0.5) !important;
+  border: 2px solid rgba(255,255,255,0.9) !important;
+  color: white !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+  width: 42px !important;
+  height: 42px !important;
+  font-family: 'Outfit', sans-serif !important;
+}
+
+/* 3D Icon Buttons */
+.icon-btn {
+  background: linear-gradient(145deg, rgba(255,255,255,0.15), rgba(0,0,0,0.3)) !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.2) !important;
+  border: none !important;
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 10px !important;
+  font-size: 1.1rem !important;
+}
+.icon-btn:hover {
+  background: linear-gradient(145deg, rgba(255,255,255,0.25), rgba(0,0,0,0.1)) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.3) !important;
+}
+.icon-btn.delete-btn:hover {
+  background: linear-gradient(145deg, #ef4444, #991b1b) !important;
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.5), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+}
+.icon-btn.edit-btn:hover {
+  background: linear-gradient(145deg, #f59e0b, #b45309) !important;
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.5), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+}
+
+/* Page Title with 3D Text Effect */
+.page-title {
+  font-size: 3rem !important;
+  background: linear-gradient(to right, #ffffff, #7dd3fc, #0284c7) !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+  margin-bottom: 0 !important;
+}
+
+/* Search and Filter Bar (inside table-card) */
+.search-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.2rem 0 1.2rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  width: 100%;
+}
+.search-input {
+  flex: 1;
+  min-width: 0;
+}
+.search-input input {
+  padding-left: 2.8rem !important;
+  border-radius: 12px !important;
+  background: rgba(15, 23, 42, 0.4) !important;
+  width: 100%;
+  box-sizing: border-box;
+}
+.search-input .currency-symbol {
+  left: 1.2rem;
+  font-size: 1.1rem;
+  color: var(--accent);
+  pointer-events: none;
+}
+
+/* Scrollbars Premium */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0b1120;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }

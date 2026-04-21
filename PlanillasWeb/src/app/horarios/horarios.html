@@ -1,14 +1,26 @@
 <div class="crud-container">
   <div class="page-header">
     <h1 class="page-title">Configuración de Horarios</h1>
-    <button class="btn-primary">
-      <span class="icon">+</span> Nueva Jornada
-    </button>
+    @if (showForm()) {
+      <button class="btn-secondary" (click)="resetForm()">
+        <span class="icon">⬅</span> Volver
+      </button>
+    }
   </div>
 
   <div class="crud-layout">
+    @if (!showForm()) {
     <!-- Tabla -->
-    <div class="table-card glass-panel" style="overflow-x: auto;">
+    <div class="table-card glass-panel" style="overflow-x: auto; width: 100%">
+      <div class="search-filter-bar">
+        <button class="btn-primary" (click)="createNew()">
+          <span class="icon">+</span> Nueva Jornada
+        </button>
+        <div class="input-with-icon search-input">
+          <span class="currency-symbol">🔍</span>
+          <input type="text" class="form-control with-icon" placeholder="Buscar horario por nombre o días..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+        </div>
+      </div>
       <table class="modern-table">
         <thead>
           <tr>
@@ -20,84 +32,71 @@
           </tr>
         </thead>
         <tbody>
+          @for (item of filteredItems(); track item.id) {
           <tr>
             <td>
               <div class="user-info">
                 <div class="avatar" style="--bg: #10b981;">☀️</div>
                 <div class="details">
-                  <span class="username">Diurno Ordinario</span>
-                  <span class="sub-text">Cod. Horario: 1</span>
+                  <span class="username">{{ item.nombre }}</span>
+                  <span class="sub-text">Cod. Horario: {{ item.id }}</span>
                 </div>
               </div>
             </td>
-            <td>08:00 AM</td>
-            <td>05:00 PM</td>
-            <td><span class="badge badge-default">L-V</span></td>
+            <td>{{ item.hora_entrada }}</td>
+            <td>{{ item.hora_salida }}</td>
+            <td><span class="badge badge-default">{{ item.dias_laborables }}</span></td>
             <td>
               <div class="action-buttons">
-                <button class="icon-btn edit-btn" title="Editar">✏️</button>
-                <button class="icon-btn delete-btn" title="Eliminar">🗑️</button>
+                <button class="icon-btn edit-btn" title="Editar" (click)="editItem(item)">✏️</button>
+                <button class="icon-btn delete-btn" title="Eliminar" (click)="deleteItem(item.id!)">🗑️</button>
               </div>
             </td>
           </tr>
-          <tr>
-            <td>
-              <div class="user-info">
-                <div class="avatar" style="--bg: #3b82f6;">🌙</div>
-                <div class="details">
-                  <span class="username">Nocturno Fijo</span>
-                  <span class="sub-text">Cod. Horario: 2</span>
-                </div>
-              </div>
-            </td>
-            <td>10:00 PM</td>
-            <td>06:00 AM</td>
-            <td><span class="badge badge-default">L-V</span></td>
-            <td>
-              <div class="action-buttons">
-                <button class="icon-btn edit-btn" title="Editar">✏️</button>
-                <button class="icon-btn delete-btn" title="Eliminar">🗑️</button>
-              </div>
-            </td>
-          </tr>
+          } @empty {
+            <tr><td colspan="5" style="text-align: center; padding: 2rem;">No hay horarios registrados.</td></tr>
+          }
         </tbody>
       </table>
     </div>
-
+    } @else {
     <!-- Formulario -->
-    <div class="form-card glass-panel" style="align-self: start;">
+    <div class="form-card glass-panel" style="align-self: start; width: 100%">
       <div class="form-header">
-        <h2>Detalles de la Jornada</h2>
-        <button class="close-btn">✕</button>
+        <h2>{{ isEditing() ? 'Editar Jornada' : 'Detalles de la Jornada' }}</h2>
+        <button class="close-btn" (click)="resetForm()">✕</button>
       </div>
       
-      <form class="modern-form">
+      <form class="modern-form" (ngSubmit)="saveItem()">
         <div class="form-group">
           <label>Nombre de la Jornada <span style="color:#ef4444">*</span></label>
-          <input type="text" value="Diurno Ordinario" class="form-control" required maxlength="100" name="nombre" placeholder="Ej: Medio Tiempo">
+          <input type="text" class="form-control" required maxlength="100" name="nombre" placeholder="Ej: Medio Tiempo" [(ngModel)]="currentItem().nombre">
         </div>
 
         <div class="form-group twocol">
           <div class="col">
             <label>Hora Ingreso <span style="color:#ef4444">*</span></label>
-            <input type="time" value="08:00" class="form-control date-input" required name="hora_entrada">
+            <input type="time" class="form-control date-input" required name="hora_entrada" [(ngModel)]="currentItem().hora_entrada">
           </div>
           <div class="col">
             <label>Hora Salida <span style="color:#ef4444">*</span></label>
-            <input type="time" value="17:00" class="form-control date-input" required name="hora_salida">
+            <input type="time" class="form-control date-input" required name="hora_salida" [(ngModel)]="currentItem().hora_salida">
           </div>
         </div>
 
         <div class="form-group">
           <label>Días Laborables <span style="color:var(--text-muted); font-size:0.75rem;">(Opcional)</span></label>
-          <input type="text" value="L-V" class="form-control" placeholder="Ej: Lunes a Viernes" maxlength="50" name="dias_laborables">
+          <input type="text" class="form-control" placeholder="Ej: Lunes a Viernes" maxlength="50" name="dias_laborables" [(ngModel)]="currentItem().dias_laborables">
         </div>
 
         <div class="form-actions fixed-actions" style="margin-top: 2.5rem;">
-          <button type="button" class="btn-secondary">Cancelar</button>
-          <button type="button" class="btn-primary">Guardar Horario</button>
+          <button type="button" class="btn-secondary" (click)="resetForm()">Cancelar</button>
+          <button type="submit" class="btn-primary" [disabled]="!currentItem().nombre || !currentItem().hora_entrada || !currentItem().hora_salida">
+            {{ isEditing() ? 'Actualizar' : 'Guardar' }}
+          </button>
         </div>
       </form>
     </div>
+    }
   </div>
 </div>

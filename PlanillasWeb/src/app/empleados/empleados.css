@@ -1,7 +1,7 @@
 :host {
   display: block;
   min-height: calc(100vh - 75px);
-  padding: 3rem 4rem;
+  padding: 1.5rem 1.5rem;
   background-color: #0b1121;
   color: #f0f4f8;
   font-family: "Inter", -apple-system, sans-serif;
@@ -58,22 +58,25 @@
 /* Tabla */
 .modern-table {
   width: 100%;
+  min-width: 950px;
   border-collapse: collapse;
+  table-layout: auto;
 }
 
 .modern-table th {
   text-align: left;
-  padding: 1.2rem 1.5rem;
+  padding: 1rem 1rem;
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 1px;
   border-bottom: 1px solid var(--panel-border);
   background: rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
 }
 
 .modern-table td {
-  padding: 1rem 1.5rem; /* un poco menos padding vertical para no ocupar todo el monitor si son muchos empleados */
+  padding: 0.85rem 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   vertical-align: middle;
 }
@@ -84,6 +87,16 @@
 
 .modern-table tbody tr:hover {
   background: rgba(255, 255, 255, 0.02);
+}
+
+/* Columna Acciones: ancho fijo, sin superposición */
+.modern-table th:last-child,
+.modern-table td:last-child {
+  white-space: nowrap;
+  width: 120px;
+  min-width: 120px;
+  border-left: 1px solid var(--panel-border);
+  text-align: center;
 }
 
 /* Info de Usuario (Avatar y Nombre) */
@@ -152,6 +165,16 @@
   border-radius: 4px;
 }
 
+/* Barra de búsqueda y botón */
+.search-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid var(--panel-border);
+  flex-wrap: wrap;
+}
+
 /* Botones de acción (Tabla) */
 .action-buttons {
   display: flex;
@@ -177,6 +200,14 @@
   background: rgba(255,255,255,0.15);
   transform: translateY(-2px);
 }
+
+.icon-btn.view-btn  { color: #00e5ff; }
+.icon-btn.edit-btn  { color: #f59e0b; }
+.icon-btn.delete-btn{ color: #ef4444; }
+
+.icon-btn.view-btn:hover   { background: rgba(0, 229, 255, 0.12); }
+.icon-btn.edit-btn:hover   { background: rgba(245, 158, 11, 0.12); }
+.icon-btn.delete-btn:hover { background: rgba(239, 68, 68, 0.12); }
 
 /* Botones Principales */
 .btn-primary {

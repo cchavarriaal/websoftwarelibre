@@ -1,29 +1,49 @@
 <div class="crud-container">
   <div class="page-header">
     <h1 class="page-title">Directorio de Empleados</h1>
-    <button class="btn-primary" (click)="resetForm()">
-      <span class="icon">+</span> Nuevo Empleado
-    </button>
+    @if (showForm()) {
+      <button class="btn-secondary" (click)="resetForm()">
+        <span class="icon">⬅</span> Volver
+      </button>
+    }
   </div>
 
   <div class="crud-layout wide-layout">
+    @if (!showForm()) {
     <!-- Sección 1: Tabla de Registros -->
-    <div class="table-card glass-panel" style="overflow-x: auto;">
+    <div class="table-card glass-panel" style="overflow-x: auto; width: 100%">
+      <div class="search-filter-bar" style="padding: 1rem 1.2rem; gap: 0.75rem;">
+        <button class="btn-primary" (click)="createNew()" style="white-space: nowrap; flex-shrink: 0;">
+          <span class="icon">+</span> Nuevo Empleado
+        </button>
+        <div class="input-with-icon search-input" style="flex: 1; min-width: 0;">
+          <span class="currency-symbol">🔍</span>
+          <input type="text" class="form-control with-icon" placeholder="Buscar por nombre, código, DNI o puesto..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+        </div>
+      </div>
       <table class="modern-table">
+        <colgroup>
+          <col style="width: 130px;">
+          <col style="width: 200px;">
+          <col style="width: 130px;">
+          <col style="width: 110px;">
+          <col style="width: 120px;">
+          <col style="width: 130px;">
+          <col style="width: 120px;">
+        </colgroup>
         <thead>
           <tr>
             <th>Expediente</th>
             <th>Nombres y Apellidos</th>
             <th>DNI / Identificación</th>
-            <th>Fecha Ingreso</th>
+            <th>F. Ingreso</th>
             <th>Salario Base</th>
-            <th>ID Pto.</th>
-            <th>ID Hor.</th>
+            <th>Puesto</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          @for (empleado of empleados(); track empleado.id) {
+          @for (empleado of filteredEmpleados(); track empleado.id) {
             <tr>
               <td><span class="table-name">{{ empleado.codigo_empleado }}</span></td>
               <td>
@@ -37,12 +57,12 @@
                 </div>
               </td>
               <td><span class="badge badge-default">{{ empleado.dni }}</span></td>
-              <td>{{ empleado.fecha_ingreso | date:'dd-MMM-yyyy' }}</td>
-              <td><span class="badge badge-money">{{ empleado.salario_base | currency:'CRC':'symbol-narrow':'1.2-2' }}</span></td>
-              <td>{{ empleado.puesto_id || 'N/A' }}</td>
-              <td>{{ empleado.horario_id || 'N/A' }}</td>
+              <td>{{ empleado.fecha_ingreso | date:'dd-MMM-yy' }}</td>
+              <td><span class="badge badge-money">{{ empleado.salario_base | currency:'CRC':'symbol-narrow':'1.0-0' }}</span></td>
+              <td>{{ empleado.puesto_nombre || 'N/A' }}</td>
               <td>
                 <div class="action-buttons">
+                  <button class="icon-btn view-btn" title="Ver Detalle" (click)="viewInAnotherPage(empleado)">👁️</button>
                   <button class="icon-btn edit-btn" title="Editar Expediente" (click)="editEmpleado(empleado)">✏️</button>
                   <button class="icon-btn delete-btn" title="Dar de Baja" (click)="deleteEmpleado(empleado.id!)">🗑️</button>
                 </div>
@@ -50,7 +70,7 @@
             </tr>
           } @empty {
             <tr>
-              <td colspan="8" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+              <td colspan="7" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
                 No hay empleados registrados o cargando...
               </td>
             </tr>
@@ -58,9 +78,9 @@
         </tbody>
       </table>
     </div>
-
+    } @else {
     <!-- Sección 2: Panel Lateral de Formulario -->
-    <div class="form-card glass-panel" style="align-self: start;">
+    <div class="form-card glass-panel" style="align-self: start; width: 100%">
       <div class="form-header">
         <h2>{{ isEditing() ? 'Editar Expediente' : 'Ficha de Empleado' }}</h2>
         <button class="close-btn" (click)="resetForm()">✕</button>
@@ -69,12 +89,12 @@
       <form class="modern-form" (ngSubmit)="saveEmpleado()">
         <div class="form-group twocol">
           <div class="col">
-            <label>Código <span style="color:#ef4444">*</span></label>
-            <input type="text" class="form-control" required maxlength="20" name="codigo_empleado" [(ngModel)]="currentEmpleado().codigo_empleado">
+            <label>Código (Automático)</label>
+            <input type="text" class="form-control" name="codigo_empleado" [(ngModel)]="currentEmpleado().codigo_empleado" readonly style="background-color: rgba(255, 255, 255, 0.05); color: #9ca3af; cursor: not-allowed; border-color: rgba(255, 255, 255, 0.1);">
           </div>
           <div class="col">
             <label>DNI / Cédula <span style="color:#ef4444">*</span></label>
-            <input type="text" class="form-control" required maxlength="20" name="dni" [(ngModel)]="currentEmpleado().dni">
+            <input type="text" class="form-control" required maxlength="20" name="dni" [(ngModel)]="currentEmpleado().dni" [readonly]="isEditing()">
           </div>
         </div>
 
@@ -105,12 +125,33 @@
 
         <div class="form-group twocol">
           <div class="col">
-            <label>Puesto (ID) <span style="color:var(--text-muted); font-size:0.75rem;">(Opc.)</span></label>
-            <input type="number" class="form-control" name="puesto_id" placeholder="Ej: 2" [(ngModel)]="currentEmpleado().puesto_id">
+            <label>Puesto <span style="color:var(--text-muted); font-size:0.75rem;">(Opc.)</span></label>
+            <select class="form-control" name="puesto_id" [(ngModel)]="currentEmpleado().puesto_id">
+              <option [ngValue]="undefined">-- Sin Asignar --</option>
+              @for (p of puestos(); track p.id) {
+                <option [ngValue]="p.id">{{ p.nombre }}</option>
+              }
+            </select>
           </div>
           <div class="col">
-            <label>Horario (ID) <span style="color:var(--text-muted); font-size:0.75rem;">(Opc.)</span></label>
-            <input type="number" class="form-control" name="horario_id" placeholder="Ej: 1" [(ngModel)]="currentEmpleado().horario_id">
+            <label>Horario <span style="color:var(--text-muted); font-size:0.75rem;">(Opc.)</span></label>
+            <select class="form-control" name="horario_id" [(ngModel)]="currentEmpleado().horario_id">
+              <option [ngValue]="undefined">-- Sin Asignar --</option>
+              @for (h of horarios(); track h.id) {
+                <option [ngValue]="h.id">{{ h.nombre }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group twocol">
+          <div class="col">
+            <label>Cuenta IBAN <span style="color:var(--text-muted); font-size:0.75rem;">(Opcional)</span></label>
+            <input type="text" class="form-control" name="cuenta_iban" placeholder="CR..." maxlength="50" [(ngModel)]="currentEmpleado().cuenta_iban">
+          </div>
+          <div class="col">
+            <label>Banco <span style="color:var(--text-muted); font-size:0.75rem;">(Opcional)</span></label>
+            <input type="text" class="form-control" name="banco" placeholder="Ej: Banco Nacional" maxlength="100" [(ngModel)]="currentEmpleado().banco">
           </div>
         </div>
 
@@ -124,5 +165,6 @@
         </div>
       </form>
     </div>
+    }
   </div>
 </div>

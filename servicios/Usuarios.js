@@ -7,7 +7,12 @@ class Usuarios {
     PalabraSecreta = "MiPalabraSecreta";
 
     async usuarioslistar() {
-        return await ejecutarConsulta("SELECT * FROM `planillasweb`.`usuarios` ORDER BY username ASC");
+        return await ejecutarConsulta(`
+            SELECT u.*, CONCAT(e.nombre, ' ', e.apellido) AS empleado_nombre 
+            FROM planillasweb.usuarios u 
+            LEFT JOIN planillasweb.empleados e ON u.empleado_id = e.id 
+            ORDER BY u.username ASC
+        `);
     }
 
     async usuarioslistarEspecifico(username) {
@@ -23,7 +28,7 @@ class Usuarios {
             const ts = Date.now().toString();
             const resEmpleado = await ejecutarConsulta(
                 "INSERT INTO `planillasweb`.`empleados` (codigo_empleado, nombre, apellido, dni, fecha_ingreso, salario_base, puesto_id) VALUES (?,?,?,?,?,?,?)",
-                [`USR-${ts}`, d.username, 'Autogenerado', `TMP-${ts.slice(-9)}`, fechaIngreso, 0, null]
+                ['', d.username, 'Autogenerado', `TMP-${ts.slice(-9)}`, fechaIngreso, 0, null]
             );
             
             if (resEmpleado && resEmpleado.insertId) {

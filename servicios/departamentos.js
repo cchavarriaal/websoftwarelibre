@@ -24,6 +24,11 @@ class Departamentos {
       if (result && result.affectedRows > 0) { await ejecutarConsulta("INSERT INTO `planillasweb`.`auditoria` (usuario_id, tabla_afectada, registro_id, accion, valor_anterior, valor_nuevo) VALUES (?,?,?,?,?,?)", [null, 'departamentos', id, 'DELETE', JSON.stringify(filas[0] || null), null]); }
       return result;
   }
+
+  
+  async departamentosbuscarPorNombre(nombre) {
+    return await ejecutarConsulta("SELECT * FROM `planillasweb`.`departamentos` WHERE nombre LIKE ?", [`%${nombre}%`]);
+  }
 }
 
 module.exports = new Departamentos();

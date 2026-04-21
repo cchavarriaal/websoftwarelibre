@@ -9,8 +9,8 @@
         <span class="search-icon">🔍</span>
         <input type="text" placeholder="Buscar por tabla o acción..." class="form-control search-input">
       </div>
-      <button class="btn-secondary">
-        <span class="icon">⬇️</span> Descargar LOG
+      <button class="btn-secondary" (click)="loadItems()">
+        <span class="icon">↻</span> Refrescar
       </button>
     </div>
   </div>
@@ -29,71 +29,36 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Fila 1 -->
+          @for (item of items(); track item.id) {
           <tr>
             <td>
               <div class="timestamp">
-                <span class="date">Hoy</span>
-                <span class="time">10:45 AM</span>
+                <span class="date">{{ item.fecha_hora | date:'dd-MMM-yyyy' }}</span>
+                <span class="time">{{ item.fecha_hora | date:'shortTime' }}</span>
               </div>
             </td>
             <td>
               <div class="user-chip">
-                <div class="chip-avatar" style="--bg: #10b981;">AD</div>
-                <span>UsuarID: 23</span>
+                <div class="chip-avatar" [ngStyle]="{'--bg': item.usuario_id ? '#3b82f6' : '#ef4444'}">
+                  {{ item.usuario_id ? 'USR' : 'SYS' }}
+                </div>
+                <span>UsuarID: {{ item.usuario_id || 'Sistema' }}</span>
               </div>
             </td>
-            <td><span class="badge badge-update">UPDATE</span></td>
-            <td><span class="table-name">conceptos</span></td>
-            <td><b>21</b></td>
             <td>
-              <button class="btn-text view-diff">Ver Cambios 👁️</button>
+              <span class="badge" [ngClass]="item.accion === 'INSERT' ? 'badge-insert' : (item.accion === 'UPDATE' ? 'badge-update' : 'badge-delete')">
+                {{ item.accion }}
+              </span>
+            </td>
+            <td><span class="table-name">{{ item.tabla_afectada }}</span></td>
+            <td><b>{{ item.registro_id }}</b></td>
+            <td>
+              <button class="btn-text view-diff" (click)="viewJson(item)">Ver Cambios 👁️</button>
             </td>
           </tr>
-          
-          <!-- Fila 2 -->
-          <tr>
-            <td>
-              <div class="timestamp">
-                <span class="date">Hoy</span>
-                <span class="time">09:12 AM</span>
-              </div>
-            </td>
-            <td>
-               <div class="user-chip">
-                <div class="chip-avatar" style="--bg: #3b82f6;">EMP</div>
-                <span>UsuarID: 101</span>
-              </div>
-            </td>
-            <td><span class="badge badge-insert">INSERT</span></td>
-            <td><span class="table-name">movimientos_planilla</span></td>
-            <td><b>89</b></td>
-            <td>
-              <button class="btn-text view-diff">Ver Nuevo Reg 👁️</button>
-            </td>
-          </tr>
-
-          <!-- Fila 3 -->
-           <tr>
-            <td>
-              <div class="timestamp">
-                <span class="date">Ayer</span>
-                <span class="time">16:30 PM</span>
-              </div>
-            </td>
-            <td>
-               <div class="user-chip">
-                <div class="chip-avatar" style="--bg: #ef4444;">SYS</div>
-                <span>UsuarID: 5</span>
-              </div>
-            </td>
-            <td><span class="badge badge-delete">DELETE</span></td>
-            <td><span class="table-name">empleados</span></td>
-            <td><b>103</b></td>
-            <td>
-              <button class="btn-text view-diff">Ver Borrado 👁️</button>
-            </td>
-          </tr>
+          } @empty {
+            <tr><td colspan="6" style="text-align: center; padding: 2rem;">No hay registros de auditoría.</td></tr>
+          }
         </tbody>
       </table>
     </div>

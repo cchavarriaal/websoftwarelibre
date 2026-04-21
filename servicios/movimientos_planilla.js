@@ -4,7 +4,14 @@ class MovimientosPlanilla {
     constructor() { }
 
     async movimientos_planillalistar() {
-        return await ejecutarConsulta("SELECT * FROM `planillasweb`.`movimientos_planilla` ORDER BY id DESC");
+        return await ejecutarConsulta(`
+            SELECT m.*, CONCAT(e.nombre, ' ', e.apellido) AS empleado_nombre, p.nombre_periodo AS periodo_nombre, c.nombre AS concepto_nombre 
+            FROM planillasweb.movimientos_planilla m 
+            LEFT JOIN planillasweb.empleados e ON m.empleado_id = e.id 
+            LEFT JOIN planillasweb.periodos_planilla p ON m.periodo_id = p.id 
+            LEFT JOIN planillasweb.conceptos c ON m.concepto_id = c.id 
+            ORDER BY m.id DESC
+        `);
     }
     async movimientos_planillacrear(d) {
         const result = await ejecutarConsulta(
@@ -28,6 +35,18 @@ class MovimientosPlanilla {
         const result = await ejecutarConsulta("DELETE FROM `planillasweb`.`movimientos_planilla` WHERE id=?", [id]);
         if (result && result.affectedRows > 0) { await ejecutarConsulta("INSERT INTO `planillasweb`.`auditoria` (usuario_id, tabla_afectada, registro_id, accion, valor_anterior, valor_nuevo) VALUES (?,?,?,?,?,?)", [null, 'movimientos_planilla', id, 'DELETE', JSON.stringify(filas[0] || null), null]); }
         return result;
+    }
+
+    async movimientos_planillabuscarPorDniEmpleado(dni) {
+        return await ejecutarConsulta(
+            "SELECT mp.*, e.nombre as empleado_nombre, c.nombre as concepto_nombre " +
+            "FROM `planillasweb`.`movimientos_planilla` mp " +
+            "JOIN `planillasweb`.`empleados` e ON mp.empleado_id = e.id " +
+            "JOIN `planillasweb`.`conceptos` c ON mp.concepto_id = c.id " +
+            "WHERE e.dni LIKE ? " +
+            "ORDER BY mp.id DESC",
+            [`%${dni}%`]
+        );
     }
 }
 

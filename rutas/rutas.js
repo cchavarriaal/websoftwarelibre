@@ -1,6 +1,6 @@
 
 const rutasDeEmpleados = require('./Empleados.js');
-const rutasDeUsuarios = require('./Usuarios.js');
+const rutasDeUsuarios = require('./usuarios.js');
 const rutaDeAuditoria = require('./auditoria.js');
 const rutasDeConceptos = require('./conceptos.js');
 const rutasDeDepartamentos = require('./departamentos.js');

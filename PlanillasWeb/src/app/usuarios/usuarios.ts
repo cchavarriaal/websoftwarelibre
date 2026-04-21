@@ -1,6 +1,7 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { NotificationService } from '../services/notification.service';
 
 interface Usuario {
   id?: number;
@@ -8,6 +9,7 @@ interface Usuario {
   password_hash?: string;
   rol: string;
   empleado_id?: number;
+  empleado_nombre?: string;
   estado: number;
   pregunta_seguridad?: string;
   respuesta_seguridad?: string;
@@ -24,11 +26,31 @@ export class Usuarios implements OnInit {
   private readonly apiUrl = 'http://localhost/usuarios/';
 
   protected readonly usuarios = signal<Usuario[]>([]);
+  protected readonly searchTerm = signal('');
+  protected readonly filteredUsuarios = computed(() => {
+    const term = this.searchTerm().toLowerCase();
+    if (!term) return this.usuarios();
+    return this.usuarios().filter(u => 
+      (u.username?.toLowerCase() || '').includes(term) ||
+      (u.rol?.toLowerCase() || '').includes(term) ||
+      (u.empleado_nombre?.toLowerCase() || '').includes(term)
+    );
+  });
+  protected readonly empleados = signal<any[]>([]);
   protected readonly currentUsuario = signal<Usuario>(this.getEmptyUsuario());
   protected readonly isEditing = signal(false);
+  protected readonly showForm = signal(false);
+  private readonly notify = inject(NotificationService);
 
   ngOnInit() {
     this.loadUsuarios();
+    this.loadEmpleados();
+  }
+
+  protected loadEmpleados() {
+    this.http.get<any[]>('http://localhost/empleados/empleadoslistar').subscribe({
+      next: (data: any) => this.empleados.set(Array.isArray(data) ? data : [])
+    });
   }
 
   private getEmptyUsuario(): Usuario {
@@ -45,37 +67,36 @@ export class Usuarios implements OnInit {
   protected loadUsuarios() {
     this.http.get<Usuario[]>(this.apiUrl + 'usuarioslistar').subscribe({
       next: (data: any) => {
-        if (data && data.error) { alert('Error BD: ' + data.error); }
+        if (data && data.error) { this.notify.error('Error', data.error); }
         this.usuarios.set(Array.isArray(data) ? data : []);
       },
-      error: (err) => alert('Error cargando la lista (Posible falla de API): ' + err.message),
+      error: (err) => this.notify.error('Error', 'Falla de API: ' + err.message),
     });
   }
 
   protected saveUsuario() {
     const usuario = this.currentUsuario();
-    // Normalizar a null los campos vacíos
     if (usuario.empleado_id === '' as any) usuario.empleado_id = undefined;
 
     if (this.isEditing() && usuario.id) {
       this.http.put(`${this.apiUrl}usuariosactualizar/${usuario.id}`, usuario).subscribe({
         next: (res: any) => {
-          if (res && res.error) { alert('Error del servidor: ' + res.error); return; }
+          if (res && res.error) { this.notify.error('Error', res.error); return; }
           this.loadUsuarios();
           this.resetForm();
-          alert('Actualizado correctamente');
+          this.notify.success('Éxito', 'Usuario actualizado correctamente');
         },
-        error: (err) => alert('Error de Red/HTTP (Actualizar): ' + err.message),
+        error: (err) => this.notify.error('Error', err.message),
       });
     } else {
       this.http.post(this.apiUrl + 'usuarioscrear', usuario).subscribe({
         next: (res: any) => {
-          if (res && res.error) { alert('Error del servidor: ' + res.error); return; }
+          if (res && res.error) { this.notify.error('Error', res.error); return; }
           this.loadUsuarios();
           this.resetForm();
-          alert('Creado correctamente');
+          this.notify.success('Éxito', 'Usuario creado correctamente');
         },
-        error: (err) => alert('Error de Red/HTTP (Crear): ' + err.message),
+        error: (err) => this.notify.error('Error', err.message),
       });
     }
   }
@@ -83,17 +104,19 @@ export class Usuarios implements OnInit {
   protected editUsuario(usuario: Usuario) {
     this.currentUsuario.set({ ...usuario, password_hash: '' });
     this.isEditing.set(true);
+    this.showForm.set(true);
   }
 
-  protected deleteUsuario(id: number) {
-    if (confirm('¿Estás seguro de eliminar este usuario?')) {
+  protected async deleteUsuario(id: number) {
+    const confirmed = await this.notify.confirm('¿Eliminar Usuario?', 'Esta acción no se puede deshacer.');
+    if (confirmed) {
       this.http.delete(`${this.apiUrl}usuarioseliminar/${id}`).subscribe({
         next: (res: any) => {
-          if (res && res.error) { alert('Error: ' + res.error); return; }
+          if (res && res.error) { this.notify.error('Error', res.error); return; }
           this.loadUsuarios();
-          alert('Eliminado');
+          this.notify.success('Eliminado', 'El usuario ha sido eliminado.');
         },
-        error: (err) => alert('Error de Red/HTTP (Eliminar): ' + err.message),
+        error: (err) => this.notify.error('Error', err.message),
       });
     }
   }
@@ -101,6 +124,12 @@ export class Usuarios implements OnInit {
   protected resetForm() {
     this.currentUsuario.set(this.getEmptyUsuario());
     this.isEditing.set(false);
+    this.showForm.set(false);
+  }
+
+  protected createNew() {
+    this.resetForm();
+    this.showForm.set(true);
   }
 
   protected toggleEstado(event: Event) {

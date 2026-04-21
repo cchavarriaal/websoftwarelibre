@@ -1,0 +1,83 @@
+<div class="detalle-container">
+
+  <!-- Botón Volver -->
+  <div class="page-header">
+    <button class="btn-secondary" (click)="volver()">
+      <span class="icon">⬅</span> Volver al Directorio
+    </button>
+    <h1 class="page-title">Ficha de Empleado</h1>
+  </div>
+
+  @if (empleado()) {
+    <!-- Tarjeta principal del empleado -->
+    <div class="detalle-card glass-panel">
+
+      <!-- Encabezado con avatar -->
+      <div class="emp-header">
+        <div class="emp-avatar">
+          {{ empleado()!.nombre.charAt(0).toUpperCase() }}{{ empleado()!.apellido.charAt(0).toUpperCase() }}
+        </div>
+        <div class="emp-title-info">
+          <h2 class="emp-nombre">{{ empleado()!.nombre }} {{ empleado()!.apellido }}</h2>
+          <span class="badge badge-default">{{ empleado()!.codigo_empleado }}</span>
+          <span class="badge badge-success" style="margin-left: 0.5rem;">Activo</span>
+        </div>
+      </div>
+
+      <!-- Grid de información -->
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">🪪 DNI / Cédula</span>
+          <span class="info-value">{{ empleado()!.dni }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">📅 Fecha de Ingreso</span>
+          <span class="info-value">{{ empleado()!.fecha_ingreso | date:'dd MMMM yyyy' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">💼 Puesto</span>
+          <span class="info-value">{{ empleado()!.puesto_nombre || 'Sin asignar' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">🕐 Horario</span>
+          <span class="info-value">{{ empleado()!.horario_nombre || 'Sin asignar' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">💰 Salario Base</span>
+          <span class="info-value salary">
+            {{ empleado()!.salario_base | currency:'CRC':'symbol-narrow':'1.2-2' }}
+          </span>
+        </div>
+        @if (empleado()!.cuenta_iban) {
+          <div class="info-item">
+            <span class="info-label">🏦 Cuenta IBAN</span>
+            <span class="info-value">{{ empleado()!.cuenta_iban }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">🏛️ Banco</span>
+            <span class="info-value">{{ empleado()!.banco || 'N/A' }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- Acciones -->
+      <div class="detalle-actions">
+        <button class="btn-danger" (click)="clearStorage()">
+          🗑️ Limpiar selección (localStorage)
+        </button>
+        <button class="btn-primary" (click)="volver()">
+          ✅ Volver a la Lista
+        </button>
+      </div>
+
+    </div>
+  } @else {
+    <!-- Estado vacío si no hay dato en localStorage -->
+    <div class="empty-state glass-panel">
+      <div class="empty-icon">⚠️</div>
+      <h2>Sin datos en memoria</h2>
+      <p>No hay un empleado seleccionado en el localStorage. Regresa a la lista y selecciona uno.</p>
+      <a class="btn-primary" routerLink="/empleados">← Ir al Directorio de Empleados</a>
+    </div>
+  }
+</div>
