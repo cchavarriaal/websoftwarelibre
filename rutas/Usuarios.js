@@ -10,14 +10,24 @@ Router.get('/usuarioslistar', async (solicitud, respuesta, next) => {
 Router.post('/usuarioslistarEspecifico', async (solicitud, respuesta, next) => {
   return respuesta.json(await Usuarios.usuarioslistarEspecifico(solicitud.body.username));
 });
+// Crear usuario con generación automática de empleado si no se proporciona
 Router.post('/usuarioscrear', async (solicitud, respuesta, next) => {
   return respuesta.json(await Usuarios.usuarioscrear(solicitud.body));
 });
+
 Router.put('/usuariosactualizar/:id', async (solicitud, respuesta, next) => {
   return respuesta.json(await Usuarios.usuariosactualizar(solicitud.params.id, solicitud.body));
 });
 Router.delete('/usuarioseliminar/:id', async (solicitud, respuesta, next) => {
   return respuesta.json(await Usuarios.usuarioseliminar(solicitud.params.id));
+});
+Router.post('/generarEmpleado/:id', async (solicitud, respuesta, next) => {
+  return respuesta.json(await Usuarios.generarEmpleadoParaUsuario(
+    solicitud.params.id,
+    solicitud.body.dni,
+    solicitud.body.nombre,
+    solicitud.body.apellido
+  ));
 });
 Router.post("/autenticar", async (solicitud, respuesta) => {
   respuesta.json(await Usuarios.Autenticacion(solicitud.body.username, solicitud.body.password_hash));

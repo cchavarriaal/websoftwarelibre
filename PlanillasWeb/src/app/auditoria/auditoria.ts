@@ -39,17 +39,27 @@ export class Auditoria implements OnInit {
     });
   }
 
+  private safeParse(value: any): any {
+    if (!value) return null;
+    if (typeof value === 'object') return value;
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value; // Si falla el parseo, retorna el string original
+    }
+  }
+
   protected viewJson(item: IAuditoria) {
     try {
-      const oldV = item.valor_anterior ? JSON.parse(item.valor_anterior) : null;
-      const newV = item.valor_nuevo ? JSON.parse(item.valor_nuevo) : null;
+      const oldV = this.safeParse(item.valor_anterior);
+      const newV = this.safeParse(item.valor_nuevo);
       
       const details = `Anterior:\n${JSON.stringify(oldV, null, 2)}\n\nNuevo:\n${JSON.stringify(newV, null, 2)}`;
       
       // Use success popup as an info dialog
       this.notify.success('Detalles del Registro', details);
-    } catch (e) {
-      this.notify.error('Error de parseo', 'No se pudo leer el contenido JSON.');
+    } catch (e: any) {
+      this.notify.error('Error de visualización', 'No se pudieron procesar los detalles: ' + e.message);
     }
   }
 }

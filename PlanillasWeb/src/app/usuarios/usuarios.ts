@@ -8,11 +8,12 @@ interface Usuario {
   username: string;
   password_hash?: string;
   rol: string;
-  empleado_id?: number;
+  empleado_id?: number | null;
   empleado_nombre?: string;
   estado: number;
   pregunta_seguridad?: string;
   respuesta_seguridad?: string;
+  crear_empleado?: boolean;
 }
 
 @Component({
@@ -40,6 +41,10 @@ export class Usuarios implements OnInit {
   protected readonly currentUsuario = signal<Usuario>(this.getEmptyUsuario());
   protected readonly isEditing = signal(false);
   protected readonly showForm = signal(false);
+  protected readonly crearEmpleado = signal(false);
+  protected readonly dniEmpleado = signal('');
+  protected readonly nombreEmpleado = signal('');
+  protected readonly apellidoEmpleado = signal('');
   private readonly notify = inject(NotificationService);
 
   ngOnInit() {
@@ -77,6 +82,12 @@ export class Usuarios implements OnInit {
   protected saveUsuario() {
     const usuario = this.currentUsuario();
     if (usuario.empleado_id === '' as any) usuario.empleado_id = undefined;
+
+    // Agregar el flag de crear empleado al payload
+    usuario.crear_empleado = this.crearEmpleado();
+    (usuario as any).dni_empleado = this.dniEmpleado();
+    (usuario as any).nombre_empleado = this.nombreEmpleado();
+    (usuario as any).apellido_empleado = this.apellidoEmpleado();
 
     if (this.isEditing() && usuario.id) {
       this.http.put(`${this.apiUrl}usuariosactualizar/${usuario.id}`, usuario).subscribe({
@@ -125,6 +136,42 @@ export class Usuarios implements OnInit {
     this.currentUsuario.set(this.getEmptyUsuario());
     this.isEditing.set(false);
     this.showForm.set(false);
+    this.crearEmpleado.set(false);
+    this.dniEmpleado.set('');
+    this.nombreEmpleado.set('');
+    this.apellidoEmpleado.set('');
+  }
+
+  protected async generarEmpleado() {
+    const usuario = this.currentUsuario();
+    if (!usuario.id) return;
+
+    const confirmed = await this.notify.confirm(
+      '¿Generar Empleado?',
+      `Se creará un registro de empleado vinculado al usuario "${usuario.username}". ¿Desea continuar?`
+    );
+    if (!confirmed) return;
+
+    this.http.post(`${this.apiUrl}generarEmpleado/${usuario.id}`, { 
+      dni: this.dniEmpleado(),
+      nombre: this.nombreEmpleado(),
+      apellido: this.apellidoEmpleado()
+    }).subscribe({
+      next: (res: any) => {
+        if (res && res.error) { this.notify.error('Error', res.error); return; }
+        this.notify.success('Éxito', 'Empleado generado y vinculado correctamente.');
+        this.loadUsuarios();
+        this.loadEmpleados();
+        // Actualizar el usuario actual con el nuevo empleado_id
+        this.currentUsuario.set({ ...usuario, empleado_id: res.empleado_id });
+      },
+      error: (err) => this.notify.error('Error', err.message),
+    });
+  }
+
+  protected toggleCrearEmpleado(event: Event) {
+    const checkbox = event.target as HTMLInputElement;
+    this.crearEmpleado.set(checkbox.checked);
   }
 
   protected createNew() {

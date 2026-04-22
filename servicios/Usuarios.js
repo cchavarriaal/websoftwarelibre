@@ -20,21 +20,41 @@ class Usuarios {
     }
 
     async usuarioscrear(d) {
-        let empleadoId = d.empleado_id;
+        let empleadoId = d.empleado_id || null;
 
-        // Crea el empleado automáticamente si no provee el empleado_id
-        if (!empleadoId) {
+        // Solo crea el empleado si el usuario lo solicita explícitamente
+        if (!empleadoId && d.crear_empleado === true) {
+            if (!d.dni_empleado || d.dni_empleado.trim() === '') {
+                return { error: "Debe ingresar el DNI/Cédula del empleado para poder generarlo." };
+            }
             const fechaIngreso = new Date().toISOString().slice(0, 10);
-            const ts = Date.now().toString();
-            const resEmpleado = await ejecutarConsulta(
-                "INSERT INTO `planillasweb`.`empleados` (codigo_empleado, nombre, apellido, dni, fecha_ingreso, salario_base, puesto_id) VALUES (?,?,?,?,?,?,?)",
-                ['', d.username, 'Autogenerado', `TMP-${ts.slice(-9)}`, fechaIngreso, 0, null]
-            );
             
-            if (resEmpleado && resEmpleado.insertId) {
-                empleadoId = resEmpleado.insertId;
-            } else {
-                return { error: "No se pudo autogenerar el empleado en la base de datos." };
+            try {
+                const { crearObjetoConexion } = require('../db.js');
+                const conn = await crearObjetoConexion();
+                try {
+                    // Generar codigo_empleado único consultando el próximo ID disponible
+                    const [maxRows] = await conn.query("SELECT COALESCE(MAX(id), 0) + 1 AS nextId FROM `planillasweb`.`empleados`");
+                    const nextId = maxRows[0].nextId;
+                    const codigoEmpleado = `EMP-${new Date().getFullYear()}${String(nextId).padStart(3, '0')}`;
+
+                    const [resEmpleado] = await conn.query(
+                        "INSERT INTO `planillasweb`.`empleados` (codigo_empleado, nombre, apellido, dni, fecha_ingreso, salario_base, puesto_id) VALUES (?,?,?,?,?,?,?)",
+                        [codigoEmpleado, d.nombre_empleado?.trim(), d.apellido_empleado?.trim(), d.dni_empleado.trim(), fechaIngreso, 0, null]
+                    );
+                    empleadoId = resEmpleado.insertId;
+                } finally {
+                    await conn.end();
+                }
+            } catch (err) {
+                console.error('Error al crear empleado:', err.message);
+                if (err.code === 'ER_DUP_ENTRY') {
+                    if (err.message.includes('codigo_empleado')) {
+                        return { error: "Error de código de empleado duplicado. Intente nuevamente." };
+                    }
+                    return { error: `El DNI "${d.dni_empleado.trim()}" ya existe en la base de datos. Ingrese un DNI diferente.` };
+                }
+                return { error: `Error al generar empleado: ${err.message}` };
             }
         }
 
@@ -51,6 +71,70 @@ class Usuarios {
         }
 
         return result;
+    }
+
+    // Genera un empleado para un usuario existente que no tiene uno asignado
+    async generarEmpleadoParaUsuario(usuarioId, dni, nombre, apellido) {
+        // Validar DNI
+        if (!dni || dni.trim() === '') {
+            return { error: "Debe ingresar el DNI/Cédula del empleado para poder generarlo." };
+        }
+
+        // Verificar que el usuario exista y no tenga empleado
+        const filas = await ejecutarConsulta("SELECT * FROM `planillasweb`.`usuarios` WHERE id=?", [usuarioId]);
+        if (!filas || filas.length === 0) {
+            return { error: "Usuario no encontrado." };
+        }
+        const usuario = filas[0];
+        if (usuario.empleado_id) {
+            return { error: "Este usuario ya tiene un empleado asignado." };
+        }
+
+        // Crear el empleado
+        const fechaIngreso = new Date().toISOString().slice(0, 10);
+        let nuevoEmpleadoId;
+
+        try {
+            const { crearObjetoConexion } = require('../db.js');
+            const conn = await crearObjetoConexion();
+            try {
+                // Generar codigo_empleado único consultando el próximo ID disponible
+                const [maxRows] = await conn.query("SELECT COALESCE(MAX(id), 0) + 1 AS nextId FROM `planillasweb`.`empleados`");
+                const nextId = maxRows[0].nextId;
+                const codigoEmpleado = `EMP-${new Date().getFullYear()}${String(nextId).padStart(3, '0')}`;
+
+                const [resEmpleado] = await conn.query(
+                    "INSERT INTO `planillasweb`.`empleados` (codigo_empleado, nombre, apellido, dni, fecha_ingreso, salario_base, puesto_id) VALUES (?,?,?,?,?,?,?)",
+                    [codigoEmpleado, nombre?.trim(), apellido?.trim(), dni.trim(), fechaIngreso, 0, null]
+                );
+                nuevoEmpleadoId = resEmpleado.insertId;
+            } finally {
+                await conn.end();
+            }
+        } catch (err) {
+            console.error('Error al crear empleado:', err.message);
+            if (err.code === 'ER_DUP_ENTRY') {
+                if (err.message.includes('codigo_empleado')) {
+                    return { error: "Error de código de empleado duplicado. Intente nuevamente." };
+                }
+                return { error: `El DNI "${dni.trim()}" ya existe en la base de datos. Ingrese un DNI diferente.` };
+            }
+            return { error: `Error al generar empleado: ${err.message}` };
+        }
+
+        // Vincular el empleado al usuario
+        await ejecutarConsulta(
+            "UPDATE `planillasweb`.`usuarios` SET empleado_id=? WHERE id=?",
+            [nuevoEmpleadoId, usuarioId]
+        );
+
+        // Auditoría
+        await ejecutarConsulta(
+            "INSERT INTO `planillasweb`.`auditoria` (usuario_id, tabla_afectada, registro_id, accion, valor_anterior, valor_nuevo) VALUES (?,?,?,?,?,?)",
+            [usuarioId, 'usuarios', usuarioId, 'UPDATE', JSON.stringify({ empleado_id: null }), JSON.stringify({ empleado_id: nuevoEmpleadoId })]
+        );
+
+        return { success: true, empleado_id: nuevoEmpleadoId };
     }
 
 
