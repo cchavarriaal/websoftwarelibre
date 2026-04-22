@@ -25,6 +25,7 @@ export class Horarios implements OnInit {
 
   protected readonly items = signal<Horario[]>([]);
   protected readonly searchTerm = signal('');
+  protected readonly showFilters = signal(false);
   protected readonly filteredItems = computed(() => {
     const term = this.searchTerm().toLowerCase();
     if (!term) return this.items();
@@ -36,6 +37,7 @@ export class Horarios implements OnInit {
   });
   protected readonly currentItem = signal<Horario>(this.getEmptyItem());
   protected readonly isEditing = signal(false);
+  protected readonly isViewing = signal(false);
   protected readonly showForm = signal(false);
 
   ngOnInit() {
@@ -68,10 +70,22 @@ export class Horarios implements OnInit {
     }
   }
 
+  protected viewItemDetails(item: Horario) {
+    this.currentItem.set({ ...item });
+    this.isViewing.set(true);
+    this.isEditing.set(false);
+    this.showForm.set(true);
+  }
+
   protected editItem(item: Horario) {
     this.currentItem.set({ ...item });
+    this.isViewing.set(false);
     this.isEditing.set(true);
     this.showForm.set(true);
+  }
+
+  protected clearFilters() {
+    this.searchTerm.set('');
   }
 
   protected async deleteItem(id: number) {
@@ -86,6 +100,8 @@ export class Horarios implements OnInit {
   protected resetForm() {
     this.currentItem.set(this.getEmptyItem());
     this.isEditing.set(false);
+    this.isViewing.set(false);
+    this.showFilters.set(false);
     this.showForm.set(false);
   }
 

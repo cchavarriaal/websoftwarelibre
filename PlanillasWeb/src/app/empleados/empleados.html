@@ -8,162 +8,263 @@
     }
   </div>
 
-  <div class="crud-layout wide-layout">
+  <div class="crud-layout">
     @if (!showForm()) {
     <!-- Sección 1: Tabla de Registros -->
-    <div class="table-card glass-panel" style="overflow-x: auto; width: 100%">
-      <div class="search-filter-bar" style="padding: 1rem 1.2rem; gap: 0.75rem;">
-        <button class="btn-primary" (click)="createNew()" style="white-space: nowrap; flex-shrink: 0;">
-          <span class="icon">+</span> Nuevo Empleado
-        </button>
-        <div class="input-with-icon search-input" style="flex: 1; min-width: 0;">
-          <span class="currency-symbol">🔍</span>
-          <input type="text" class="form-control with-icon" placeholder="Buscar por nombre, código, DNI o puesto..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+    <div class="table-card glass-panel" style="width: 100%">
+      <div class="search-filter-bar">
+        <div class="search-actions-left">
+          <button class="btn-primary" (click)="createNew()">
+            <span class="icon">+</span> Nuevo Empleado
+          </button>
+          <div class="input-with-icon search-input-wrapper">
+            <span class="currency-symbol">🔍</span>
+            <input type="text" class="form-control with-icon" placeholder="Buscar por nombre, DNI, código..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+          </div>
+        </div>
+        
+        <div class="filter-actions-right">
+          <button class="btn-filter-toggle" [class.active]="showFilters()" (click)="showFilters.set(!showFilters())">
+            <span class="icon">⚙️</span> Filtros
+            @if (filterPuesto() !== 'all' || filterHorario() !== 'all') {
+              <span class="filter-dot"></span>
+            }
+          </button>
         </div>
       </div>
-      <table class="modern-table">
-        <colgroup>
-          <col style="width: 130px;">
-          <col style="width: 200px;">
-          <col style="width: 130px;">
-          <col style="width: 110px;">
-          <col style="width: 120px;">
-          <col style="width: 130px;">
-          <col style="width: 120px;">
-        </colgroup>
-        <thead>
-          <tr>
-            <th>Expediente</th>
-            <th>Nombres y Apellidos</th>
-            <th>DNI / Identificación</th>
-            <th>F. Ingreso</th>
-            <th>Salario Base</th>
-            <th>Puesto</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (empleado of filteredEmpleados(); track empleado.id) {
+
+      @if (showFilters()) {
+        <div class="filter-panel">
+          <div class="filter-group">
+            <label>Puesto</label>
+            <select class="filter-select" [ngModel]="filterPuesto()" (ngModelChange)="filterPuesto.set($event)">
+              <option value="all">Todos los Puestos</option>
+              @for (p of puestos(); track p.id) {
+                <option [value]="p.id">{{ p.nombre }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Horario</label>
+            <select class="filter-select" [ngModel]="filterHorario()" (ngModelChange)="filterHorario.set($event)">
+              <option value="all">Todos los Horarios</option>
+              @for (h of horarios(); track h.id) {
+                <option [value]="h.id">{{ h.nombre }}</option>
+              }
+            </select>
+          </div>
+
+          <button class="btn-clear" (click)="clearFilters()">
+            Limpiar Filtros
+          </button>
+        </div>
+      }
+
+      <div class="table-responsive">
+        <table class="modern-table">
+          <thead>
             <tr>
-              <td><span class="table-name">{{ empleado.codigo_empleado }}</span></td>
-              <td>
-                <div class="user-info">
-                  <div class="avatar" style="--bg: #10b981;">
-                    {{ empleado.nombre.charAt(0).toUpperCase() }}{{ empleado.apellido.charAt(0).toUpperCase() }}
-                  </div>
-                  <div class="details">
-                    <span class="username">{{ empleado.nombre }} {{ empleado.apellido }}</span>
-                  </div>
-                </div>
-              </td>
-              <td><span class="badge badge-default">{{ empleado.dni }}</span></td>
-              <td>{{ empleado.fecha_ingreso | date:'dd-MMM-yy' }}</td>
-              <td><span class="badge badge-money">{{ empleado.salario_base | currency:'CRC':'symbol-narrow':'1.0-0' }}</span></td>
-              <td>{{ empleado.puesto_nombre || 'N/A' }}</td>
-              <td>
-                <div class="action-buttons">
-                  <button class="icon-btn view-btn" title="Ver Detalle" (click)="viewInAnotherPage(empleado)">👁️</button>
-                  <button class="icon-btn edit-btn" title="Editar Expediente" (click)="editEmpleado(empleado)">✏️</button>
-                  <button class="icon-btn delete-btn" title="Dar de Baja" (click)="deleteEmpleado(empleado.id!)">🗑️</button>
-                </div>
-              </td>
+              <th>Expediente</th>
+              <th>Empleado</th>
+              <th>DNI / Cédula</th>
+              <th>Puesto</th>
+              <th>Salario Base</th>
+              <th>Acciones</th>
             </tr>
-          } @empty {
-            <tr>
-              <td colspan="7" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
-                No hay empleados registrados o cargando...
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (empleado of filteredEmpleados(); track empleado.id) {
+              <tr>
+                <td><span class="table-name">{{ empleado.codigo_empleado }}</span></td>
+                <td>
+                  <div class="user-info">
+                    <div class="avatar" style="--bg: #10b981;">
+                      {{ empleado.nombre.charAt(0).toUpperCase() }}{{ empleado.apellido.charAt(0).toUpperCase() }}
+                    </div>
+                    <div class="details">
+                      <span class="username">{{ empleado.nombre }} {{ empleado.apellido }}</span>
+                      <span class="sub-text">{{ empleado.horario_nombre || 'Sin horario' }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="badge badge-default">{{ empleado.dni }}</span></td>
+                <td>{{ empleado.puesto_nombre || 'N/A' }}</td>
+                <td><span class="badge badge-money">{{ empleado.salario_base | currency:'CRC':'symbol-narrow' }}</span></td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="icon-btn view-btn" title="Ver Detalles" (click)="viewEmpleadoDetails(empleado)">👁️</button>
+                    <button class="icon-btn edit-btn" title="Editar Expediente" (click)="editEmpleado(empleado)">✏️</button>
+                    <button class="icon-btn delete-btn" title="Dar de Baja" (click)="deleteEmpleado(empleado.id!)">🗑️</button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                  No hay empleados que coincidan con la búsqueda...
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
     } @else {
-    <!-- Sección 2: Panel Lateral de Formulario -->
-    <div class="form-card glass-panel" style="align-self: start; width: 100%">
+    <!-- Sección 2: Panel Lateral de Formulario / Detalles -->
+    <div class="form-card glass-panel" style="width: 100%">
       <div class="form-header">
-        <h2>{{ isEditing() ? 'Editar Expediente' : 'Ficha de Empleado' }}</h2>
+        <h2>
+          @if (isViewing()) { Detalles del Expediente } 
+          @else if (isEditing()) { Editar Expediente }
+          @else { Nueva Ficha de Empleado }
+        </h2>
         <button class="close-btn" (click)="resetForm()">✕</button>
       </div>
       
-      <form class="modern-form" (ngSubmit)="saveEmpleado()">
-        <div class="form-group twocol">
-          <div class="col">
-            <label>Código (Automático)</label>
-            <input type="text" class="form-control" name="codigo_empleado" [(ngModel)]="currentEmpleado().codigo_empleado" readonly style="background-color: rgba(255, 255, 255, 0.05); color: #9ca3af; cursor: not-allowed; border-color: rgba(255, 255, 255, 0.1);">
+      @if (isViewing()) {
+        <!-- VISTA DE DETALLES -->
+        <div class="details-view">
+          <div class="details-section">
+            <h3>Información General</h3>
+            <div class="details-grid">
+              <div class="detail-item">
+                <label>Nombre Completo:</label>
+                <span>{{ currentEmpleado().nombre }} {{ currentEmpleado().apellido }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Código de Empleado:</label>
+                <span class="code-badge">{{ currentEmpleado().codigo_empleado }}</span>
+              </div>
+              <div class="detail-item">
+                <label>DNI / Cédula:</label>
+                <span>{{ currentEmpleado().dni }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Fecha de Ingreso:</label>
+                <span>{{ currentEmpleado().fecha_ingreso | date:'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
           </div>
-          <div class="col">
-            <label>DNI / Cédula <span style="color:#ef4444">*</span></label>
-            <input type="text" class="form-control" required maxlength="20" name="dni" [(ngModel)]="currentEmpleado().dni" [readonly]="isEditing()">
+
+          <div class="details-section">
+            <h3>Puesto y Salario</h3>
+            <div class="details-grid">
+              <div class="detail-item">
+                <label>Puesto Actual:</label>
+                <span>{{ currentEmpleado().puesto_nombre || 'No asignado' }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Horario Asignado:</label>
+                <span>{{ currentEmpleado().horario_nombre || 'No definido' }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Salario Base:</label>
+                <span style="color: #10b981; font-size: 1.1rem;">{{ currentEmpleado().salario_base | currency:'CRC':'symbol-narrow' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="details-section">
+            <h3>Información de Pago</h3>
+            <div class="details-grid">
+              <div class="detail-item">
+                <label>Banco:</label>
+                <span>{{ currentEmpleado().banco || 'No especificado' }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Cuenta IBAN:</label>
+                <span style="font-family: monospace;">{{ currentEmpleado().cuenta_iban || 'No registrada' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions" style="border-top: 1px solid var(--panel-border); margin-top: 2rem; padding-top: 1rem;">
+            <button type="button" class="btn-secondary" (click)="resetForm()">Cerrar</button>
+            <button type="button" class="btn-primary" (click)="editEmpleado(currentEmpleado())">Editar Expediente</button>
           </div>
         </div>
-
-        <div class="form-group twocol">
-          <div class="col">
-            <label>Nombres <span style="color:#ef4444">*</span></label>
-            <input type="text" class="form-control" required maxlength="100" name="nombre" [(ngModel)]="currentEmpleado().nombre">
-          </div>
-          <div class="col">
-            <label>Apellidos <span style="color:#ef4444">*</span></label>
-            <input type="text" class="form-control" required maxlength="100" name="apellido" [(ngModel)]="currentEmpleado().apellido">
-          </div>
-        </div>
-
-        <div class="form-group twocol">
+      } @else {
+        <!-- FORMULARIO DE EDICIÓN / CREACIÓN -->
+        <form class="modern-form" (ngSubmit)="saveEmpleado()">
+          <div class="form-group twocol">
             <div class="col">
-                <label>F. Ingreso <span style="color:#ef4444">*</span></label>
-                <input type="date" class="form-control date-input" required name="fecha_ingreso" [(ngModel)]="currentEmpleado().fecha_ingreso">
+              <label>Código (Automático)</label>
+              <input type="text" class="form-control" name="codigo_empleado" [(ngModel)]="currentEmpleado().codigo_empleado" readonly style="background-color: rgba(255, 255, 255, 0.05); color: #9ca3af; cursor: not-allowed;">
             </div>
             <div class="col">
-                <label>Salario Neto <span style="color:#ef4444">*</span></label>
-                <div class="input-with-icon">
-                  <span class="currency-symbol">₡</span>
-                  <input type="number" class="form-control with-icon" required step="0.01" name="salario_base" [(ngModel)]="currentEmpleado().salario_base">
-                </div>
+              <label>DNI / Cédula <span style="color:#ef4444">*</span></label>
+              <input type="text" class="form-control" required maxlength="20" name="dni" [(ngModel)]="currentEmpleado().dni" [readonly]="isEditing()">
             </div>
-        </div>
+          </div>
 
-        <div class="form-group twocol">
-          <div class="col">
-            <label>Puesto <span style="color:var(--text-muted); font-size:0.75rem;">(Opc.)</span></label>
-            <select class="form-control" name="puesto_id" [(ngModel)]="currentEmpleado().puesto_id">
-              <option [ngValue]="undefined">-- Sin Asignar --</option>
-              @for (p of puestos(); track p.id) {
-                <option [ngValue]="p.id">{{ p.nombre }}</option>
-              }
-            </select>
+          <div class="form-group twocol">
+            <div class="col">
+              <label>Nombres <span style="color:#ef4444">*</span></label>
+              <input type="text" class="form-control" required maxlength="100" name="nombre" [(ngModel)]="currentEmpleado().nombre">
+            </div>
+            <div class="col">
+              <label>Apellidos <span style="color:#ef4444">*</span></label>
+              <input type="text" class="form-control" required maxlength="100" name="apellido" [(ngModel)]="currentEmpleado().apellido">
+            </div>
           </div>
-          <div class="col">
-            <label>Horario <span style="color:var(--text-muted); font-size:0.75rem;">(Opc.)</span></label>
-            <select class="form-control" name="horario_id" [(ngModel)]="currentEmpleado().horario_id">
-              <option [ngValue]="undefined">-- Sin Asignar --</option>
-              @for (h of horarios(); track h.id) {
-                <option [ngValue]="h.id">{{ h.nombre }}</option>
-              }
-            </select>
-          </div>
-        </div>
 
-        <div class="form-group twocol">
-          <div class="col">
-            <label>Cuenta IBAN <span style="color:var(--text-muted); font-size:0.75rem;">(Opcional)</span></label>
-            <input type="text" class="form-control" name="cuenta_iban" placeholder="CR..." maxlength="50" [(ngModel)]="currentEmpleado().cuenta_iban">
+          <div class="form-group twocol">
+              <div class="col">
+                  <label>F. Ingreso <span style="color:#ef4444">*</span></label>
+                  <input type="date" class="form-control date-input" required name="fecha_ingreso" [(ngModel)]="currentEmpleado().fecha_ingreso">
+              </div>
+              <div class="col">
+                  <label>Salario Base <span style="color:#ef4444">*</span></label>
+                  <div class="input-with-icon">
+                    <span class="currency-symbol">₡</span>
+                    <input type="number" class="form-control with-icon" required step="0.01" name="salario_base" [(ngModel)]="currentEmpleado().salario_base">
+                  </div>
+              </div>
           </div>
-          <div class="col">
-            <label>Banco <span style="color:var(--text-muted); font-size:0.75rem;">(Opcional)</span></label>
-            <input type="text" class="form-control" name="banco" placeholder="Ej: Banco Nacional" maxlength="100" [(ngModel)]="currentEmpleado().banco">
-          </div>
-        </div>
 
-        <div class="form-actions fixed-actions" style="margin-top: 2rem;">
-          <button type="button" class="btn-secondary" (click)="resetForm()">
-            {{ isEditing() ? 'Cancelar' : 'Limpiar' }}
-          </button>
-          <button type="submit" class="btn-primary" [disabled]="!currentEmpleado().codigo_empleado || !currentEmpleado().nombre || !currentEmpleado().dni">
-            {{ isEditing() ? 'Actualizar' : 'Guardar Expediente' }}
-          </button>
-        </div>
-      </form>
+          <div class="form-group twocol">
+            <div class="col">
+              <label>Puesto <span style="color:var(--text-muted); font-size:0.75rem;">(Opc.)</span></label>
+              <select class="form-control" name="puesto_id" [(ngModel)]="currentEmpleado().puesto_id">
+                <option [ngValue]="undefined">-- Sin Asignar --</option>
+                @for (p of puestos(); track p.id) {
+                  <option [ngValue]="p.id">{{ p.nombre }}</option>
+                }
+              </select>
+            </div>
+            <div class="col">
+              <label>Horario <span style="color:var(--text-muted); font-size:0.75rem;">(Opc.)</span></label>
+              <select class="form-control" name="horario_id" [(ngModel)]="currentEmpleado().horario_id">
+                <option [ngValue]="undefined">-- Sin Asignar --</option>
+                @for (h of horarios(); track h.id) {
+                  <option [ngValue]="h.id">{{ h.nombre }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group twocol">
+            <div class="col">
+              <label>Cuenta IBAN <span style="color:var(--text-muted); font-size:0.75rem;">(Opcional)</span></label>
+              <input type="text" class="form-control" name="cuenta_iban" placeholder="CR..." maxlength="50" [(ngModel)]="currentEmpleado().cuenta_iban">
+            </div>
+            <div class="col">
+              <label>Banco <span style="color:var(--text-muted); font-size:0.75rem;">(Opcional)</span></label>
+              <input type="text" class="form-control" name="banco" placeholder="Ej: Banco Nacional" maxlength="100" [(ngModel)]="currentEmpleado().banco">
+            </div>
+          </div>
+
+          <div class="form-actions" style="margin-top: 2rem;">
+            <button type="button" class="btn-secondary" (click)="resetForm()">
+              {{ isEditing() ? 'Cancelar' : 'Limpiar' }}
+            </button>
+            <button type="submit" class="btn-primary" [disabled]="!currentEmpleado().nombre || !currentEmpleado().dni">
+              {{ isEditing() ? 'Actualizar' : 'Guardar Expediente' }}
+            </button>
+          </div>
+        </form>
+      }
     </div>
     }
   </div>

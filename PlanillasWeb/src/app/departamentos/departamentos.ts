@@ -24,6 +24,7 @@ export class Departamentos implements OnInit {
 
   protected readonly items = signal<Departamento[]>([]);
   protected readonly searchTerm = signal('');
+  protected readonly showFilters = signal(false);
   protected readonly filteredItems = computed(() => {
     const term = this.searchTerm().toLowerCase();
     if (!term) return this.items();
@@ -34,6 +35,7 @@ export class Departamentos implements OnInit {
   });
   protected readonly currentItem = signal<Departamento>(this.getEmptyItem());
   protected readonly isEditing = signal(false);
+  protected readonly isViewing = signal(false);
   protected readonly showForm = signal(false);
 
   ngOnInit() {
@@ -66,8 +68,16 @@ export class Departamentos implements OnInit {
     }
   }
 
+  protected viewItemDetails(item: Departamento) {
+    this.currentItem.set({ ...item });
+    this.isViewing.set(true);
+    this.isEditing.set(false);
+    this.showForm.set(true);
+  }
+
   protected editItem(item: Departamento) {
     this.currentItem.set({ ...item });
+    this.isViewing.set(false);
     this.isEditing.set(true);
     this.showForm.set(true);
   }
@@ -76,6 +86,10 @@ export class Departamentos implements OnInit {
   protected viewPuestos(departamento: Departamento) {
     localStorage.setItem('selectedDepartamento', JSON.stringify(departamento));
     this.router.navigate(['/puestos']);
+  }
+
+  protected clearFilters() {
+    this.searchTerm.set('');
   }
 
   protected async deleteItem(id: number) {
@@ -90,6 +104,8 @@ export class Departamentos implements OnInit {
   protected resetForm() {
     this.currentItem.set(this.getEmptyItem());
     this.isEditing.set(false);
+    this.isViewing.set(false);
+    this.showFilters.set(false);
     this.showForm.set(false);
   }
 

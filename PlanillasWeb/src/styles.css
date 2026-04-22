@@ -254,32 +254,48 @@ select.form-control option {
   margin-bottom: 0 !important;
 }
 
-/* Search and Filter Bar (inside table-card) */
+/* Search and Filter Bar Layout */
 .search-filter-bar {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1.2rem 0 1.2rem 0;
+  padding: 1.2rem 0;
   margin-bottom: 1rem;
   border-bottom: 1px solid rgba(255,255,255,0.06);
   width: 100%;
 }
-.search-input {
-  flex: 1;
-  min-width: 0;
-}
-.search-input input {
-  padding-left: 2.8rem !important;
-  border-radius: 12px !important;
-  background: rgba(15, 23, 42, 0.4) !important;
+
+/* Global Search Bar Icon Styles */
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
   width: 100%;
-  box-sizing: border-box;
 }
-.search-input .currency-symbol {
+
+.input-with-icon .currency-symbol,
+.input-with-icon .icon,
+.input-with-icon .input-icon {
+  position: absolute;
   left: 1.2rem;
   font-size: 1.1rem;
   color: var(--accent);
   pointer-events: none;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-control.with-icon {
+  padding-left: 3rem !important;
+}
+
+/* Backward compatibility or alternative class name */
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 /* Scrollbars Premium */

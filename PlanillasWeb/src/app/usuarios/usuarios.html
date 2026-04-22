@@ -13,220 +13,364 @@
     <!-- Sección 1: Tabla de Registros -->
     <div class="table-card glass-panel" style="width: 100%">
       <div class="search-filter-bar">
-        <button class="btn-primary" (click)="createNew()">
-          <span class="icon">+</span> Nuevo Usuario
-        </button>
-        <div class="input-with-icon search-input">
-          <span class="currency-symbol">🔍</span>
-          <input type="text" class="form-control with-icon" placeholder="Buscar usuario por nombre, rol, empleado..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+        <div class="search-actions-left">
+          <button class="btn-primary" (click)="createNew()">
+            <span class="icon">+</span> Nuevo Usuario
+          </button>
+          <div class="input-with-icon search-input-wrapper">
+            <span class="currency-symbol">🔍</span>
+            <input type="text" class="form-control with-icon" placeholder="Buscar usuario..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+          </div>
+        </div>
+        
+        <div class="filter-actions-right">
+          <button class="btn-filter-toggle" [class.active]="showFilters()" (click)="showFilters.set(!showFilters())">
+            <span class="icon">⚙️</span> Filtros
+            @if (filterEstado() !== 'all' || filterRol() !== 'all') {
+              <span class="filter-dot"></span>
+            }
+          </button>
         </div>
       </div>
-      <table class="modern-table">
-        <thead>
-          <tr>
-            <th>Usuario</th>
-            <th>Rol</th>
-            <th>Empleado Asignado</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (usuario of filteredUsuarios(); track usuario.id) {
+
+      @if (showFilters()) {
+        <div class="filter-panel">
+          <div class="filter-group">
+            <label>Estado</label>
+            <select class="filter-select" [ngModel]="filterEstado()" (ngModelChange)="filterEstado.set($event)">
+              <option value="all">Cualquiera</option>
+              <option value="1">Activos</option>
+              <option value="0">Inactivos</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Rol de Usuario</label>
+            <select class="filter-select" [ngModel]="filterRol()" (ngModelChange)="filterRol.set($event)">
+              <option value="all">Cualquiera</option>
+              <option value="Administrador">Administrador</option>
+              <option value="Recursos Humanos">Recursos Humanos</option>
+              <option value="Contador">Contador</option>
+              <option value="Empleado">Empleado</option>
+            </select>
+          </div>
+
+          <button class="btn-clear" (click)="clearFilters()">
+            Limpiar Filtros
+          </button>
+        </div>
+      }
+      
+      <div class="table-responsive">
+        <table class="modern-table">
+          <thead>
             <tr>
-              <td>
-                <div class="user-info">
-                  <div class="avatar" style="--bg: #00e5ff;">
-                    {{ usuario.username.slice(0, 2).toUpperCase() }}
-                  </div>
-                  <div class="details">
-                    <span class="username">{{ usuario.username }}</span>
-                    <span class="sub-text">ID: {{ usuario.id }}</span>
-                  </div>
-                </div>
-              </td>
-              <td><span class="badge" [class.badge-admin]="usuario.rol === 'Administrador'" [class.badge-empleado]="usuario.rol !== 'Administrador'">{{ usuario.rol }}</span></td>
-              <td>{{ usuario.empleado_nombre || 'Sin Empleado (ID: ' + (usuario.empleado_id || 'N/A') + ')' }}</td>
-              <td>
-                @if (usuario.estado === 1) {
-                  <span class="status-indicator active">Activo</span>
-                } @else {
-                  <span class="status-indicator inactive">Inactivo</span>
-                }
-              </td>
-              <td>
-                <div class="action-buttons">
-                  <button class="icon-btn edit-btn" title="Editar Usuario" (click)="editUsuario(usuario)">✏️</button>
-                  <button class="icon-btn delete-btn" title="Eliminar Usuario" (click)="deleteUsuario(usuario.id!)">🗑️</button>
-                </div>
-              </td>
+              <th>Usuario</th>
+              <th>Rol</th>
+              <th>Empleado Asignado</th>
+              <th>Estado</th>
+              <th>Acciones</th>
             </tr>
-          } @empty {
-            <tr>
-              <td colspan="5" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
-                No hay usuarios registrados o cargando...
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (usuario of filteredUsuarios(); track usuario.id) {
+              <tr>
+                <td>
+                  <div class="user-info">
+                    <div class="avatar" style="--bg: #00e5ff;">
+                      {{ usuario.username.slice(0, 2).toUpperCase() }}
+                    </div>
+                    <div class="details">
+                      <span class="username">{{ usuario.username }}</span>
+                      <span class="sub-text">ID: {{ usuario.id }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="badge" [class.badge-admin]="usuario.rol === 'Administrador'" [class.badge-empleado]="usuario.rol !== 'Administrador'">{{ usuario.rol }}</span></td>
+                <td>{{ usuario.empleado_nombre || 'Sin Empleado (ID: ' + (usuario.empleado_id || 'N/A') + ')' }}</td>
+                <td>
+                  @if (usuario.estado === 1) {
+                    <span class="status-indicator active">Activo</span>
+                  } @else {
+                    <span class="status-indicator inactive">Inactivo</span>
+                  }
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="icon-btn view-btn" title="Ver Detalles" (click)="viewUsuarioDetails(usuario)">👁️</button>
+                    <button class="icon-btn edit-btn" title="Editar Usuario" (click)="editUsuario(usuario)">✏️</button>
+                    <button class="icon-btn delete-btn" title="Eliminar Usuario" (click)="deleteUsuario(usuario.id!)">🗑️</button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                  No hay usuarios registrados o cargando...
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
     } @else {
-    <!-- Sección 2: Panel Lateral de Formulario -->
+    <!-- Sección 2: Panel Lateral de Formulario / Detalles -->
     <div class="form-card glass-panel" style="width: 100%">
       <div class="form-header">
-        <h2>{{ isEditing() ? 'Editar Usuario' : 'Detalle del Usuario' }}</h2>
+        <h2>
+          @if (isViewing()) { Detalles del Usuario } 
+          @else if (isEditing()) { Editar Usuario }
+          @else { Nuevo Usuario }
+        </h2>
         <button class="close-btn" (click)="resetForm()">✕</button>
       </div>
       
-      <form class="modern-form" (ngSubmit)="saveUsuario()">
-        <div class="form-group">
-          <label>Nombre de Usuario <span style="color:#ef4444">*</span></label>
-          <input type="text" placeholder="Ej. jperez" class="form-control" required maxlength="100" name="username" [(ngModel)]="currentUsuario().username" [readonly]="isEditing()">
-        </div>
-
-        <div class="form-group">
-          <label>Contraseña 
-            @if (!isEditing()) {
-              <span style="color:#ef4444">*</span>
-            }
-          </label>
-          <input type="password" placeholder="********" class="form-control" [required]="!isEditing()" maxlength="100" name="password_hash" [(ngModel)]="currentUsuario().password_hash">
-        </div>
-
-        <div class="form-group">
-          <label>Rol de Sistema <span style="color:#ef4444">*</span></label>
-          <select class="form-control" required name="rol" [(ngModel)]="currentUsuario().rol">
-            <option value="Administrador">Administrador</option>
-            <option value="Recursos Humanos">Recursos Humanos</option>
-            <option value="Contador">Contador</option>
-            <option value="Empleado">Empleado</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Empleado Vinculado <span style="color:var(--text-muted); font-weight:normal; font-size:0.75rem;">(Opcional)</span></label>
-          
-          @if (!isEditing()) {
-            <!-- CREAR: Preguntar si desea generar un empleado -->
-            <div class="empleado-option-card">
-              <div class="toggle-container">
-                <label class="switch">
-                  <input type="checkbox" [checked]="crearEmpleado()" (change)="toggleCrearEmpleado($event)">
-                  <span class="slider round"></span>
-                </label>
-                <span class="toggle-text" [class.active]="crearEmpleado()">
-                  {{ crearEmpleado() ? '✅ Se generará un empleado automáticamente' : '¿Desea generar un empleado para este usuario?' }}
+      @if (isViewing()) {
+        <!-- VISTA DE DETALLES -->
+        <div class="details-view">
+          <div class="details-section">
+            <h3>Información de Cuenta</h3>
+            <div class="details-grid">
+              <div class="detail-item">
+                <label>ID de Sistema:</label>
+                <span>{{ currentUsuario().id }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Nombre de Usuario:</label>
+                <span>{{ currentUsuario().username }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Rol de Sistema:</label>
+                <span class="badge" [class.badge-admin]="currentUsuario().rol === 'Administrador'" [class.badge-empleado]="currentUsuario().rol !== 'Administrador'">
+                  {{ currentUsuario().rol }}
                 </span>
               </div>
-              @if (crearEmpleado()) {
-                <div class="dni-input-group">
-                  <div class="form-group twocol" style="margin-bottom: 0.5rem; gap: 0.5rem;">
-                    <div class="col" style="margin-bottom: 0;">
-                      <label>Nombre del Empleado <span style="color:#ef4444">*</span></label>
-                      <input type="text" class="form-control" placeholder="Nombre" required maxlength="100" name="nombre_empleado" [ngModel]="nombreEmpleado()" (ngModelChange)="nombreEmpleado.set($event)">
-                    </div>
-                    <div class="col" style="margin-bottom: 0;">
-                      <label>Apellido del Empleado <span style="color:#ef4444">*</span></label>
-                      <input type="text" class="form-control" placeholder="Apellido" required maxlength="100" name="apellido_empleado" [ngModel]="apellidoEmpleado()" (ngModelChange)="apellidoEmpleado.set($event)">
-                    </div>
-                  </div>
-                  <label>DNI / Cédula del Empleado <span style="color:#ef4444">*</span></label>
-                  <input type="text" class="form-control" placeholder="Ej. 1-2345-6789" required maxlength="20" name="dni_empleado" [ngModel]="dniEmpleado()" (ngModelChange)="dniEmpleado.set($event)">
-                  <span class="dni-hint">📌 Estos campos son obligatorios para generar el empleado</span>
-                </div>
-              } @else {
-                <div style="margin-top: 0.75rem;">
-                  <label style="font-size:0.8rem; color:var(--text-muted);">O seleccione un empleado existente:</label>
-                  <select class="form-control" name="empleado_id" [(ngModel)]="currentUsuario().empleado_id">
-                    <option [ngValue]="undefined">-- Sin empleado --</option>
-                    @for (emp of empleados(); track emp.id) {
-                      <option [ngValue]="emp.id">{{ emp.nombre }} {{ emp.apellido }} ({{ emp.dni }})</option>
-                    }
-                  </select>
-                </div>
-              }
+              <div class="detail-item">
+                <label>Estado de Acceso:</label>
+                <span class="status-indicator" [class.active]="currentUsuario().estado === 1" [class.inactive]="currentUsuario().estado !== 1">
+                  {{ currentUsuario().estado === 1 ? 'Activo / Habilitado' : 'Inactivo / Bloqueado' }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <label>Pregunta Seguridad:</label>
+                <span>{{ currentUsuario().pregunta_seguridad || 'No configurada' }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Respuesta Seguridad:</label>
+                <span style="font-style: italic; color: var(--text-muted);">{{ currentUsuario().respuesta_seguridad ? '******** (Oculta por seguridad)' : 'Sin respuesta' }}</span>
+              </div>
             </div>
-          } @else {
-            <!-- EDITAR: Mostrar estado actual y opción de generar -->
-            @if (!currentUsuario().empleado_id) {
-              <div class="empleado-option-card no-empleado">
-                <div class="no-empleado-info">
-                  <span class="icon-warning">⚠️</span>
-                  <span>Este usuario <strong>no tiene</strong> un empleado asignado.</span>
+          </div>
+
+          @if (selectedEmpleadoFull(); as emp) {
+            <div class="details-section employee-details">
+              <h3>Detalles del Empleado Vinculado</h3>
+              <div class="details-grid">
+                <div class="detail-item">
+                  <label>Nombre Completo:</label>
+                  <span>{{ emp.nombre }} {{ emp.apellido }}</span>
                 </div>
-                <div class="dni-input-group">
-                  <div class="form-group twocol" style="margin-bottom: 0.5rem; gap: 0.5rem;">
-                    <div class="col" style="margin-bottom: 0;">
-                      <label>Nombre <span style="color:#ef4444">*</span></label>
-                      <input type="text" class="form-control" placeholder="Nombre" required maxlength="100" name="nombre_empleado_edit" [ngModel]="nombreEmpleado()" (ngModelChange)="nombreEmpleado.set($event)">
-                    </div>
-                    <div class="col" style="margin-bottom: 0;">
-                      <label>Apellido <span style="color:#ef4444">*</span></label>
-                      <input type="text" class="form-control" placeholder="Apellido" required maxlength="100" name="apellido_empleado_edit" [ngModel]="apellidoEmpleado()" (ngModelChange)="apellidoEmpleado.set($event)">
-                    </div>
-                  </div>
-                  <label>DNI / Cédula <span style="color:#ef4444">*</span></label>
-                  <input type="text" class="form-control" placeholder="Ej. 1-2345-6789" required maxlength="20" name="dni_empleado_edit" [ngModel]="dniEmpleado()" (ngModelChange)="dniEmpleado.set($event)">
-                  <span class="dni-hint">📌 Ingrese Nombre, Apellido y DNI antes de generar</span>
+                <div class="detail-item">
+                  <label>Código de Empleado:</label>
+                  <span class="code-badge">{{ emp.codigo_empleado || emp.codigo || 'S/C' }}</span>
                 </div>
-                <button type="button" class="btn-generar-empleado" (click)="generarEmpleado()" [disabled]="!dniEmpleado() || !nombreEmpleado() || !apellidoEmpleado()">
-                  <span class="icon">👤+</span> Generar Empleado Ahora
-                </button>
-                <div style="margin-top: 0.75rem;">
-                  <label style="font-size:0.8rem; color:var(--text-muted);">O vincular un empleado existente:</label>
-                  <select class="form-control" name="empleado_id" [(ngModel)]="currentUsuario().empleado_id">
-                    <option [ngValue]="undefined">-- Sin empleado --</option>
-                    @for (emp of empleados(); track emp.id) {
-                      <option [ngValue]="emp.id">{{ emp.nombre }} {{ emp.apellido }} ({{ emp.dni }})</option>
-                    }
-                  </select>
+                <div class="detail-item">
+                  <label>DNI / Cédula:</label>
+                  <span>{{ emp.dni }}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Puesto:</label>
+                  <span>{{ emp.puesto_nombre || 'No asignado' }}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Departamento:</label>
+                  <span>{{ emp.departamento_nombre || 'N/A' }}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Horario:</label>
+                  <span>{{ emp.horario_nombre || 'No definido' }}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Salario Base:</label>
+                  <span style="color: #10b981;">{{ emp.salario_base | currency:'CRC':'symbol-narrow' }}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Fecha de Ingreso:</label>
+                  <span>{{ emp.fecha_ingreso | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Banco:</label>
+                  <span>{{ emp.banco || 'No especificado' }}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Cuenta IBAN:</label>
+                  <span style="font-family: monospace; font-size: 0.9rem;">{{ emp.cuenta_iban || 'No registrada' }}</span>
                 </div>
               </div>
-            } @else {
-              <select class="form-control" name="empleado_id" [(ngModel)]="currentUsuario().empleado_id">
-                <option [ngValue]="undefined">-- Sin empleado --</option>
-                @for (emp of empleados(); track emp.id) {
-                  <option [ngValue]="emp.id">{{ emp.nombre }} {{ emp.apellido }} ({{ emp.dni }})</option>
-                }
-              </select>
-            }
+            </div>
+          } @else {
+            <div class="details-section no-data">
+              <p>⚠️ Este usuario no tiene un empleado vinculado en el sistema.</p>
+            </div>
           }
-        </div>
 
-        <div class="form-group twocol">
-          <div class="col">
-            <label>Pregunta Seguridad <span style="color:var(--text-muted); font-weight:normal; font-size:0.75rem;">(Opcional)</span></label>
-            <input type="text" class="form-control" maxlength="255" name="pregunta_seguridad" [(ngModel)]="currentUsuario().pregunta_seguridad">
-          </div>
-          <div class="col">
-            <label>Respuesta <span style="color:var(--text-muted); font-weight:normal; font-size:0.75rem;">(Opcional)</span></label>
-            <input type="text" class="form-control" maxlength="255" name="respuesta_seguridad" [(ngModel)]="currentUsuario().respuesta_seguridad">
+          <div class="form-actions" style="border-top: 1px solid var(--panel-border); margin-top: 2rem; padding-top: 1rem;">
+            <button type="button" class="btn-secondary" (click)="resetForm()">Cerrar</button>
+            <button type="button" class="btn-primary" (click)="editUsuario(currentUsuario())">Ir a Editar</button>
           </div>
         </div>
+      } @else {
+        <!-- FORMULARIO DE EDICIÓN / CREACIÓN -->
+        <form class="modern-form" (ngSubmit)="saveUsuario()">
+          <div class="form-group">
+            <label>Nombre de Usuario <span style="color:#ef4444">*</span></label>
+            <input type="text" placeholder="Ej. jperez" class="form-control" required maxlength="100" name="username" [(ngModel)]="currentUsuario().username" [readonly]="isEditing()">
+          </div>
 
-        <div class="form-group toggle-group">
-          <label class="state-label">Estado de Acceso</label>
-          <div class="toggle-container">
-            <label class="switch">
-              <input type="checkbox" [checked]="currentUsuario().estado === 1" (change)="toggleEstado($event)">
-              <span class="slider round"></span>
+          <div class="form-group">
+            <label>Contraseña 
+              @if (!isEditing()) {
+                <span style="color:#ef4444">*</span>
+              }
             </label>
-            <span class="toggle-text" [class.active]="currentUsuario().estado === 1">
-              {{ currentUsuario().estado === 1 ? 'Cuenta Activa' : 'Cuenta Inactiva' }}
-            </span>
+            <input type="password" placeholder="********" class="form-control" [required]="!isEditing()" maxlength="100" name="password_hash" [(ngModel)]="currentUsuario().password_hash">
           </div>
-        </div>
 
-        <div class="form-actions">
-          <button type="button" class="btn-secondary" (click)="resetForm()">
-            {{ isEditing() ? 'Cancelar' : 'Limpiar' }}
-          </button>
-          <button type="submit" class="btn-primary" [disabled]="!currentUsuario().username || (!isEditing() && !currentUsuario().password_hash) || (crearEmpleado() && (!dniEmpleado() || !nombreEmpleado() || !apellidoEmpleado()))">
-            {{ isEditing() ? 'Actualizar' : 'Guardar Cambios' }}
-          </button>
-        </div>
-      </form>
+          <div class="form-group">
+            <label>Rol de Sistema <span style="color:#ef4444">*</span></label>
+            <select class="form-control" required name="rol" [(ngModel)]="currentUsuario().rol">
+              <option value="Administrador">Administrador</option>
+              <option value="Recursos Humanos">Recursos Humanos</option>
+              <option value="Contador">Contador</option>
+              <option value="Empleado">Empleado</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Empleado Vinculado <span style="color:var(--text-muted); font-weight:normal; font-size:0.75rem;">(Opcional)</span></label>
+            
+            @if (!isEditing()) {
+              <!-- CREAR: Preguntar si desea generar un empleado -->
+              <div class="empleado-option-card">
+                <div class="toggle-container">
+                  <label class="switch">
+                    <input type="checkbox" [checked]="crearEmpleado()" (change)="toggleCrearEmpleado($event)">
+                    <span class="slider round"></span>
+                  </label>
+                  <span class="toggle-text" [class.active]="crearEmpleado()">
+                    {{ crearEmpleado() ? '✅ Se generará un empleado automáticamente' : '¿Desea generar un empleado para este usuario?' }}
+                  </span>
+                </div>
+                @if (crearEmpleado()) {
+                  <div class="dni-input-group">
+                    <div class="form-group twocol" style="margin-bottom: 0.5rem; gap: 0.5rem;">
+                      <div class="col" style="margin-bottom: 0;">
+                        <label>Nombre del Empleado <span style="color:#ef4444">*</span></label>
+                        <input type="text" class="form-control" placeholder="Nombre" required maxlength="100" name="nombre_empleado" [ngModel]="nombreEmpleado()" (ngModelChange)="nombreEmpleado.set($event)">
+                      </div>
+                      <div class="col" style="margin-bottom: 0;">
+                        <label>Apellido del Empleado <span style="color:#ef4444">*</span></label>
+                        <input type="text" class="form-control" placeholder="Apellido" required maxlength="100" name="apellido_empleado" [ngModel]="apellidoEmpleado()" (ngModelChange)="apellidoEmpleado.set($event)">
+                      </div>
+                    </div>
+                    <label>DNI / Cédula del Empleado <span style="color:#ef4444">*</span></label>
+                    <input type="text" class="form-control" placeholder="Ej. 1-2345-6789" required maxlength="20" name="dni_empleado" [ngModel]="dniEmpleado()" (ngModelChange)="dniEmpleado.set($event)">
+                    <span class="dni-hint">📌 Estos campos son obligatorios para generar el empleado</span>
+                  </div>
+                } @else {
+                  <div style="margin-top: 0.75rem;">
+                    <label style="font-size:0.8rem; color:var(--text-muted);">O seleccione un empleado existente:</label>
+                    <select class="form-control" name="empleado_id" [(ngModel)]="currentUsuario().empleado_id">
+                      <option [ngValue]="undefined">-- Sin empleado --</option>
+                      @for (emp of empleados(); track emp.id) {
+                        <option [ngValue]="emp.id">{{ emp.nombre }} {{ emp.apellido }} ({{ emp.dni }})</option>
+                      }
+                    </select>
+                  </div>
+                }
+              </div>
+            } @else {
+              <!-- EDITAR: Mostrar estado actual y opción de generar -->
+              @if (!currentUsuario().empleado_id) {
+                <div class="empleado-option-card no-empleado">
+                  <div class="no-empleado-info">
+                    <span class="icon-warning">⚠️</span>
+                    <span>Este usuario <strong>no tiene</strong> un empleado asignado.</span>
+                  </div>
+                  <div class="dni-input-group">
+                    <div class="form-group twocol" style="margin-bottom: 0.5rem; gap: 0.5rem;">
+                      <div class="col" style="margin-bottom: 0;">
+                        <label>Nombre <span style="color:#ef4444">*</span></label>
+                        <input type="text" class="form-control" placeholder="Nombre" required maxlength="100" name="nombre_empleado_edit" [ngModel]="nombreEmpleado()" (ngModelChange)="nombreEmpleado.set($event)">
+                      </div>
+                      <div class="col" style="margin-bottom: 0;">
+                        <label>Apellido <span style="color:#ef4444">*</span></label>
+                        <input type="text" class="form-control" placeholder="Apellido" required maxlength="100" name="apellido_empleado_edit" [ngModel]="apellidoEmpleado()" (ngModelChange)="apellidoEmpleado.set($event)">
+                      </div>
+                    </div>
+                    <label>DNI / Cédula <span style="color:#ef4444">*</span></label>
+                    <input type="text" class="form-control" placeholder="Ej. 1-2345-6789" required maxlength="20" name="dni_empleado_edit" [ngModel]="dniEmpleado()" (ngModelChange)="dniEmpleado.set($event)">
+                    <span class="dni-hint">📌 Ingrese Nombre, Apellido y DNI antes de generar</span>
+                  </div>
+                  <button type="button" class="btn-generar-empleado" (click)="generarEmpleado()" [disabled]="!dniEmpleado() || !nombreEmpleado() || !apellidoEmpleado()">
+                    <span class="icon">👤+</span> Generar Empleado Ahora
+                  </button>
+                  <div style="margin-top: 0.75rem;">
+                    <label style="font-size:0.8rem; color:var(--text-muted);">O vincular un empleado existente:</label>
+                    <select class="form-control" name="empleado_id" [(ngModel)]="currentUsuario().empleado_id">
+                      <option [ngValue]="undefined">-- Sin empleado --</option>
+                      @for (emp of empleados(); track emp.id) {
+                        <option [ngValue]="emp.id">{{ emp.nombre }} {{ emp.apellido }} ({{ emp.dni }})</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+              } @else {
+                <select class="form-control" name="empleado_id" [(ngModel)]="currentUsuario().empleado_id">
+                  <option [ngValue]="undefined">-- Sin empleado --</option>
+                  @for (emp of empleados(); track emp.id) {
+                    <option [ngValue]="emp.id">{{ emp.nombre }} {{ emp.apellido }} ({{ emp.dni }})</option>
+                  }
+                </select>
+              }
+            }
+          </div>
+
+          <div class="form-group twocol">
+            <div class="col">
+              <label>Pregunta Seguridad <span style="color:var(--text-muted); font-weight:normal; font-size:0.75rem;">(Opcional)</span></label>
+              <input type="text" class="form-control" maxlength="255" name="pregunta_seguridad" [(ngModel)]="currentUsuario().pregunta_seguridad">
+            </div>
+            <div class="col">
+              <label>Respuesta <span style="color:var(--text-muted); font-weight:normal; font-size:0.75rem;">(Opcional)</span></label>
+              <input type="text" class="form-control" maxlength="255" name="respuesta_seguridad" [(ngModel)]="currentUsuario().respuesta_seguridad">
+            </div>
+          </div>
+
+          <div class="form-group toggle-group">
+            <label class="state-label">Estado de Acceso</label>
+            <div class="toggle-container">
+              <label class="switch">
+                <input type="checkbox" [checked]="currentUsuario().estado === 1" (change)="toggleEstado($event)">
+                <span class="slider round"></span>
+              </label>
+              <span class="toggle-text" [class.active]="currentUsuario().estado === 1">
+                {{ currentUsuario().estado === 1 ? 'Cuenta Activa' : 'Cuenta Inactiva' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" (click)="resetForm()">
+              {{ isEditing() ? 'Cancelar' : 'Limpiar' }}
+            </button>
+            <button type="submit" class="btn-primary" [disabled]="!currentUsuario().username || (!isEditing() && !currentUsuario().password_hash) || (crearEmpleado() && (!dniEmpleado() || !nombreEmpleado() || !apellidoEmpleado()))">
+              {{ isEditing() ? 'Actualizar' : 'Guardar Cambios' }}
+            </button>
+          </div>
+        </form>
+      }
     </div>
     }
   </div>

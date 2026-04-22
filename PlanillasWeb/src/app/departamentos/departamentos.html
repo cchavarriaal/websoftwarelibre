@@ -13,70 +13,121 @@
     <!-- Sección 1: Tabla de Registros -->
     <div class="table-card glass-panel" style="width: 100%">
       <div class="search-filter-bar">
-        <button class="btn-primary" (click)="createNew()">
-          <span class="icon">+</span> Nuevo Departamento
-        </button>
-        <div class="input-with-icon search-input">
-          <span class="currency-symbol">🔍</span>
-          <input type="text" class="form-control with-icon" placeholder="Buscar departamento por nombre o ID..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+        <div class="search-actions-left">
+          <button class="btn-primary" (click)="createNew()">
+            <span class="icon">+</span> Nuevo Departamento
+          </button>
+          <div class="input-with-icon search-input-wrapper">
+            <span class="currency-symbol">🔍</span>
+            <input type="text" class="form-control with-icon" placeholder="Buscar departamento por nombre o ID..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+          </div>
+        </div>
+        
+        <div class="filter-actions-right">
+          <button class="btn-filter-toggle" [class.active]="showFilters()" (click)="showFilters.set(!showFilters())">
+            <span class="icon">⚙️</span> Filtros
+          </button>
         </div>
       </div>
-      <table class="modern-table">
-        <thead>
-          <tr>
-            <th>Nombre y Rol</th>
-            <th>Código Organizacional</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of filteredItems(); track item.id) {
-          <tr>
-            <td>
-              <div class="user-info">
-                <div class="avatar" style="--bg: #10b981;">🏢</div>
-                <div class="details">
-                  <span class="username">{{ item.nombre }}</span>
-                  <span class="sub-text">Departamento</span>
+
+      @if (showFilters()) {
+        <div class="filter-panel">
+          <button class="btn-clear" (click)="clearFilters()">
+            Limpiar Filtros
+          </button>
+        </div>
+      }
+
+      <div class="table-responsive">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>Departamento</th>
+              <th>Código</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of filteredItems(); track item.id) {
+            <tr>
+              <td>
+                <div class="user-info">
+                  <div class="avatar" style="--bg: #10b981;">🏢</div>
+                  <div class="details">
+                    <span class="username">{{ item.nombre }}</span>
+                    <span class="sub-text">Departamento Operativo</span>
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td><span class="badge badge-depto">ID: {{ item.id }}</span></td>
-            <td>
-              <div class="action-buttons">
-                <button class="icon-btn view-btn" title="Ver Puestos" (click)="viewPuestos(item)" style="color: #00e5ff;">💼</button>
-                <button class="icon-btn edit-btn" title="Editar Departamento" (click)="editItem(item)">✏️</button>
-                <button class="icon-btn delete-btn" title="Eliminar Departamento" (click)="deleteItem(item.id!)">🗑️</button>
-              </div>
-            </td>
-          </tr>
-          } @empty {
-            <tr><td colspan="3" style="text-align: center; padding: 2rem;">No hay departamentos registrados.</td></tr>
-          }
-        </tbody>
-      </table>
+              </td>
+              <td><span class="badge badge-depto">ID: {{ item.id }}</span></td>
+              <td>
+                <div class="action-buttons">
+                  <button class="icon-btn view-btn" title="Ver Detalles" (click)="viewItemDetails(item)">👁️</button>
+                  <button class="icon-btn view-btn" title="Ver Puestos" (click)="viewPuestos(item)" style="color: #a78bfa;">💼</button>
+                  <button class="icon-btn edit-btn" title="Editar Departamento" (click)="editItem(item)">✏️</button>
+                  <button class="icon-btn delete-btn" title="Eliminar Departamento" (click)="deleteItem(item.id!)">🗑️</button>
+                </div>
+              </td>
+            </tr>
+            } @empty {
+              <tr><td colspan="3" style="text-align: center; padding: 3rem;">No hay departamentos registrados.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
     } @else {
-    <!-- Sección 2: Panel Lateral de Formulario -->
-    <div class="form-card glass-panel" style="align-self: start; width: 100%">
+    <!-- Sección 2: Panel Lateral de Formulario / Detalles -->
+    <div class="form-card glass-panel" style="width: 100%">
       <div class="form-header">
-        <h2>{{ isEditing() ? 'Editar Departamento' : 'Nuevo Departamento' }}</h2>
+        <h2>
+          @if (isViewing()) { Detalles del Departamento } 
+          @else if (isEditing()) { Editar Departamento }
+          @else { Nuevo Departamento }
+        </h2>
         <button class="close-btn" (click)="resetForm()">✕</button>
       </div>
       
-      <form class="modern-form" (ngSubmit)="saveItem()">
-        <div class="form-group">
-          <label>Nombre del Departamento <span style="color:#ef4444">*</span></label>
-          <input type="text" placeholder="Ej. Operaciones, Logística..." class="form-control" required maxlength="100" name="nombre" [(ngModel)]="currentItem().nombre">
-        </div>
+      @if (isViewing()) {
+        <!-- VISTA DE DETALLES -->
+        <div class="details-view">
+          <div class="details-section">
+            <h3>Información del Departamento</h3>
+            <div class="details-grid">
+              <div class="detail-item">
+                <label>Nombre del Departamento:</label>
+                <span>{{ currentItem().nombre }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Identificador de Sistema:</label>
+                <span class="code-badge">#{{ currentItem().id }}</span>
+              </div>
+            </div>
+          </div>
 
-        <div class="form-actions fixed-actions" style="margin-top: 2.5rem;">
-          <button type="button" class="btn-secondary" (click)="resetForm()">Cancelar</button>
-          <button type="submit" class="btn-primary" [disabled]="!currentItem().nombre">
-            {{ isEditing() ? 'Actualizar' : 'Guardar' }}
-          </button>
+          <div class="form-actions" style="border-top: 1px solid var(--panel-border); margin-top: 2rem; padding-top: 1rem;">
+            <button type="button" class="btn-secondary" (click)="resetForm()">Cerrar</button>
+            <button type="button" class="btn-primary" (click)="editItem(currentItem())">Editar Departamento</button>
+          </div>
         </div>
-      </form>
+      } @else {
+        <!-- FORMULARIO DE EDICIÓN / CREACIÓN -->
+        <form class="modern-form" (ngSubmit)="saveItem()">
+          <div class="form-group">
+            <label>Nombre del Departamento <span style="color:#ef4444">*</span></label>
+            <input type="text" placeholder="Ej. Operaciones, Logística..." class="form-control" required maxlength="100" name="nombre" [(ngModel)]="currentItem().nombre">
+          </div>
+
+          <div class="form-actions" style="margin-top: 2.5rem;">
+            <button type="button" class="btn-secondary" (click)="resetForm()">
+              {{ isEditing() ? 'Cancelar' : 'Limpiar' }}
+            </button>
+            <button type="submit" class="btn-primary" [disabled]="!currentItem().nombre">
+              {{ isEditing() ? 'Actualizar' : 'Guardar' }}
+            </button>
+          </div>
+        </form>
+      }
     </div>
     }
   </div>

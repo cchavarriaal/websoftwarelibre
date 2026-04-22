@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -27,6 +27,31 @@ export class Auditoria implements OnInit {
   private readonly notify = inject(NotificationService);
 
   protected readonly items = signal<IAuditoria[]>([]);
+  protected readonly searchTerm = signal('');
+  protected readonly filterAccion = signal<string | 'all'>('all');
+  protected readonly isViewing = signal(false);
+  protected readonly currentItem = signal<IAuditoria | null>(null);
+  protected readonly showFilters = signal(false);
+
+  protected readonly filteredItems = computed(() => {
+    let list = this.items();
+    const term = this.searchTerm().toLowerCase();
+    const accion = this.filterAccion();
+
+    if (term) {
+      list = list.filter(item => 
+        (item.tabla_afectada?.toLowerCase() || '').includes(term) ||
+        (item.accion?.toLowerCase() || '').includes(term) ||
+        (item.registro_id?.toString() || '').includes(term)
+      );
+    }
+
+    if (accion !== 'all') {
+      list = list.filter(item => item.accion === accion);
+    }
+
+    return list;
+  });
 
   ngOnInit() {
     this.loadItems();
@@ -49,17 +74,24 @@ export class Auditoria implements OnInit {
     }
   }
 
-  protected viewJson(item: IAuditoria) {
-    try {
-      const oldV = this.safeParse(item.valor_anterior);
-      const newV = this.safeParse(item.valor_nuevo);
-      
-      const details = `Anterior:\n${JSON.stringify(oldV, null, 2)}\n\nNuevo:\n${JSON.stringify(newV, null, 2)}`;
-      
-      // Use success popup as an info dialog
-      this.notify.success('Detalles del Registro', details);
-    } catch (e: any) {
-      this.notify.error('Error de visualización', 'No se pudieron procesar los detalles: ' + e.message);
-    }
+  protected viewItemDetails(item: IAuditoria) {
+    this.currentItem.set(item);
+    this.isViewing.set(true);
+  }
+
+  protected closeDetails() {
+    this.isViewing.set(false);
+    this.currentItem.set(null);
+    this.showFilters.set(false);
+  }
+
+  protected clearFilters() {
+    this.searchTerm.set('');
+    this.filterAccion.set('all');
+  }
+
+  protected formatJson(value: any): string {
+    const parsed = this.safeParse(value);
+    return JSON.stringify(parsed, null, 2);
   }
 }

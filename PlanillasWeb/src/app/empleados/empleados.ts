@@ -34,21 +34,41 @@ export class Empleados implements OnInit {
 
   protected readonly empleados = signal<Empleado[]>([]);
   protected readonly searchTerm = signal('');
+  protected readonly filterPuesto = signal<number | 'all'>('all');
+  protected readonly filterHorario = signal<number | 'all'>('all');
+  protected readonly showFilters = signal(false);
+  
   protected readonly filteredEmpleados = computed(() => {
+    let list = this.empleados();
     const term = this.searchTerm().toLowerCase();
-    if (!term) return this.empleados();
-    return this.empleados().filter(e => 
-      (e.nombre?.toLowerCase() || '').includes(term) ||
-      (e.apellido?.toLowerCase() || '').includes(term) ||
-      (e.dni?.toLowerCase() || '').includes(term) ||
-      (e.codigo_empleado?.toLowerCase() || '').includes(term) ||
-      (e.puesto_nombre?.toLowerCase() || '').includes(term)
-    );
+    const puesto = this.filterPuesto();
+    const horario = this.filterHorario();
+
+    if (term) {
+      list = list.filter(e => 
+        (e.nombre?.toLowerCase() || '').includes(term) ||
+        (e.apellido?.toLowerCase() || '').includes(term) ||
+        (e.dni?.toLowerCase() || '').includes(term) ||
+        (e.codigo_empleado?.toLowerCase() || '').includes(term) ||
+        (e.puesto_nombre?.toLowerCase() || '').includes(term)
+      );
+    }
+
+    if (puesto !== 'all') {
+      list = list.filter(e => e.puesto_id === puesto);
+    }
+
+    if (horario !== 'all') {
+      list = list.filter(e => e.horario_id === horario);
+    }
+
+    return list;
   });
   protected readonly puestos = signal<any[]>([]);
   protected readonly horarios = signal<any[]>([]);
   protected readonly currentEmpleado = signal<Empleado>(this.getEmptyEmpleado());
   protected readonly isEditing = signal(false);
+  protected readonly isViewing = signal(false);
   protected readonly showForm = signal(false);
   private readonly notify = inject(NotificationService);
 
@@ -131,15 +151,29 @@ export class Empleados implements OnInit {
       fi = fi.split('T')[0];
     }
     this.currentEmpleado.set({ ...empleado, fecha_ingreso: fi });
+    this.isViewing.set(false);
     this.isEditing.set(true);
     this.showForm.set(true);
   }
 
   // ✏️ ESCRIBE en localStorage y navega a la página de detalle
+  protected viewEmpleadoDetails(empleado: Empleado) {
+    this.currentEmpleado.set({ ...empleado });
+    this.isViewing.set(true);
+    this.isEditing.set(false);
+    this.showForm.set(true);
+  }
+
+  // ✏️ ESCRIBE en localStorage y navega a la página de detalle (mantenemos compatibilidad)
   protected viewInAnotherPage(empleado: Empleado) {
-    // Guardamos el objeto completo como JSON para poder leer todos sus campos
     localStorage.setItem('selectedEmpleado', JSON.stringify(empleado));
     this.router.navigate(['/detalle-empleado']);
+  }
+
+  protected clearFilters() {
+    this.searchTerm.set('');
+    this.filterPuesto.set('all');
+    this.filterHorario.set('all');
   }
 
   protected async deleteEmpleado(id: number) {
@@ -158,6 +192,8 @@ export class Empleados implements OnInit {
   protected resetForm() {
     this.currentEmpleado.set(this.getEmptyEmpleado());
     this.isEditing.set(false);
+    this.isViewing.set(false);
+    this.showFilters.set(false);
     this.showForm.set(false);
   }
 

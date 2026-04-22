@@ -13,99 +13,174 @@
     <!-- Sección 1: Tabla de Registros -->
     <div class="table-card glass-panel" style="width: 100%">
       <div class="search-filter-bar">
-        <button class="btn-primary" (click)="createNew()">
-          <span class="icon">+</span> Nuevo Concepto
-        </button>
-        <div class="input-with-icon search-input">
-          <span class="currency-symbol">🔍</span>
-          <input type="text" class="form-control with-icon" placeholder="Buscar concepto por nombre, tipo o ID..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+        <div class="search-actions-left">
+          <button class="btn-primary" (click)="createNew()">
+            <span class="icon">+</span> Nuevo Concepto
+          </button>
+          <div class="input-with-icon search-input-wrapper">
+            <span class="currency-symbol">🔍</span>
+            <input type="text" class="form-control with-icon" placeholder="Buscar por nombre o tipo..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+          </div>
+        </div>
+        
+        <div class="filter-actions-right">
+          <button class="btn-filter-toggle" [class.active]="showFilters()" (click)="showFilters.set(!showFilters())">
+            <span class="icon">⚙️</span> Filtros
+            @if (filterTipo() !== 'all') {
+              <span class="filter-dot"></span>
+            }
+          </button>
         </div>
       </div>
-      <table class="modern-table">
-        <thead>
-          <tr>
-            <th>Concepto / Cód</th>
-            <th>Tipo</th>
-            <th>¿Es Ley?</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of filteredItems(); track item.id) {
-          <tr>
-            <td>
-              <div class="user-info">
-                <div class="avatar" [ngStyle]="{'--bg': item.tipo === 'Ingreso' ? '#10b981' : '#ef4444'}">
-                  {{ item.tipo === 'Ingreso' ? '💰' : '📉' }}
+
+      @if (showFilters()) {
+        <div class="filter-panel">
+          <div class="filter-group">
+            <label>Tipo de Concepto</label>
+            <select class="filter-select" [ngModel]="filterTipo()" (ngModelChange)="filterTipo.set($event)">
+              <option value="all">Todos los Tipos</option>
+              <option value="Ingreso">Ingresos</option>
+              <option value="Deduccion">Deducciones</option>
+            </select>
+          </div>
+
+          <button class="btn-clear" (click)="clearFilters()">
+            Limpiar Filtros
+          </button>
+        </div>
+      }
+
+      <div class="table-responsive">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>Concepto / Cód</th>
+              <th>Tipo</th>
+              <th>¿Es Ley?</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of filteredItems(); track item.id) {
+            <tr>
+              <td>
+                <div class="user-info">
+                  <div class="avatar" [ngStyle]="{'--bg': item.tipo === 'Ingreso' ? '#10b981' : '#ef4444'}">
+                    {{ item.tipo === 'Ingreso' ? '💰' : '📉' }}
+                  </div>
+                  <div class="details">
+                    <span class="username">{{ item.nombre }}</span>
+                    <span class="sub-text">Cód: {{ item.id }}</span>
+                  </div>
                 </div>
-                <div class="details">
-                  <span class="username">{{ item.nombre }}</span>
-                  <span class="sub-text">Cód: {{ item.id }}</span>
+              </td>
+              <td><span class="badge" [ngClass]="item.tipo === 'Ingreso' ? 'badge-ingreso' : 'badge-deduccion'">{{ item.tipo }}</span></td>
+              <td>
+                <span class="status-indicator" [ngClass]="item.es_ley ? 'active' : 'inactive'">
+                  {{ item.es_ley ? 'Obligatorio' : 'Voluntario' }}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button class="icon-btn view-btn" title="Ver Detalles" (click)="viewItemDetails(item)">👁️</button>
+                  <button class="icon-btn edit-btn" title="Editar Concepto" (click)="editItem(item)">✏️</button>
+                  <button class="icon-btn delete-btn" title="Eliminar Concepto" (click)="deleteItem(item.id!)">🗑️</button>
                 </div>
-              </div>
-            </td>
-            <td><span class="badge" [ngClass]="item.tipo === 'Ingreso' ? 'badge-ingreso' : 'badge-deduccion'">{{ item.tipo }}</span></td>
-            <td>
-              <span class="status-indicator" [ngClass]="item.es_ley ? 'active' : 'inactive'">
-                {{ item.es_ley ? 'Sí, Obligatorio' : 'No, Voluntario' }}
-              </span>
-            </td>
-            <td>
-              <div class="action-buttons">
-                <button class="icon-btn edit-btn" title="Editar Concepto" (click)="editItem(item)">✏️</button>
-                <button class="icon-btn delete-btn" title="Eliminar Concepto" (click)="deleteItem(item.id!)">🗑️</button>
-              </div>
-            </td>
-          </tr>
-          } @empty {
-            <tr><td colspan="4" style="text-align: center; padding: 2rem;">No hay conceptos registrados.</td></tr>
-          }
-        </tbody>
-      </table>
+              </td>
+            </tr>
+            } @empty {
+              <tr><td colspan="4" style="text-align: center; padding: 3rem;">No hay conceptos registrados.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
     } @else {
-    <!-- Sección 2: Panel Lateral de Formulario -->
+    <!-- Sección 2: Panel Lateral de Formulario / Detalles -->
     <div class="form-card glass-panel" style="width: 100%">
       <div class="form-header">
-        <h2>{{ isEditing() ? 'Editar Concepto' : 'Nuevo Concepto' }}</h2>
+        <h2>
+          @if (isViewing()) { Detalles del Concepto } 
+          @else if (isEditing()) { Editar Concepto }
+          @else { Nuevo Concepto }
+        </h2>
         <button class="close-btn" (click)="resetForm()">✕</button>
       </div>
       
-      <form class="modern-form" (ngSubmit)="saveItem()">
-        <div class="form-group">
-          <label>Nombre del Concepto <span style="color:#ef4444">*</span></label>
-          <input type="text" placeholder="Ej. Aguinaldo, Horas Extras, CCSS..." class="form-control" required maxlength="100" name="nombre" [(ngModel)]="currentItem().nombre">
-        </div>
-
-        <div class="form-group">
-          <label>Tipo de Concepto <span style="color:#ef4444">*</span></label>
-          <select class="form-control" required name="tipo" [(ngModel)]="currentItem().tipo">
-            <option value="Ingreso">📈 Ingreso (Aumenta salario)</option>
-            <option value="Deduccion">📉 Deducción (Reduce salario)</option>
-          </select>
-        </div>
-
-        <div class="form-group toggle-group" style="margin-top: 1rem;">
-          <label class="state-label">¿Es obligatorio por Ley?</label>
-          <div class="toggle-container">
-            <label class="switch">
-              <input type="checkbox" name="es_ley" [ngModel]="currentItem().es_ley === 1" (ngModelChange)="currentItem().es_ley = $event ? 1 : 0">
-              <span class="slider round"></span>
-            </label>
-            <span class="toggle-text" [ngClass]="currentItem().es_ley ? 'active' : ''">
-              {{ currentItem().es_ley ? 'Requerido por Ley' : 'Voluntario/Interno' }}
-            </span>
+      @if (isViewing()) {
+        <!-- VISTA DE DETALLES -->
+        <div class="details-view">
+          <div class="details-section">
+            <h3>Información del Concepto</h3>
+            <div class="details-grid">
+              <div class="detail-item">
+                <label>Nombre del Concepto:</label>
+                <span>{{ currentItem().nombre }}</span>
+              </div>
+              <div class="detail-item">
+                <label>ID de Sistema:</label>
+                <span class="code-badge">#{{ currentItem().id }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Tipo de Movimiento:</label>
+                <span class="badge" [ngClass]="currentItem().tipo === 'Ingreso' ? 'badge-ingreso' : 'badge-deduccion'">
+                  {{ currentItem().tipo }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <label>Naturaleza Legal:</label>
+                <span class="status-indicator" [ngClass]="currentItem().es_ley ? 'active' : 'inactive'">
+                  {{ currentItem().es_ley ? 'Obligatorio por Ley' : 'Voluntario / Interno' }}
+                </span>
+              </div>
+            </div>
           </div>
-          <small style="color: rgba(255,255,255,0.4); font-size:0.75rem; display:block; margin-top:0.4rem;">Indica si este concepto es 100% legal (Cargas sociales) o si es interno.</small>
-        </div>
 
-        <div class="form-actions fixed-actions">
-          <button type="button" class="btn-secondary" (click)="resetForm()">Cancelar</button>
-          <button type="submit" class="btn-primary" [disabled]="!currentItem().nombre">
-            {{ isEditing() ? 'Actualizar' : 'Guardar' }}
-          </button>
+          <div class="form-actions" style="border-top: 1px solid var(--panel-border); margin-top: 2rem; padding-top: 1rem;">
+            <button type="button" class="btn-secondary" (click)="resetForm()">Cerrar</button>
+            <button type="button" class="btn-primary" (click)="editItem(currentItem())">Editar Concepto</button>
+          </div>
         </div>
-      </form>
+      } @else {
+        <!-- FORMULARIO DE EDICIÓN / CREACIÓN -->
+        <form class="modern-form" (ngSubmit)="saveItem()">
+          <div class="form-group">
+            <label>Nombre del Concepto <span style="color:#ef4444">*</span></label>
+            <input type="text" placeholder="Ej. Aguinaldo, Horas Extras, CCSS..." class="form-control" required maxlength="100" name="nombre" [(ngModel)]="currentItem().nombre">
+          </div>
+
+          <div class="form-group">
+            <label>Tipo de Concepto <span style="color:#ef4444">*</span></label>
+            <select class="form-control" required name="tipo" [(ngModel)]="currentItem().tipo">
+              <option value="Ingreso">📈 Ingreso (Aumenta salario)</option>
+              <option value="Deduccion">📉 Deducción (Reduce salario)</option>
+            </select>
+          </div>
+
+          <div class="form-group toggle-group" style="margin-top: 1rem;">
+            <label class="state-label">¿Es obligatorio por Ley?</label>
+            <div class="toggle-container">
+              <label class="switch">
+                <input type="checkbox" name="es_ley" [ngModel]="currentItem().es_ley === 1" (ngModelChange)="currentItem().es_ley = $event ? 1 : 0">
+                <span class="slider round"></span>
+              </label>
+              <span class="toggle-text" [ngClass]="currentItem().es_ley ? 'active' : ''">
+                {{ currentItem().es_ley ? 'Requerido por Ley' : 'Voluntario/Interno' }}
+              </span>
+            </div>
+            <small style="color: rgba(255,255,255,0.4); font-size:0.75rem; display:block; margin-top:0.4rem;">Indica si este concepto es 100% legal o si es interno de la empresa.</small>
+          </div>
+
+          <div class="form-actions" style="margin-top: 2rem;">
+            <button type="button" class="btn-secondary" (click)="resetForm()">
+              {{ isEditing() ? 'Cancelar' : 'Limpiar' }}
+            </button>
+            <button type="submit" class="btn-primary" [disabled]="!currentItem().nombre">
+              {{ isEditing() ? 'Actualizar' : 'Guardar' }}
+            </button>
+          </div>
+        </form>
+      }
     </div>
     }
   </div>

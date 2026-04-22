@@ -25,18 +25,32 @@ export class Puestos implements OnInit {
 
   protected readonly items = signal<Puesto[]>([]);
   protected readonly searchTerm = signal('');
+  protected readonly filterDepto = signal<number | 'all'>('all');
+  protected readonly showFilters = signal(false);
+  
   protected readonly filteredItems = computed(() => {
+    let list = this.items();
     const term = this.searchTerm().toLowerCase();
-    if (!term) return this.items();
-    return this.items().filter(item => 
-      (item.nombre?.toLowerCase() || '').includes(term) ||
-      (item.departamento_nombre?.toLowerCase() || '').includes(term) ||
-      (item.id?.toString() || '').includes(term)
-    );
+    const depto = this.filterDepto();
+
+    if (term) {
+      list = list.filter(item => 
+        (item.nombre?.toLowerCase() || '').includes(term) ||
+        (item.departamento_nombre?.toLowerCase() || '').includes(term) ||
+        (item.id?.toString() || '').includes(term)
+      );
+    }
+
+    if (depto !== 'all') {
+      list = list.filter(item => item.departamento_id === depto);
+    }
+
+    return list;
   });
   protected readonly currentItem = signal<Puesto>(this.getEmptyItem());
   protected readonly departamentos = signal<any[]>([]);
   protected readonly isEditing = signal(false);
+  protected readonly isViewing = signal(false);
   protected readonly showForm = signal(false);
 
   ngOnInit() {
@@ -57,6 +71,12 @@ export class Puestos implements OnInit {
   protected clearStorage() {
     localStorage.removeItem('selectedDepartamento');
     this.searchTerm.set('');
+    this.filterDepto.set('all');
+  }
+
+  protected clearFilters() {
+    this.searchTerm.set('');
+    this.filterDepto.set('all');
   }
 
   protected loadDepartamentos() {
@@ -93,8 +113,16 @@ export class Puestos implements OnInit {
     }
   }
 
+  protected viewItemDetails(item: Puesto) {
+    this.currentItem.set({ ...item });
+    this.isViewing.set(true);
+    this.isEditing.set(false);
+    this.showForm.set(true);
+  }
+
   protected editItem(item: Puesto) {
     this.currentItem.set({ ...item });
+    this.isViewing.set(false);
     this.isEditing.set(true);
     this.showForm.set(true);
   }
@@ -111,6 +139,8 @@ export class Puestos implements OnInit {
   protected resetForm() {
     this.currentItem.set(this.getEmptyItem());
     this.isEditing.set(false);
+    this.isViewing.set(false);
+    this.showFilters.set(false);
     this.showForm.set(false);
   }
 

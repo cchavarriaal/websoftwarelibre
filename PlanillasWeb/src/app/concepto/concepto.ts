@@ -24,17 +24,31 @@ export class Concepto implements OnInit {
 
   protected readonly items = signal<IConcepto[]>([]);
   protected readonly searchTerm = signal('');
+  protected readonly filterTipo = signal<string | 'all'>('all');
+  protected readonly showFilters = signal(false);
+  
   protected readonly filteredItems = computed(() => {
+    let list = this.items();
     const term = this.searchTerm().toLowerCase();
-    if (!term) return this.items();
-    return this.items().filter(item => 
-      (item.nombre?.toLowerCase() || '').includes(term) ||
-      (item.tipo?.toLowerCase() || '').includes(term) ||
-      (item.id?.toString() || '').includes(term)
-    );
+    const tipo = this.filterTipo();
+
+    if (term) {
+      list = list.filter(item => 
+        (item.nombre?.toLowerCase() || '').includes(term) ||
+        (item.tipo?.toLowerCase() || '').includes(term) ||
+        (item.id?.toString() || '').includes(term)
+      );
+    }
+
+    if (tipo !== 'all') {
+      list = list.filter(item => item.tipo === tipo);
+    }
+
+    return list;
   });
   protected readonly currentItem = signal<IConcepto>(this.getEmptyItem());
   protected readonly isEditing = signal(false);
+  protected readonly isViewing = signal(false);
   protected readonly showForm = signal(false);
 
   ngOnInit() {
@@ -67,10 +81,23 @@ export class Concepto implements OnInit {
     }
   }
 
+  protected viewItemDetails(item: IConcepto) {
+    this.currentItem.set({ ...item });
+    this.isViewing.set(true);
+    this.isEditing.set(false);
+    this.showForm.set(true);
+  }
+
   protected editItem(item: IConcepto) {
     this.currentItem.set({ ...item });
+    this.isViewing.set(false);
     this.isEditing.set(true);
     this.showForm.set(true);
+  }
+
+  protected clearFilters() {
+    this.searchTerm.set('');
+    this.filterTipo.set('all');
   }
 
   protected async deleteItem(id: number) {
@@ -85,6 +112,8 @@ export class Concepto implements OnInit {
   protected resetForm() {
     this.currentItem.set(this.getEmptyItem());
     this.isEditing.set(false);
+    this.isViewing.set(false);
+    this.showFilters.set(false);
     this.showForm.set(false);
   }
 

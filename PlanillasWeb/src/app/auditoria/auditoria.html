@@ -4,63 +4,156 @@
       <h1 class="page-title">Bitácora de Auditoría</h1>
       <p class="subtitle">Registro inmutable de actividades y cambios del sistema</p>
     </div>
-    <div class="header-actions">
-      <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="text" placeholder="Buscar por tabla o acción..." class="form-control search-input">
-      </div>
+    @if (isViewing()) {
+      <button class="btn-secondary" (click)="closeDetails()">
+        <span class="icon">⬅</span> Volver
+      </button>
+    } @else {
       <button class="btn-secondary" (click)="loadItems()">
         <span class="icon">↻</span> Refrescar
       </button>
-    </div>
+    }
   </div>
 
-  <div class="full-width-layout">
-    <div class="table-card glass-panel">
-      <table class="modern-table logs-table">
-        <thead>
-          <tr>
-            <th>Fecha / Hora</th>
-            <th>ID Usuario</th>
-            <th>Acción</th>
-            <th>Tabla Afectada</th>
-            <th>Identificador Registro</th>
-            <th>Visualizador Json</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of items(); track item.id) {
-          <tr>
-            <td>
-              <div class="timestamp">
-                <span class="date">{{ item.fecha_hora | date:'dd-MMM-yyyy' }}</span>
-                <span class="time">{{ item.fecha_hora | date:'shortTime' }}</span>
-              </div>
-            </td>
-            <td>
-              <div class="user-chip">
-                <div class="chip-avatar" [ngStyle]="{'--bg': item.usuario_id ? '#3b82f6' : '#ef4444'}">
-                  {{ item.usuario_id ? 'USR' : 'SYS' }}
+  <div class="crud-layout">
+    @if (!isViewing()) {
+    <!-- Tabla de Logs -->
+    <div class="table-card glass-panel" style="width: 100%">
+      <div class="search-filter-bar">
+        <div class="search-actions-left">
+          <div class="input-with-icon search-input-wrapper">
+            <span class="currency-symbol">🔍</span>
+            <input type="text" class="form-control with-icon" placeholder="Buscar por tabla, ID de registro..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+          </div>
+        </div>
+        
+        <div class="filter-actions-right">
+          <button class="btn-filter-toggle" [class.active]="showFilters()" (click)="showFilters.set(!showFilters())">
+            <span class="icon">⚙️</span> Filtros
+            @if (filterAccion() !== 'all') {
+              <span class="filter-dot"></span>
+            }
+          </button>
+        </div>
+      </div>
+
+      @if (showFilters()) {
+        <div class="filter-panel">
+          <div class="filter-group">
+            <label>Acción Realizada</label>
+            <select class="filter-select" [ngModel]="filterAccion()" (ngModelChange)="filterAccion.set($event)">
+              <option value="all">Todas las Acciones</option>
+              <option value="INSERT">INSERT (Creación)</option>
+              <option value="UPDATE">UPDATE (Edición)</option>
+              <option value="DELETE">DELETE (Eliminación)</option>
+            </select>
+          </div>
+
+          <button class="btn-clear" (click)="clearFilters()">
+            Limpiar Filtros
+          </button>
+        </div>
+      }
+
+      <div class="table-responsive">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>Fecha / Hora</th>
+              <th>Usuario</th>
+              <th>Acción</th>
+              <th>Tabla</th>
+              <th>ID Reg.</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of filteredItems(); track item.id) {
+            <tr>
+              <td>
+                <div class="timestamp">
+                  <span class="date">{{ item.fecha_hora | date:'dd-MMM-yyyy' }}</span>
+                  <span class="time">{{ item.fecha_hora | date:'shortTime' }}</span>
                 </div>
-                <span>UsuarID: {{ item.usuario_id || 'Sistema' }}</span>
-              </div>
-            </td>
-            <td>
-              <span class="badge" [ngClass]="item.accion === 'INSERT' ? 'badge-insert' : (item.accion === 'UPDATE' ? 'badge-update' : 'badge-delete')">
-                {{ item.accion }}
-              </span>
-            </td>
-            <td><span class="table-name">{{ item.tabla_afectada }}</span></td>
-            <td><b>{{ item.registro_id }}</b></td>
-            <td>
-              <button class="btn-text view-diff" (click)="viewJson(item)">Ver Cambios 👁️</button>
-            </td>
-          </tr>
-          } @empty {
-            <tr><td colspan="6" style="text-align: center; padding: 2rem;">No hay registros de auditoría.</td></tr>
-          }
-        </tbody>
-      </table>
+              </td>
+              <td>
+                <div class="user-chip">
+                  <div class="chip-avatar" [ngStyle]="{'--bg': item.usuario_id ? '#3b82f6' : '#ef4444'}">
+                    {{ item.usuario_id ? 'USR' : 'SYS' }}
+                  </div>
+                  <span>ID: {{ item.usuario_id || 'Sistema' }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="item.accion === 'INSERT' ? 'badge-insert' : (item.accion === 'UPDATE' ? 'badge-update' : 'badge-delete')">
+                  {{ item.accion }}
+                </span>
+              </td>
+              <td><span class="table-name">{{ item.tabla_afectada }}</span></td>
+              <td><b>{{ item.registro_id }}</b></td>
+              <td>
+                <button class="icon-btn view-btn" title="Ver Detalles de Cambio" (click)="viewItemDetails(item)">👁️</button>
+              </td>
+            </tr>
+            } @empty {
+              <tr><td colspan="6" style="text-align: center; padding: 3rem;">No hay registros de auditoría que coincidan.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
+    } @else {
+    <!-- Vista Detallada de Auditoría -->
+    <div class="form-card glass-panel" style="width: 100%">
+      <div class="form-header">
+        <h2>Detalles de Auditoría #{{ currentItem()?.id }}</h2>
+        <button class="close-btn" (click)="closeDetails()">✕</button>
+      </div>
+
+      <div class="details-view">
+        <div class="details-section">
+          <h3>Información General</h3>
+          <div class="details-grid">
+            <div class="detail-item">
+              <label>Fecha y Hora:</label>
+              <span>{{ currentItem()?.fecha_hora | date:'medium' }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Acción Realizada:</label>
+              <span class="badge" [ngClass]="currentItem()?.accion === 'INSERT' ? 'badge-insert' : (currentItem()?.accion === 'UPDATE' ? 'badge-update' : 'badge-delete')">
+                {{ currentItem()?.accion }}
+              </span>
+            </div>
+            <div class="detail-item">
+              <label>Tabla Afectada:</label>
+              <span class="table-name">{{ currentItem()?.tabla_afectada }}</span>
+            </div>
+            <div class="detail-item">
+              <label>ID del Registro:</label>
+              <span>#{{ currentItem()?.registro_id }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <h3>Cambios de Datos (JSON)</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="detail-item">
+              <label>Estado Anterior:</label>
+              <pre class="json-block">{{ formatJson(currentItem()?.valor_anterior) }}</pre>
+            </div>
+            <div class="detail-item">
+              <label>Estado Nuevo:</label>
+              <pre class="json-block">{{ formatJson(currentItem()?.valor_nuevo) }}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions" style="border-top: 1px solid var(--panel-border); margin-top: 2rem; padding-top: 1rem;">
+          <button type="button" class="btn-secondary" (click)="closeDetails()">Cerrar Detalles</button>
+        </div>
+      </div>
+    </div>
+    }
   </div>
 </div>

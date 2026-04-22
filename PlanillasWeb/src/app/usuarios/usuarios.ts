@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../services/notification.service';
 
+import { CommonModule } from '@angular/common';
+
 interface Usuario {
   id?: number;
   username: string;
@@ -18,7 +20,7 @@ interface Usuario {
 
 @Component({
   selector: 'app-usuarios',
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './usuarios.html',
   styleUrl: './usuarios.css',
 })
@@ -28,28 +30,64 @@ export class Usuarios implements OnInit {
 
   protected readonly usuarios = signal<Usuario[]>([]);
   protected readonly searchTerm = signal('');
+  protected readonly filterEstado = signal<string>('all');
+  protected readonly filterRol = signal<string>('all');
+  protected readonly showFilters = signal(false);
+  
   protected readonly filteredUsuarios = computed(() => {
     const term = this.searchTerm().toLowerCase();
-    if (!term) return this.usuarios();
-    return this.usuarios().filter(u => 
-      (u.username?.toLowerCase() || '').includes(term) ||
-      (u.rol?.toLowerCase() || '').includes(term) ||
-      (u.empleado_nombre?.toLowerCase() || '').includes(term)
-    );
+    const estado = this.filterEstado();
+    const rol = this.filterRol();
+
+    return this.usuarios().filter(u => {
+      const matchTerm = !term || 
+        (u.username?.toLowerCase() || '').includes(term) ||
+        (u.rol?.toLowerCase() || '').includes(term) ||
+        (u.empleado_nombre?.toLowerCase() || '').includes(term);
+
+      const matchEstado = estado === 'all' || u.estado === parseInt(estado, 10);
+      const matchRol = rol === 'all' || u.rol === rol;
+
+      return matchTerm && matchEstado && matchRol;
+    });
   });
+
+  protected clearFilters() {
+    this.searchTerm.set('');
+    this.filterEstado.set('all');
+    this.filterRol.set('all');
+  }
   protected readonly empleados = signal<any[]>([]);
   protected readonly currentUsuario = signal<Usuario>(this.getEmptyUsuario());
   protected readonly isEditing = signal(false);
+  protected readonly isViewing = signal(false);
   protected readonly showForm = signal(false);
   protected readonly crearEmpleado = signal(false);
   protected readonly dniEmpleado = signal('');
   protected readonly nombreEmpleado = signal('');
   protected readonly apellidoEmpleado = signal('');
+  protected readonly selectedEmpleadoFull = computed(() => {
+    const user = this.currentUsuario();
+    if (!user.empleado_id) return null;
+    return this.empleados().find(e => e.id === user.empleado_id);
+  });
   private readonly notify = inject(NotificationService);
 
   ngOnInit() {
+    this.loadFromLocalStorage();
     this.loadUsuarios();
     this.loadEmpleados();
+  }
+
+  private loadFromLocalStorage() {
+    const cached = localStorage.getItem('usuarios_cache');
+    if (cached) {
+      try {
+        this.usuarios.set(JSON.parse(cached));
+      } catch (e) {
+        console.error('Error parsing localStorage', e);
+      }
+    }
   }
 
   protected loadEmpleados() {
@@ -73,7 +111,9 @@ export class Usuarios implements OnInit {
     this.http.get<Usuario[]>(this.apiUrl + 'usuarioslistar').subscribe({
       next: (data: any) => {
         if (data && data.error) { this.notify.error('Error', data.error); }
-        this.usuarios.set(Array.isArray(data) ? data : []);
+        const userList = Array.isArray(data) ? data : [];
+        this.usuarios.set(userList);
+        localStorage.setItem('usuarios_cache', JSON.stringify(userList));
       },
       error: (err) => this.notify.error('Error', 'Falla de API: ' + err.message),
     });
@@ -115,6 +155,14 @@ export class Usuarios implements OnInit {
   protected editUsuario(usuario: Usuario) {
     this.currentUsuario.set({ ...usuario, password_hash: '' });
     this.isEditing.set(true);
+    this.isViewing.set(false);
+    this.showForm.set(true);
+  }
+
+  protected viewUsuarioDetails(usuario: Usuario) {
+    this.currentUsuario.set(usuario);
+    this.isEditing.set(false);
+    this.isViewing.set(true);
     this.showForm.set(true);
   }
 
@@ -135,8 +183,10 @@ export class Usuarios implements OnInit {
   protected resetForm() {
     this.currentUsuario.set(this.getEmptyUsuario());
     this.isEditing.set(false);
+    this.isViewing.set(false);
     this.showForm.set(false);
     this.crearEmpleado.set(false);
+    this.showFilters.set(false);
     this.dniEmpleado.set('');
     this.nombreEmpleado.set('');
     this.apellidoEmpleado.set('');

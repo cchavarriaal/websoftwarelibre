@@ -8,127 +8,208 @@
     }
   </div>
 
-  <div class="crud-layout wide-layout">
+  <div class="crud-layout">
     @if (!showForm()) {
-    <!-- Tabla -->
-    <div class="table-card glass-panel" style="overflow-x: auto; width: 100%">
+    <!-- Sección 1: Tabla de Registros -->
+    <div class="table-card glass-panel" style="width: 100%">
       <div class="search-filter-bar">
-        <button class="btn-primary" (click)="createNew()">
-          <span class="icon">+</span> Registrar Movimiento
-        </button>
-        <div class="input-with-icon search-input" style="flex: 1; display: flex; gap: 0.5rem;">
-          <div style="position: relative; flex: 1;">
+        <div class="search-actions-left">
+          <button class="btn-primary" (click)="createNew()">
+            <span class="icon">+</span> Registrar Movimiento
+          </button>
+          <div class="input-with-icon search-input-wrapper">
             <span class="currency-symbol">🔍</span>
-            <input type="text" class="form-control with-icon" placeholder="Buscar movimiento por empleado, concepto, periodo..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+            <input type="text" class="form-control with-icon" placeholder="Buscar por empleado, concepto..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
           </div>
-          @if (searchTerm()) {
-            <button class="btn-secondary" (click)="clearStorage()" style="white-space: nowrap;">
-              ✕ Limpiar Filtro
-            </button>
-          }
+        </div>
+        
+        <div class="filter-actions-right">
+          <button class="btn-filter-toggle" [class.active]="showFilters()" (click)="showFilters.set(!showFilters())">
+            <span class="icon">⚙️</span> Filtros
+            @if (filterPeriodo() !== 'all' || filterConcepto() !== 'all') {
+              <span class="filter-dot"></span>
+            }
+          </button>
         </div>
       </div>
-      <table class="modern-table">
-        <thead>
-          <tr>
-            <th>Transacción</th>
-            <th>Empleado</th>
-            <th>Periodo</th>
-            <th>Concepto</th>
-            <th>Monto</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of filteredItems(); track item.id) {
-          <tr>
-            <td><span class="table-name">MOV-{{ item.id?.toString()?.padStart(5, '0') }}</span></td>
-            <td>
-              <div class="user-info">
-                <div class="avatar" style="--bg: #10b981;">ID</div>
-                <div class="details">
-                  <span class="username">{{ item.empleado_nombre }}</span>
-                  <span class="sub-text">Cód: {{ item.empleado_id }}</span>
+
+      @if (showFilters()) {
+        <div class="filter-panel">
+          <div class="filter-group">
+            <label>Periodo de Planilla</label>
+            <select class="filter-select" [ngModel]="filterPeriodo()" (ngModelChange)="filterPeriodo.set($event)">
+              <option value="all">Todos los Periodos</option>
+              @for (p of periodos(); track p.id) {
+                <option [value]="p.id">{{ p.nombre_periodo }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Concepto Salarial</label>
+            <select class="filter-select" [ngModel]="filterConcepto()" (ngModelChange)="filterConcepto.set($event)">
+              <option value="all">Todos los Conceptos</option>
+              @for (c of conceptos(); track c.id) {
+                <option [value]="c.id">{{ c.nombre }}</option>
+              }
+            </select>
+          </div>
+
+          <button class="btn-clear" (click)="clearFilters()">
+            Limpiar Filtros
+          </button>
+        </div>
+      }
+
+      <div class="table-responsive">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>Transacción</th>
+              <th>Empleado</th>
+              <th>Periodo</th>
+              <th>Concepto</th>
+              <th>Monto</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of filteredItems(); track item.id) {
+            <tr>
+              <td><span class="table-name">MOV-{{ item.id?.toString()?.padStart(5, '0') }}</span></td>
+              <td>
+                <div class="user-info">
+                  <div class="avatar" style="--bg: #10b981;">ID</div>
+                  <div class="details">
+                    <span class="username">{{ item.empleado_nombre }}</span>
+                    <span class="sub-text">Cód: {{ item.empleado_id }}</span>
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td><span class="badge badge-default">{{ item.periodo_nombre }}</span></td>
-            <td><span class="badge badge-depto">{{ item.concepto_nombre }}</span></td>
-            <td>
-              <span class="badge" [ngClass]="item.monto_calculado >= 0 ? 'badge-money' : 'badge-deduction'">
-                {{ item.monto_calculado >= 0 ? '' : '-' }}{{ (item.monto_calculado >= 0 ? item.monto_calculado : -item.monto_calculado) | currency:'CRC':'symbol-narrow':'1.2-2' }}
-              </span>
-            </td>
-            <td>
-              <div class="action-buttons">
-                <button class="icon-btn edit-btn" title="Editar" (click)="editItem(item)">✏️</button>
-                <button class="icon-btn delete-btn" title="Eliminar" (click)="deleteItem(item.id!)">🗑️</button>
-              </div>
-            </td>
-          </tr>
-          } @empty {
-            <tr><td colspan="6" style="text-align: center; padding: 2rem;">No hay movimientos registrados.</td></tr>
-          }
-        </tbody>
-      </table>
+              </td>
+              <td><span class="badge badge-default">{{ item.periodo_nombre }}</span></td>
+              <td><span class="badge badge-depto">{{ item.concepto_nombre }}</span></td>
+              <td>
+                <span class="badge" [ngClass]="item.monto_calculado >= 0 ? 'badge-money' : 'badge-deduccion'">
+                  {{ item.monto_calculado >= 0 ? '' : '-' }}{{ (item.monto_calculado >= 0 ? item.monto_calculado : -item.monto_calculado) | currency:'CRC':'symbol-narrow' }}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button class="icon-btn view-btn" title="Ver Detalles" (click)="viewItemDetails(item)">👁️</button>
+                  <button class="icon-btn edit-btn" title="Editar" (click)="editItem(item)">✏️</button>
+                  <button class="icon-btn delete-btn" title="Eliminar" (click)="deleteItem(item.id!)">🗑️</button>
+                </div>
+              </td>
+            </tr>
+            } @empty {
+              <tr><td colspan="6" style="text-align: center; padding: 3rem;">No hay movimientos registrados.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
     } @else {
-    <!-- Formulario -->
-    <div class="form-card glass-panel" style="align-self: start; width: 100%">
+    <!-- Sección 2: Panel Lateral de Formulario / Detalles -->
+    <div class="form-card glass-panel" style="width: 100%">
       <div class="form-header">
-        <h2>{{ isEditing() ? 'Editar Movimiento' : 'Detalle del Movimiento' }}</h2>
+        <h2>
+          @if (isViewing()) { Detalles del Movimiento } 
+          @else if (isEditing()) { Editar Movimiento }
+          @else { Registrar Movimiento }
+        </h2>
         <button class="close-btn" (click)="resetForm()">✕</button>
       </div>
       
-      <form class="modern-form" (ngSubmit)="saveItem()">
-        
-        <div class="form-group twocol">
-          <div class="col">
-            <label>Empleado <span style="color:#ef4444">*</span></label>
-            <select class="form-control" name="empleado_id" required [(ngModel)]="currentItem().empleado_id">
-              <option [ngValue]="0" disabled>-- Seleccionar Empleado --</option>
-              @for (e of empleados(); track e.id) {
-                <option [ngValue]="e.id">{{ e.nombre }} {{ e.apellido }}</option>
-              }
-            </select>
-          </div>
-          <div class="col">
-            <label>Periodo de Planilla <span style="color:#ef4444">*</span></label>
-            <select class="form-control" name="periodo_id" required [(ngModel)]="currentItem().periodo_id">
-              <option [ngValue]="0" disabled>-- Seleccionar Periodo --</option>
-              @for (p of periodos(); track p.id) {
-                <option [ngValue]="p.id">{{ p.nombre_periodo }}</option>
-              }
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Concepto Salarial <span style="color:#ef4444">*</span></label>
-          <select class="form-control" name="concepto_id" required [(ngModel)]="currentItem().concepto_id">
-            <option [ngValue]="0" disabled>-- Seleccionar Concepto --</option>
-            @for (c of conceptos(); track c.id) {
-              <option [ngValue]="c.id">{{ c.nombre }} ({{ c.tipo }})</option>
-            }
-          </select>
-        </div>
-
-        <div class="form-group">
-            <label>Monto Calculado <span style="color:#ef4444">*</span></label>
-            <div class="input-with-icon">
-                <span class="currency-symbol">₡</span>
-                <input type="number" class="form-control with-icon" required step="0.01" name="monto_calculado" [(ngModel)]="currentItem().monto_calculado">
+      @if (isViewing()) {
+        <!-- VISTA DE DETALLES -->
+        <div class="details-view">
+          <div class="details-section">
+            <h3>Información de la Transacción</h3>
+            <div class="details-grid">
+              <div class="detail-item">
+                <label>Código de Transacción:</label>
+                <span class="code-badge">MOV-{{ currentItem().id?.toString()?.padStart(5, '0') }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Empleado:</label>
+                <span>{{ currentItem().empleado_nombre }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Periodo Aplicado:</label>
+                <span>{{ currentItem().periodo_nombre }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Concepto Salarial:</label>
+                <span>{{ currentItem().concepto_nombre }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Monto Calculado:</label>
+                <span [style.color]="currentItem().monto_calculado >= 0 ? '#10b981' : '#ef4444'" style="font-size: 1.2rem;">
+                  {{ currentItem().monto_calculado | currency:'CRC':'symbol-narrow' }}
+                </span>
+              </div>
             </div>
-            <small style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 0.3rem;">Nota: Para deducciones, puede dejarse en positivo y el sistema lo restará.</small>
-        </div>
+          </div>
 
-        <div class="form-actions fixed-actions" style="margin-top: 2rem;">
-          <button type="button" class="btn-secondary" (click)="resetForm()">Cancelar</button>
-          <button type="submit" class="btn-primary" [disabled]="!currentItem().empleado_id || !currentItem().periodo_id || !currentItem().concepto_id || currentItem().monto_calculado == null">
-            {{ isEditing() ? 'Actualizar' : 'Registrar' }}
-          </button>
+          <div class="form-actions" style="border-top: 1px solid var(--panel-border); margin-top: 2rem; padding-top: 1rem;">
+            <button type="button" class="btn-secondary" (click)="resetForm()">Cerrar</button>
+            <button type="button" class="btn-primary" (click)="editItem(currentItem())">Editar Movimiento</button>
+          </div>
         </div>
-      </form>
+      } @else {
+        <!-- FORMULARIO DE EDICIÓN / REGISTRO -->
+        <form class="modern-form" (ngSubmit)="saveItem()">
+          
+          <div class="form-group twocol">
+            <div class="col">
+              <label>Empleado <span style="color:#ef4444">*</span></label>
+              <select class="form-control" name="empleado_id" required [(ngModel)]="currentItem().empleado_id">
+                <option [ngValue]="0" disabled>-- Seleccionar Empleado --</option>
+                @for (e of empleados(); track e.id) {
+                  <option [ngValue]="e.id">{{ e.nombre }} {{ e.apellido }}</option>
+                }
+              </select>
+            </div>
+            <div class="col">
+              <label>Periodo de Planilla <span style="color:#ef4444">*</span></label>
+              <select class="form-control" name="periodo_id" required [(ngModel)]="currentItem().periodo_id">
+                <option [ngValue]="0" disabled>-- Seleccionar Periodo --</option>
+                @for (p of periodos(); track p.id) {
+                  <option [ngValue]="p.id">{{ p.nombre_periodo }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Concepto Salarial <span style="color:#ef4444">*</span></label>
+            <select class="form-control" name="concepto_id" required [(ngModel)]="currentItem().concepto_id">
+              <option [ngValue]="0" disabled>-- Seleccionar Concepto --</option>
+              @for (c of conceptos(); track c.id) {
+                <option [ngValue]="c.id">{{ c.nombre }} ({{ c.tipo }})</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+              <label>Monto Calculado <span style="color:#ef4444">*</span></label>
+              <div class="input-with-icon">
+                  <span class="currency-symbol">₡</span>
+                  <input type="number" class="form-control with-icon" required step="0.01" name="monto_calculado" [(ngModel)]="currentItem().monto_calculado">
+              </div>
+              <small style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 0.3rem;">Nota: Los montos deben ser precisos para el cálculo final de planilla.</small>
+          </div>
+
+          <div class="form-actions" style="margin-top: 2rem;">
+            <button type="button" class="btn-secondary" (click)="resetForm()">
+              {{ isEditing() ? 'Cancelar' : 'Limpiar' }}
+            </button>
+            <button type="submit" class="btn-primary" [disabled]="!currentItem().empleado_id || !currentItem().periodo_id || !currentItem().concepto_id">
+              {{ isEditing() ? 'Actualizar' : 'Registrar Movimiento' }}
+            </button>
+          </div>
+        </form>
+      }
     </div>
     }
   </div>

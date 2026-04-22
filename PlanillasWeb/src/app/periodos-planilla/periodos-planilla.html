@@ -8,103 +8,181 @@
     }
   </div>
 
-  <div class="crud-layout wide-layout">
+  <div class="crud-layout">
     @if (!showForm()) {
-    <!-- Tabla -->
-    <div class="table-card glass-panel" style="overflow-x: auto; width: 100%">
+    <!-- Sección 1: Tabla de Registros -->
+    <div class="table-card glass-panel" style="width: 100%">
       <div class="search-filter-bar">
-        <button class="btn-primary" (click)="createNew()">
-          <span class="icon">+</span> Abrir Nuevo Periodo
-        </button>
-        <div class="input-with-icon search-input">
-          <span class="currency-symbol">🔍</span>
-          <input type="text" class="form-control with-icon" placeholder="Buscar periodo por nombre, estado..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+        <div class="search-actions-left">
+          <button class="btn-primary" (click)="createNew()">
+            <span class="icon">+</span> Nuevo Periodo
+          </button>
+          <div class="input-with-icon search-input-wrapper">
+            <span class="currency-symbol">🔍</span>
+            <input type="text" class="form-control with-icon" placeholder="Buscar por nombre o estado..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+          </div>
+        </div>
+        
+        <div class="filter-actions-right">
+          <button class="btn-filter-toggle" [class.active]="showFilters()" (click)="showFilters.set(!showFilters())">
+            <span class="icon">⚙️</span> Filtros
+            @if (filterEstado() !== 'all') {
+              <span class="filter-dot"></span>
+            }
+          </button>
         </div>
       </div>
-      <table class="modern-table">
-        <thead>
-          <tr>
-            <th>Nombre del Periodo</th>
-            <th>Apertura</th>
-            <th>Cierre</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of filteredItems(); track item.id) {
-          <tr>
-            <td>
-              <div class="user-info">
-                <div class="avatar" [ngStyle]="{'--bg': item.estado === 'Abierto' ? '#3b82f6' : (item.estado === 'Procesado' ? '#eab308' : '#64748b')}">📅</div>
-                <div class="details">
-                  <span class="username">{{ item.nombre_periodo }}</span>
-                  <span class="sub-text">ID: {{ item.id }}</span>
+
+      @if (showFilters()) {
+        <div class="filter-panel">
+          <div class="filter-group">
+            <label>Estado del Periodo</label>
+            <select class="filter-select" [ngModel]="filterEstado()" (ngModelChange)="filterEstado.set($event)">
+              <option value="all">Todos los Estados</option>
+              <option value="Abierto">Abiertos</option>
+              <option value="Procesado">Procesados</option>
+              <option value="Cerrado">Cerrados</option>
+            </select>
+          </div>
+
+          <button class="btn-clear" (click)="clearFilters()">
+            Limpiar Filtros
+          </button>
+        </div>
+      }
+
+      <div class="table-responsive">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>Periodo / ID</th>
+              <th>Apertura</th>
+              <th>Cierre</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of filteredItems(); track item.id) {
+            <tr>
+              <td>
+                <div class="user-info">
+                  <div class="avatar" [ngStyle]="{'--bg': item.estado === 'Abierto' ? '#3b82f6' : (item.estado === 'Procesado' ? '#eab308' : '#64748b')}">📅</div>
+                  <div class="details">
+                    <span class="username">{{ item.nombre_periodo }}</span>
+                    <span class="sub-text">Cód: {{ item.id }}</span>
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td>{{ item.fecha_inicio | date:'dd-MMM-yyyy' }}</td>
-            <td>{{ item.fecha_fin | date:'dd-MMM-yyyy' }}</td>
-            <td>
-              <span class="badge" [ngClass]="item.estado === 'Abierto' ? 'badge-success' : (item.estado === 'Cerrado' ? 'badge-closed' : 'badge-default')">
-                {{ item.estado }}
-              </span>
-            </td>
-            <td>
-              <div class="action-buttons">
-                <button class="icon-btn view-btn" title="Ver Movimientos" (click)="viewMovimientos(item)">📋</button>
-                <button class="icon-btn edit-btn" title="Editar" (click)="editItem(item)">✏️</button>
-                <button class="icon-btn delete-btn" title="Eliminar" (click)="deleteItem(item.id!)">🗑️</button>
-              </div>
-            </td>
-          </tr>
-          } @empty {
-            <tr><td colspan="5" style="text-align: center; padding: 2rem;">No hay periodos registrados.</td></tr>
-          }
-        </tbody>
-      </table>
+              </td>
+              <td>{{ item.fecha_inicio | date:'dd-MMM-yyyy' }}</td>
+              <td>{{ item.fecha_fin | date:'dd-MMM-yyyy' }}</td>
+              <td>
+                <span class="badge" [ngClass]="item.estado === 'Abierto' ? 'badge-success' : (item.estado === 'Cerrado' ? 'badge-closed' : 'badge-default')">
+                  {{ item.estado }}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button class="icon-btn view-btn" title="Ver Detalles" (click)="viewItemDetails(item)">👁️</button>
+                  <button class="icon-btn view-btn" title="Ver Movimientos" (click)="viewMovimientos(item)" style="color: #a78bfa;">📋</button>
+                  <button class="icon-btn edit-btn" title="Editar" (click)="editItem(item)">✏️</button>
+                  <button class="icon-btn delete-btn" title="Eliminar" (click)="deleteItem(item.id!)">🗑️</button>
+                </div>
+              </td>
+            </tr>
+            } @empty {
+              <tr><td colspan="5" style="text-align: center; padding: 3rem;">No hay periodos registrados.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
     } @else {
-    <!-- Formulario -->
-    <div class="form-card glass-panel" style="align-self: start; width: 100%">
+    <!-- Sección 2: Panel Lateral de Formulario / Detalles -->
+    <div class="form-card glass-panel" style="width: 100%">
       <div class="form-header">
-        <h2>{{ isEditing() ? 'Editar Periodo' : 'Gestión de Periodos' }}</h2>
+        <h2>
+          @if (isViewing()) { Detalles del Periodo } 
+          @else if (isEditing()) { Editar Periodo }
+          @else { Nuevo Periodo }
+        </h2>
         <button class="close-btn" (click)="resetForm()">✕</button>
       </div>
       
-      <form class="modern-form" (ngSubmit)="saveItem()">
-        <div class="form-group">
-          <label>Nombre del Periodo <span style="color:#ef4444">*</span></label>
-          <input type="text" class="form-control" required maxlength="100" name="nombre_periodo" [(ngModel)]="currentItem().nombre_periodo">
-        </div>
-
-        <div class="form-group twocol">
-          <div class="col">
-            <label>Fecha de Inicio <span style="color:#ef4444">*</span></label>
-            <input type="date" class="form-control date-input" required name="fecha_inicio" [(ngModel)]="currentItem().fecha_inicio">
+      @if (isViewing()) {
+        <!-- VISTA DE DETALLES -->
+        <div class="details-view">
+          <div class="details-section">
+            <h3>Información del Periodo</h3>
+            <div class="details-grid">
+              <div class="detail-item">
+                <label>Nombre del Periodo:</label>
+                <span>{{ currentItem().nombre_periodo }}</span>
+              </div>
+              <div class="detail-item">
+                <label>ID de Sistema:</label>
+                <span class="code-badge">#{{ currentItem().id }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Fecha de Inicio:</label>
+                <span>{{ currentItem().fecha_inicio | date:'fullDate' }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Fecha de Cierre:</label>
+                <span>{{ currentItem().fecha_fin | date:'fullDate' }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Estado Actual:</label>
+                <span class="badge" [ngClass]="currentItem().estado === 'Abierto' ? 'badge-success' : (currentItem().estado === 'Cerrado' ? 'badge-closed' : 'badge-default')">
+                  {{ currentItem().estado }}
+                </span>
+              </div>
+            </div>
           </div>
-          <div class="col">
-            <label>Fecha de Cierre <span style="color:#ef4444">*</span></label>
-            <input type="date" class="form-control date-input" required name="fecha_fin" [(ngModel)]="currentItem().fecha_fin">
+
+          <div class="form-actions" style="border-top: 1px solid var(--panel-border); margin-top: 2rem; padding-top: 1rem;">
+            <button type="button" class="btn-secondary" (click)="resetForm()">Cerrar</button>
+            <button type="button" class="btn-primary" (click)="editItem(currentItem())">Editar Periodo</button>
           </div>
         </div>
+      } @else {
+        <!-- FORMULARIO DE EDICIÓN / CREACIÓN -->
+        <form class="modern-form" (ngSubmit)="saveItem()">
+          <div class="form-group">
+            <label>Nombre del Periodo <span style="color:#ef4444">*</span></label>
+            <input type="text" class="form-control" required maxlength="100" name="nombre_periodo" [(ngModel)]="currentItem().nombre_periodo" placeholder="Ej: Planilla Quincenal Mayo">
+          </div>
 
-        <div class="form-group">
-          <label>Estado Organizativo <span style="color:var(--text-muted); font-size:0.75rem;">(Opcional)</span></label>
-          <select class="form-control" name="estado" [(ngModel)]="currentItem().estado">
-            <option value="Abierto">🟢 Abierto (Activo)</option>
-            <option value="Procesado">🟡 Procesado (Auditoría)</option>
-            <option value="Cerrado">🔴 Cerrado (Historial)</option>
-          </select>
-        </div>
+          <div class="form-group twocol">
+            <div class="col">
+              <label>Fecha de Inicio <span style="color:#ef4444">*</span></label>
+              <input type="date" class="form-control date-input" required name="fecha_inicio" [(ngModel)]="currentItem().fecha_inicio">
+            </div>
+            <div class="col">
+              <label>Fecha de Cierre <span style="color:#ef4444">*</span></label>
+              <input type="date" class="form-control date-input" required name="fecha_fin" [(ngModel)]="currentItem().fecha_fin">
+            </div>
+          </div>
 
-        <div class="form-actions fixed-actions" style="margin-top: 2rem;">
-          <button type="button" class="btn-secondary" (click)="resetForm()">Cancelar</button>
-          <button type="submit" class="btn-primary" [disabled]="!currentItem().nombre_periodo || !currentItem().fecha_inicio || !currentItem().fecha_fin">
-            {{ isEditing() ? 'Actualizar' : 'Guardar' }}
-          </button>
-        </div>
-      </form>
+          <div class="form-group">
+            <label>Estado Organizativo</label>
+            <select class="form-control" name="estado" [(ngModel)]="currentItem().estado">
+              <option value="Abierto">🟢 Abierto (Activo)</option>
+              <option value="Procesado">🟡 Procesado (Auditoría)</option>
+              <option value="Cerrado">🔴 Cerrado (Historial)</option>
+            </select>
+          </div>
+
+          <div class="form-actions" style="margin-top: 2rem;">
+            <button type="button" class="btn-secondary" (click)="resetForm()">
+              {{ isEditing() ? 'Cancelar' : 'Limpiar' }}
+            </button>
+            <button type="submit" class="btn-primary" [disabled]="!currentItem().nombre_periodo || !currentItem().fecha_inicio || !currentItem().fecha_fin">
+              {{ isEditing() ? 'Actualizar' : 'Guardar Periodo' }}
+            </button>
+          </div>
+        </form>
+      }
     </div>
     }
   </div>

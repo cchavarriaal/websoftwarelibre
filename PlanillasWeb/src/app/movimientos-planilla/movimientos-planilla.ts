@@ -28,21 +28,39 @@ export class MovimientosPlanilla implements OnInit {
 
   protected readonly items = signal<MovimientoPlanilla[]>([]);
   protected readonly searchTerm = signal('');
+  protected readonly filterEmpleado = signal<number | 'all'>('all');
+  protected readonly filterPeriodo = signal<number | 'all'>('all');
+  protected readonly filterConcepto = signal<number | 'all'>('all');
+  protected readonly showFilters = signal(false);
+  
   protected readonly filteredItems = computed(() => {
+    let list = this.items();
     const term = this.searchTerm().toLowerCase();
-    if (!term) return this.items();
-    return this.items().filter(item => 
-      (item.empleado_nombre?.toLowerCase() || '').includes(term) ||
-      (item.periodo_nombre?.toLowerCase() || '').includes(term) ||
-      (item.concepto_nombre?.toLowerCase() || '').includes(term) ||
-      (item.id?.toString() || '').includes(term)
-    );
+    const emp = this.filterEmpleado();
+    const per = this.filterPeriodo();
+    const con = this.filterConcepto();
+
+    if (term) {
+      list = list.filter(item => 
+        (item.empleado_nombre?.toLowerCase() || '').includes(term) ||
+        (item.periodo_nombre?.toLowerCase() || '').includes(term) ||
+        (item.concepto_nombre?.toLowerCase() || '').includes(term) ||
+        (item.id?.toString() || '').includes(term)
+      );
+    }
+
+    if (emp !== 'all') list = list.filter(item => item.empleado_id === emp);
+    if (per !== 'all') list = list.filter(item => item.periodo_id === per);
+    if (con !== 'all') list = list.filter(item => item.concepto_id === con);
+
+    return list;
   });
   protected readonly empleados = signal<any[]>([]);
   protected readonly periodos = signal<any[]>([]);
   protected readonly conceptos = signal<any[]>([]);
   protected readonly currentItem = signal<MovimientoPlanilla>(this.getEmptyItem());
   protected readonly isEditing = signal(false);
+  protected readonly isViewing = signal(false);
   protected readonly showForm = signal(false);
 
   ngOnInit() {
@@ -67,6 +85,14 @@ export class MovimientosPlanilla implements OnInit {
   protected clearStorage() {
     localStorage.removeItem('selectedPeriodo');
     this.searchTerm.set('');
+    this.filterPeriodo.set('all');
+  }
+
+  protected clearFilters() {
+    this.searchTerm.set('');
+    this.filterEmpleado.set('all');
+    this.filterPeriodo.set('all');
+    this.filterConcepto.set('all');
   }
 
   protected loadEmpleados() {
@@ -111,8 +137,16 @@ export class MovimientosPlanilla implements OnInit {
     }
   }
 
+  protected viewItemDetails(item: MovimientoPlanilla) {
+    this.currentItem.set({ ...item });
+    this.isViewing.set(true);
+    this.isEditing.set(false);
+    this.showForm.set(true);
+  }
+
   protected editItem(item: MovimientoPlanilla) {
     this.currentItem.set({ ...item });
+    this.isViewing.set(false);
     this.isEditing.set(true);
     this.showForm.set(true);
   }
@@ -129,6 +163,8 @@ export class MovimientosPlanilla implements OnInit {
   protected resetForm() {
     this.currentItem.set(this.getEmptyItem());
     this.isEditing.set(false);
+    this.isViewing.set(false);
+    this.showFilters.set(false);
     this.showForm.set(false);
   }
 
