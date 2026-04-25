@@ -85,6 +85,12 @@
                 <div class="action-buttons">
                   <button class="icon-btn view-btn" title="Ver Detalles" (click)="viewItemDetails(item)">👁️</button>
                   <button class="icon-btn view-btn" title="Ver Movimientos" (click)="viewMovimientos(item)" style="color: #a78bfa;">📋</button>
+                  @if (item.estado !== 'Abierto') {
+                    <button class="icon-btn view-btn" title="Ver Resultados" (click)="verResultados(item)" style="color: #60a5fa;">👁️‍🗨️</button>
+                  }
+                  @if (item.estado !== 'Cerrado') {
+                    <button class="icon-btn edit-btn" title="Procesar Planilla" (click)="procesarPlanilla(item.id!)" style="color: #10b981;">🧮</button>
+                  }
                   <button class="icon-btn edit-btn" title="Editar" (click)="editItem(item)">✏️</button>
                   <button class="icon-btn delete-btn" title="Eliminar" (click)="deleteItem(item.id!)">🗑️</button>
                 </div>

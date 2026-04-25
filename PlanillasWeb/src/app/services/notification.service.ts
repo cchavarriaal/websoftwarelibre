@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class NotificationService {
-  private createPopup(title: string, message: string, type: 'success' | 'error' | 'confirm'): Promise<boolean> {
+  private createPopup(title: string, message: string, type: 'success' | 'error' | 'confirm' | 'info'): Promise<boolean> {
     return new Promise((resolve) => {
       const overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;';
@@ -14,7 +14,7 @@ export class NotificationService {
       
       const icon = document.createElement('div');
       icon.style.cssText = 'font-size:3rem;margin-bottom:1rem;';
-      icon.innerHTML = type === 'success' ? '✅' : (type === 'error' ? '❌' : '⚠️');
+      icon.innerHTML = type === 'success' ? '✅' : (type === 'error' ? '❌' : (type === 'confirm' ? '⚠️' : 'ℹ️'));
 
       const titleEl = document.createElement('h2');
       titleEl.style.cssText = 'color:#fff;margin:0 0 0.5rem;font-size:1.5rem;';
@@ -49,7 +49,7 @@ export class NotificationService {
       } else {
         const btnOk = document.createElement('button');
         btnOk.innerText = 'Aceptar';
-        btnOk.style.cssText = 'padding:0.6rem 1.2rem;border-radius:6px;border:none;background:#00e5ff;color:#0b1121;cursor:pointer;font-weight:600;';
+        btnOk.style.cssText = `padding:0.6rem 1.2rem;border-radius:6px;border:none;background:${type === 'info' ? '#3b82f6' : '#00e5ff'};color:${type === 'info' ? '#fff' : '#0b1121'};cursor:pointer;font-weight:600;`;
         btnOk.onclick = () => { close(); resolve(true); };
         actions.appendChild(btnOk);
       }
@@ -76,5 +76,8 @@ export class NotificationService {
   }
   confirm(title: string, message: string) {
     return this.createPopup(title, message, 'confirm');
+  }
+  info(title: string, message: string) {
+    return this.createPopup(title, message, 'info');
   }
 }

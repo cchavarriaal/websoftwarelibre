@@ -203,63 +203,68 @@
   }
 </style>
 
-<div class="landing-container">
-  <header>
-    <div class="logo-container">
-      <img src="assets/images/planilla_pro_logo.png" alt="PlanillaPro Logo">
-      PlanillaPro
-    </div>
-    
-    <ul class="nav-menu">
-      <li class="nav-item">
-        <a class="nav-link" href="/">Inicio</a>
-      </li>
+<div class="app-container">
+  @if (auth.isAuthenticated()) {
+    <header>
+      <div class="logo-container">
+        <img src="assets/images/planilla_pro_logo.png" alt="PlanillaPro Logo">
+        PlanillaPro
+      </div>
       
-      <li class="nav-item dropdown">
-        <a class="nav-link" href="javascript:void(0)">
-          Mantenimientos 
-          <span class="dropdown-icon">▼</span>
-        </a>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="/usuarios">👨‍💼 Usuarios / Administradores</a>
-          <a class="dropdown-item" href="/empleados">👥 Empleados & Colaboradores</a>
-          <a class="dropdown-item" href="/departamentos">🏢 Departamentos</a>
-          <a class="dropdown-item" href="/puestos">💼 Puestos de Trabajo</a>
-          <a class="dropdown-item" href="/concepto">📝 Conceptos de Ingreso / Deducción</a>
-          <a class="dropdown-item" href="/horarios">⏰ Gestión de Horarios</a>
+      <ul class="nav-links">
+        <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"><span class="icon">🏠</span> Inicio</a></li>
+        
+        <li class="nav-item dropdown">
+          <a class="nav-link" href="javascript:void(0)">
+            Colaboradores
+            <span class="dropdown-icon">▼</span>
+          </a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" routerLink="/empleados">👥 Directorio de Empleados</a>
+            <a class="dropdown-item" routerLink="/puestos">💼 Catálogo de Puestos</a>
+            <a class="dropdown-item" routerLink="/departamentos">🏢 Departamentos</a>
+            <a class="dropdown-item" routerLink="/horarios">🕒 Horarios de Trabajo</a>
+          </div>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link" href="javascript:void(0)">
+            Nómina & Pagos
+            <span class="dropdown-icon">▼</span>
+          </a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" routerLink="/periodos-planilla">⚙️ Gestión de Periodos</a>
+            <a class="dropdown-item" routerLink="/movimientos-planilla">⏱️ Movimientos del Mes</a>
+            <a class="dropdown-item" routerLink="/resultados-planilla">📊 Resultados de Planilla</a>
+            <a class="dropdown-item" routerLink="/liquidaciones">💸 Liquidaciones</a>
+          </div>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link" href="javascript:void(0)">
+            Seguridad & Auditoría
+            <span class="dropdown-icon">▼</span>
+          </a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" routerLink="/usuarios">👤 Gestión de Usuarios</a>
+            <a class="dropdown-item" routerLink="/auditoria">🛡️ Bitácora de Auditoría</a>
+          </div>
+        </li>
+      </ul>
+
+      <div class="user-menu">
+        <div class="user-info">
+          <div class="user-avatar">{{ auth.currentUser()?.username?.[0]?.toUpperCase() || 'U' }}</div>
+          <span>{{ auth.currentUser()?.username }}</span>
         </div>
-      </li>
+        <button (click)="auth.logout()" class="btn-logout" title="Cerrar Sesión">
+          🚪
+        </button>
+      </div>
+    </header>
+  }
 
-      <li class="nav-item dropdown">
-        <a class="nav-link" href="javascript:void(0)">
-          Pagos & Planillas 
-          <span class="dropdown-icon">▼</span>
-        </a>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="/periodos-planilla">⚙️ Cálculo de Planilla</a>
-          <a class="dropdown-item" href="/movimientos-planilla">⏱️ Ingreso de Horas/Marcas</a>
-          <a class="dropdown-item" href="/historial-pagos">📊 Historial de Pagos</a>
-          <a class="dropdown-item" href="/aprobaciones">✅ Panel de Aprobaciones</a>
-        </div>
-      </li>
-
-      <li class="nav-item dropdown">
-        <a class="nav-link" href="javascript:void(0)">
-          Reportes & Logs
-          <span class="dropdown-icon">▼</span>
-        </a>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="/reportes">📈 Reportes Generales</a>
-          <a class="dropdown-item" href="/auditoria">🛡️ Bitácora de Auditoría</a>
-        </div>
-      </li>
-    </ul>
-
-    <div class="user-menu">
-      <div class="user-avatar">AD</div>
-      <span>Admin Usuario</span>
-    </div>
-  </header>
-
-        <router-outlet />
-    </div>
+  <main [class.no-auth]="!auth.isAuthenticated()">
+    <router-outlet />
+  </main>
+</div>

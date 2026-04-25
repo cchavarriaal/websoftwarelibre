@@ -8,19 +8,25 @@ class Usuarios {
 
     async usuarioslistar() {
         return await ejecutarConsulta(`
-            SELECT u.*, CONCAT(e.nombre, ' ', e.apellido) AS empleado_nombre 
+            SELECT u.*, r.nombre AS rol_nombre, CONCAT(e.nombre, ' ', e.apellido) AS empleado_nombre 
             FROM planillasweb.usuarios u 
+            LEFT JOIN planillasweb.roles r ON u.rol_id = r.id
             LEFT JOIN planillasweb.empleados e ON u.empleado_id = e.id 
             ORDER BY u.username ASC
         `);
     }
 
     async usuarioslistarEspecifico(username) {
-        return await ejecutarConsulta("SELECT * FROM `planillasweb`.`usuarios` WHERE username = ?", [username]);
+        return await ejecutarConsulta(`
+            SELECT u.*, r.nombre AS rol_nombre 
+            FROM usuarios u 
+            LEFT JOIN roles r ON u.rol_id = r.id 
+            WHERE u.username = ?`, [username]);
     }
 
     async usuarioscrear(d) {
         let empleadoId = d.empleado_id || null;
+        const rolId = d.rol_id || 4; // Por defecto Empleado
 
         // Solo crea el empleado si el usuario lo solicita explícitamente
         if (!empleadoId && d.crear_empleado === true) {
@@ -59,8 +65,8 @@ class Usuarios {
         }
 
         const result = await ejecutarConsulta(
-            "INSERT INTO `planillasweb`.`usuarios` (username, password_hash, rol, empleado_id, estado, pregunta_seguridad, respuesta_seguridad, token) VALUES (?,?,?,?,?,?,?,?)",
-            [d.username, d.password_hash, d.rol, empleadoId, d.estado, d.pregunta_seguridad, d.respuesta_seguridad, null]
+            "INSERT INTO `planillasweb`.`usuarios` (username, password_hash, rol_id, empleado_id, estado, pregunta_seguridad, respuesta_seguridad, token) VALUES (?,?,?,?,?,?,?,?)",
+            [d.username, d.password_hash, rolId, empleadoId, d.estado, d.pregunta_seguridad, d.respuesta_seguridad, null]
         );
 
         if (result && result.insertId) {
@@ -143,8 +149,8 @@ class Usuarios {
         const valor_anterior = filas.length > 0 ? filas[0] : null;
 
         const result = await ejecutarConsulta(
-            "UPDATE `planillasweb`.`usuarios` SET username=?, rol=?, empleado_id=?, estado=?, pregunta_seguridad=?, respuesta_seguridad=? WHERE id=?",
-            [d.username, d.rol, d.empleado_id, d.estado, d.pregunta_seguridad, d.respuesta_seguridad, id]
+            "UPDATE `planillasweb`.`usuarios` SET username=?, rol_id=?, empleado_id=?, estado=?, pregunta_seguridad=?, respuesta_seguridad=? WHERE id=?",
+            [d.username, d.rol_id, d.empleado_id, d.estado, d.pregunta_seguridad, d.respuesta_seguridad, id]
         );
 
         if (result && result.affectedRows > 0) {
@@ -172,41 +178,32 @@ class Usuarios {
         return result;
     }
     
-        async Autenticacion(username, ClaveSinEncriptar) {
-        // Consultar en la base de datos si el usuario y la clave coinciden
-        const resultado = await ejecutarConsulta('SELECT * FROM usuarios WHERE username = ?', [username]);
+    async Autenticacion(username, ClaveSinEncriptar) {
+        const resultado = await ejecutarConsulta(`
+            SELECT u.*, r.nombre AS rol_nombre 
+            FROM usuarios u 
+            JOIN roles r ON u.rol_id = r.id 
+            WHERE u.username = ?`, [username]);
         
-        // Validar si el usuario existe
-        if (resultado.length === 0) {
-            return false; // Usuario no encontrado
-        }
+        if (resultado.length === 0) return false;
         
         const Usuario = resultado[0];
-        // Comparar la contraseña sin encriptar con la almacenada (encriptada)
-        try {
-           // const Resultado = await bcrypt.compare(ClaveSinEncriptar, Usuario.password_hash);
-           const Resultado = (ClaveSinEncriptar === Usuario.password_hash); // Para pruebas sin encriptar
-            if (Resultado === true) {
-                //return true; // Autenticación exitosa
-               return this.GenerarToken(Usuario.Rol, Usuario.username);
-            } else {
-                return false;
-            }
-        } catch (err) {
-            console.log(err);
-            return false;
+        if (ClaveSinEncriptar === Usuario.password_hash) {
+            return this.GenerarToken(Usuario.rol_nombre, Usuario.username, Usuario.empleado_id, Usuario.id);
         }
+        return false;
     };
 
-
-
-
-
-    async GenerarToken(Rol, username) {
-        let token = jwt.sign({ Rol, username }, this.PalabraSecreta, { expiresIn: '10m' });
-        // Almacenar en la base de datos para el usuario
+    async GenerarToken(rol_nombre, username, empleado_id, usuario_id) {
+        let token = jwt.sign({ 
+            rol: rol_nombre, 
+            username, 
+            empleado_id, 
+            usuario_id 
+        }, this.PalabraSecreta, { expiresIn: '4h' });
+        
         await ejecutarConsulta('UPDATE usuarios SET token = ? WHERE username = ?', [token, username]);
-        return token;
+        return { token, rol: rol_nombre, username, empleado_id };
     }
 
 

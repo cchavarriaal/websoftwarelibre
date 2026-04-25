@@ -1,0 +1,118 @@
+<div class="liquidaciones-container">
+  <div class="page-header">
+    <h1 class="page-title">Cálculo de <span>Liquidaciones</span></h1>
+    <div class="header-actions">
+      @if (!showForm()) {
+        <button class="btn-primary" (click)="showForm.set(true)">
+          <span class="icon">➕</span> Nueva Liquidación
+        </button>
+      } @else {
+        <button class="btn-secondary" (click)="showForm.set(false); reset()">
+          <span class="icon">⬅️</span> Volver a la Lista
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (showForm()) {
+    <div class="form-card glass-panel">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Empleado</label>
+          <select class="form-control" [ngModel]="selectedEmpleadoId()" (ngModelChange)="selectedEmpleadoId.set($event)">
+            <option [ngValue]="null">-- Seleccionar Empleado --</option>
+            @for (emp of empleados(); track emp.id) {
+              <option [ngValue]="emp.id">{{ emp.nombre }} {{ emp.apellido }} ({{ emp.codigo_empleado }})</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Fecha de Salida</label>
+          <input type="date" class="form-control" [ngModel]="fechaSalida()" (ngModelChange)="fechaSalida.set($event)">
+        </div>
+
+        <div class="form-group">
+          <label>Motivo de Salida</label>
+          <select class="form-control" [ngModel]="motivo()" (ngModelChange)="motivo.set($event)">
+            <option value="Renuncia">Renuncia</option>
+            <option value="Despido con responsabilidad">Despido con responsabilidad</option>
+            <option value="Despido sin responsabilidad">Despido sin responsabilidad</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="actions-footer">
+        <button class="btn-primary" (click)="calcular()" [disabled]="loading()">
+          {{ loading() ? 'Calculando...' : 'Calcular Liquidación' }}
+        </button>
+      </div>
+
+      @if (calculoPreview()) {
+        <div class="preview-card">
+          <h3>Resumen Sugerido</h3>
+          <div class="result-grid">
+            <div class="result-item">
+              <label>Aguinaldo Proporcional:</label>
+              <span>{{ calculoPreview().detalle.aguinaldo | currency:'CRC':'symbol-narrow' }}</span>
+            </div>
+            <div class="result-item">
+              <label>Vacaciones Pendientes:</label>
+              <span>{{ calculoPreview().detalle.vacaciones | currency:'CRC':'symbol-narrow' }}</span>
+            </div>
+            <div class="result-item">
+              <label>Preaviso:</label>
+              <span>{{ calculoPreview().detalle.preaviso | currency:'CRC':'symbol-narrow' }}</span>
+            </div>
+            <div class="result-item">
+              <label>Cesantía:</label>
+              <span>{{ calculoPreview().detalle.cesantia | currency:'CRC':'symbol-narrow' }}</span>
+            </div>
+            <div class="result-item total-item">
+              <label>TOTAL LIQUIDACIÓN:</label>
+              <span class="total-val">{{ calculoPreview().total | currency:'CRC':'symbol-narrow' }}</span>
+            </div>
+          </div>
+          <div class="actions-footer">
+            <button class="btn-success" (click)="guardar()">
+              ✅ Confirmar y Guardar Registro
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="table-card glass-panel">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Empleado</th>
+            <th>Fecha Salida</th>
+            <th>Motivo</th>
+            <th class="text-right">Total</th>
+            <th class="text-center">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (liq of liquidaciones(); track liq.id) {
+            <tr>
+              <td>{{ liq.nombre }} {{ liq.apellido }}</td>
+              <td>{{ liq.fecha_salida | date:'dd/MM/yyyy' }}</td>
+              <td>{{ liq.motivo }}</td>
+              <td class="text-right">{{ liq.total_liquidacion | currency:'CRC':'symbol-narrow' }}</td>
+              <td class="text-center">
+                <span class="badge" [class.badge-pending]="liq.estado === 'Pendiente'">
+                  {{ liq.estado }}
+                </span>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="text-center">No hay registros de liquidaciones</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

@@ -1,0 +1,82 @@
+<div class="crud-container">
+  <div class="page-header">
+    <h1 class="page-title">Resultados de Planilla: <span style="color: var(--accent-primary);">{{ periodoNombre() }}</span></h1>
+    <button class="btn-secondary" (click)="volver()">
+      <span class="icon">⬅</span> Volver
+    </button>
+  </div>
+
+  <div class="table-card glass-panel">
+    <div class="search-filter-bar">
+      <div class="search-actions-left">
+        <div class="input-group">
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Seleccione un Periodo:</label>
+          <select class="form-control" [value]="periodoSeleccionado()" (change)="onPeriodoChange($event)" style="min-width: 250px;">
+            <option value="">-- Seleccionar Periodo --</option>
+            @for (p of periodos(); track p.id) {
+              <option [value]="p.id">{{ p.nombre_periodo }} ({{ p.estado }})</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="filter-actions-right">
+        @if (resultados().length > 0) {
+          <button class="btn-primary" (click)="exportarBanco()">
+            <span class="icon">🏦</span> Archivo Bancario
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando resultados...</p>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>Empleado</th>
+              <th>Cód. Empleado</th>
+              <th class="text-right">Salario Bruto</th>
+              <th class="text-right">Deducciones</th>
+              <th class="text-right">Salario Neto</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (res of resultados(); track res.id) {
+              <tr>
+                <td>
+                  <div class="user-info">
+                    <div class="avatar">👤</div>
+                    <div class="details">
+                      <span class="username">{{ res.nombre }} {{ res.apellido }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="code-badge">{{ res.codigo_empleado }}</span></td>
+                <td class="text-right">{{ res.total_ingresos | currency:'CRC':'symbol-narrow' }}</td>
+                <td class="text-right" style="color: #ef4444;">-{{ res.total_deducciones | currency:'CRC':'symbol-narrow' }}</td>
+                <td class="text-right" style="font-weight: bold; color: #10b981;">
+                  {{ res.salario_neto | currency:'CRC':'symbol-narrow' }}
+                </td>
+                <td class="text-center">
+                  <button class="icon-btn view-btn" title="Ver Boleta" (click)="verBoleta(res.id)">📄</button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 3rem;">
+                  No hay resultados calculados para este periodo. Haga clic en el botón de procesar 🧮 en la lista de periodos.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

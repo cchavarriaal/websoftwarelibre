@@ -1,0 +1,101 @@
+<div class="boleta-wrapper">
+  <div class="no-print actions-bar">
+    <button class="btn-secondary" (click)="volver()">⬅ Volver</button>
+    <button class="btn-primary" (click)="imprimir()">🖨️ Imprimir Boleta</button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">Cargando boleta...</div>
+  } @else if (boleta()) {
+    <div class="boleta-container glass-panel printable">
+      <div class="boleta-header">
+        <div class="company-info">
+          <img src="assets/logo.png" alt="Logo" class="boleta-logo" onerror="this.style.display='none'">
+          <div>
+            <h1 class="company-name">SISTEMA DE PLANILLAS LIBRE</h1>
+            <p class="company-id">Cédula Jurídica: 3-101-000000</p>
+          </div>
+        </div>
+        <div class="boleta-title">
+          <h2>BOLETA DE PAGO</h2>
+          <span class="periodo-badge">{{ boleta().resumen.nombre_periodo }}</span>
+        </div>
+      </div>
+
+      <div class="boleta-body">
+        <div class="info-section">
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Empleado:</label>
+              <span>{{ boleta().resumen.nombre }} {{ boleta().resumen.apellido }}</span>
+            </div>
+            <div class="info-item">
+              <label>Código:</label>
+              <span>{{ boleta().resumen.codigo_empleado }}</span>
+            </div>
+            <div class="info-item">
+              <label>Identificación:</label>
+              <span>{{ boleta().resumen.dni }}</span>
+            </div>
+            <div class="info-item">
+              <label>Puesto:</label>
+              <span>{{ boleta().resumen.puesto || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <label>Salario Base:</label>
+              <span>{{ boleta().resumen.salario_base | currency:'CRC':'symbol-narrow' }}</span>
+            </div>
+            <div class="info-item">
+              <label>Fecha de Cálculo:</label>
+              <span>{{ boleta().resumen.fecha_calculo | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="boleta-table">
+            <thead>
+              <tr>
+                <th>Descripción del Concepto</th>
+                <th class="text-right">Ingresos</th>
+                <th class="text-right">Deducciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Salario Base Mensual</td>
+                <td class="text-right">{{ boleta().resumen.salario_base | currency:'CRC':'symbol-narrow' }}</td>
+                <td class="text-right"></td>
+              </tr>
+              @for (mov of boleta().movimientos; track $index) {
+                <tr>
+                  <td>{{ mov.concepto_nombre }}</td>
+                  <td class="text-right">{{ mov.tipo === 'Ingreso' ? (mov.monto_calculado | currency:'CRC':'symbol-narrow') : '' }}</td>
+                  <td class="text-right">{{ mov.tipo === 'Deduccion' ? (mov.monto_calculado | currency:'CRC':'symbol-narrow') : '' }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr class="totals-row">
+                <td>TOTALES</td>
+                <td class="text-right">{{ boleta().resumen.total_ingresos | currency:'CRC':'symbol-narrow' }}</td>
+                <td class="text-right">{{ boleta().resumen.total_deducciones | currency:'CRC':'symbol-narrow' }}</td>
+              </tr>
+              <tr class="neto-row">
+                <td colspan="2" class="neto-label">NETO A RECIBIR</td>
+                <td class="text-right neto-value">{{ boleta().resumen.salario_neto | currency:'CRC':'symbol-narrow' }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="boleta-footer">
+        <div class="signature-line">
+          <p>Firma del Empleado</p>
+        </div>
+        <p class="disclaimer">Esta boleta es un comprobante oficial de pago de salario y deducciones de ley.</p>
+      </div>
+    </div>
+  }
+</div>

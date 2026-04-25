@@ -8,6 +8,8 @@ const rutasDeMovimientosPlanilla = require('./movimientos_planilla.js');
 const rutasDePeriodosPlanilla = require('./periodos_planilla.js');
 const rutasDePuestos = require('./puestos.js');
 const rutasDeHorarios = require('./horarios.js');
+const rutasDePlanillaMotor = require('./planilla_motor.js');
+const rutasDeLiquidaciones = require('./liquidaciones.js');
 
 
 function asignarRutasAExpress(app) {
@@ -20,6 +22,8 @@ function asignarRutasAExpress(app) {
     app.use('/periodos_planilla', rutasDePeriodosPlanilla);
     app.use('/puestos', rutasDePuestos);
     app.use('/horarios', rutasDeHorarios);
+    app.use('/planilla', rutasDePlanillaMotor);
+    app.use('/liquidaciones', rutasDeLiquidaciones);
 }
 
 module.exports = asignarRutasAExpress;

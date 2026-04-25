@@ -109,6 +109,24 @@ export class PeriodosPlanilla implements OnInit {
     this.router.navigate(['/movimientos-planilla']);
   }
 
+  protected async procesarPlanilla(id: number) {
+    const confirmed = await this.notify.confirm('¿Procesar Planilla?', 'Se calcularán los salarios netos para todos los empleados activos en este periodo.');
+    if (confirmed) {
+      this.http.post(`http://localhost/planilla/procesar/${id}`, {}).subscribe({
+        next: (res: any) => {
+          this.notify.success('Éxito', res.mensaje || 'Planilla procesada correctamente');
+          this.loadItems();
+        },
+        error: (err) => this.notify.error('Error', 'Falla al procesar: ' + err.message)
+      });
+    }
+  }
+
+  protected verResultados(periodo: PeriodoPlanilla) {
+    localStorage.setItem('selectedPeriodoResultados', JSON.stringify(periodo));
+    this.router.navigate(['/resultados-planilla']);
+  }
+
   protected clearFilters() {
     this.searchTerm.set('');
     this.filterEstado.set('all');

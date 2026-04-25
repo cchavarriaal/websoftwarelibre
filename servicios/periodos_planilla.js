@@ -11,7 +11,30 @@ class PeriodosPlanilla {
             "INSERT INTO `planillasweb`.`periodos_planilla` (nombre_periodo, fecha_inicio, fecha_fin, estado) VALUES (?,?,?,?)",
             [d.nombre_periodo, d.fecha_inicio, d.fecha_fin, d.estado]
         );
-        if (result && result.insertId) { await ejecutarConsulta("INSERT INTO `planillasweb`.`auditoria` (usuario_id, tabla_afectada, registro_id, accion, valor_anterior, valor_nuevo) VALUES (?,?,?,?,?,?)", [d.usuario_accion_id || null, 'periodos_planilla', result.insertId, 'INSERT', null, JSON.stringify(d)]); }
+        
+        if (result && result.insertId) {
+            const periodoId = result.insertId;
+
+            // --- AUTOMATIZACIÓN: Insertar CCSS (Concepto ID 1) para todos los empleados activos ---
+            // Buscamos el porcentaje actual de la CCSS
+            const conceptoCCSS = await ejecutarConsulta("SELECT id, porcentaje FROM conceptos WHERE id = 1 OR nombre LIKE '%CCSS%' LIMIT 1");
+            
+            if (conceptoCCSS && conceptoCCSS.length > 0) {
+                const { id: conceptoId, porcentaje } = conceptoCCSS[0];
+                const empleados = await ejecutarConsulta("SELECT id, salario_base FROM empleados WHERE estado = 1");
+
+                for (const emp of empleados) {
+                    const montoCCSS = parseFloat(emp.salario_base) * (parseFloat(porcentaje) / 100);
+                    await ejecutarConsulta(
+                        "INSERT INTO movimientos_planilla (empleado_id, periodo_id, concepto_id, monto_calculado) VALUES (?, ?, ?, ?)",
+                        [emp.id, periodoId, conceptoId, montoCCSS]
+                    );
+                }
+            }
+
+            // Auditoría
+            await ejecutarConsulta("INSERT INTO `planillasweb`.`auditoria` (usuario_id, tabla_afectada, registro_id, accion, valor_anterior, valor_nuevo) VALUES (?,?,?,?,?,?)", [d.usuario_accion_id || null, 'periodos_planilla', periodoId, 'INSERT', null, JSON.stringify(d)]);
+        }
         return result;
     }
     async periodos_planillaactualizar(id, d) {

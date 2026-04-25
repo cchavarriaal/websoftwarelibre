@@ -1,0 +1,80 @@
+.login-wrapper {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at top right, rgba(0, 229, 255, 0.1), transparent),
+                radial-gradient(circle at bottom left, rgba(0, 102, 255, 0.1), transparent),
+                #0a0a0b;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 450px;
+    padding: 3rem;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.login-header h2 {
+    font-size: 1.8rem;
+    margin: 1rem 0 0.5rem;
+}
+
+.login-header p {
+    color: var(--text-muted);
+}
+
+.login-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-icon .icon {
+    position: absolute;
+    left: 1rem;
+    font-size: 1.2rem;
+    opacity: 0.6;
+}
+
+.input-with-icon .form-control {
+    padding-left: 3rem;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+}
+
+.login-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.login-footer a {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.login-footer a:hover {
+    color: var(--accent);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}

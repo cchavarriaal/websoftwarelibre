@@ -1,0 +1,217 @@
+.boleta-wrapper {
+    padding: 3rem 1rem;
+    min-height: 100vh;
+    background: #525659; /* Color de fondo estilo visor de PDF (Chrome) */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.actions-bar {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 850px;
+    margin-bottom: 2rem;
+}
+
+.boleta-container {
+    background: #ffffff !important; 
+    color: #1e293b !important; 
+    padding: 5rem;
+    width: 210mm; /* Ancho estándar A4 */
+    max-width: 95vw;
+    min-height: 297mm; /* Alto estándar A4 */
+    border-radius: 2px; /* Bordes más rectos estilo papel */
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.6); /* Sombra de papel más fuerte */
+    position: relative;
+    overflow: hidden;
+    z-index: 10;
+}
+
+/* Forzar color de texto para todos los elementos dentro de la boleta */
+.boleta-container h1, 
+.boleta-container h2, 
+.boleta-container h3, 
+.boleta-container p, 
+.boleta-container span, 
+.boleta-container label, 
+.boleta-container td, 
+.boleta-container th {
+    color: #1e293b !important;
+}
+
+.boleta-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 2rem;
+    margin-bottom: 2.5rem;
+}
+
+.company-name {
+    margin: 0;
+    font-size: 1.8rem !important;
+    font-weight: 800;
+    color: #1e3a8a !important; /* Azul marino formal */
+}
+
+.company-id {
+    margin: 0;
+    color: #64748b !important;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.boleta-title {
+    text-align: right;
+}
+
+.boleta-title h2 {
+    margin: 0;
+    color: #0f172a !important;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.periodo-badge {
+    display: inline-block;
+    margin-top: 0.5rem;
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border: 1px solid #e2e8f0;
+}
+
+.info-section {
+    margin-bottom: 3rem;
+    background: #f1f5f9 !important; 
+    padding: 2rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.info-item label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #64748b !important;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.info-item span {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #1e293b !important;
+}
+
+.table-container {
+    margin-bottom: 3rem;
+}
+
+.boleta-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff !important;
+}
+
+.boleta-table th {
+    text-align: left;
+    padding: 1rem;
+    background: #0f172a !important; /* Fondo muy oscuro para th */
+    color: #ffffff !important; /* Letras blancas para el th */
+    font-size: 0.85rem;
+}
+
+.boleta-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 1rem;
+    background: #ffffff !important; /* Forzar fondo blanco en celdas */
+    color: #1e293b !important;
+}
+
+.boleta-table tr:nth-child(even) td {
+    background-color: #f8fafc !important; /* Filas cebra con fondo sólido */
+}
+
+.totals-row td {
+    font-weight: 800;
+    background: #f1f5f9 !important;
+    border-top: 2px solid #94a3b8;
+    color: #0f172a !important;
+}
+
+.neto-row td {
+    font-size: 1.5rem !important;
+    font-weight: 900;
+    padding: 2rem 1rem;
+    background: #eff6ff !important; 
+}
+
+.neto-label {
+    color: #1e3a8a !important;
+}
+
+.neto-value {
+    color: #059669 !important; /* Verde oscuro para contraste sobre blanco */
+}
+
+.boleta-footer {
+    margin-top: 5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-top: 1px dashed #cbd5e0;
+    padding-top: 3rem;
+}
+
+.signature-line {
+    width: 300px;
+    border-top: 2px solid #0f172a;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.disclaimer {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-style: italic;
+    max-width: 500px;
+    text-align: center;
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    body {
+        background: white !important;
+        margin: 0;
+        padding: 0;
+    }
+    .boleta-wrapper {
+        padding: 0;
+        max-width: 100%;
+    }
+    .boleta-container {
+        box-shadow: none;
+        padding: 2rem;
+        border: none;
+    }
+    .boleta-container::before {
+        display: none;
+    }
+}
