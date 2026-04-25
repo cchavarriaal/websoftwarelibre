@@ -11,6 +11,129 @@
   --input-bg: rgba(11, 17, 33, 0.8);
 }
 
+/* Header & Navigation */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 3rem;
+  background: rgba(10, 15, 30, 0.9);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: var(--text-main);
+  text-decoration: none;
+}
+
+.logo-container img {
+  height: 40px;
+  width: auto;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+}
+
+.nav-links li {
+  display: flex;
+  align-items: center;
+}
+
+.nav-links li:not(:last-child)::after {
+  content: "";
+  display: block;
+  width: 2px;
+  height: 20px;
+  background-color: rgba(138, 43, 226, 0.4);
+  margin: 0 0.5rem;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--text-muted);
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-links a:hover, .nav-links a.active {
+  color: var(--accent);
+  background: rgba(0, 229, 255, 0.05);
+}
+
+.nav-item.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #151e32;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 0.5rem 0;
+  min-width: 220px;
+  display: none;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  z-index: 1001;
+  margin-top: 5px; /* Un poco de respiro visual */
+}
+
+/* Puente invisible para mantener el hover */
+.dropdown-menu::before {
+  content: "";
+  position: absolute;
+  top: -15px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: transparent;
+}
+
+.nav-item.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 0.8rem 1rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.dropdown-item:hover {
+  background: rgba(0, 229, 255, 0.1);
+  color: var(--accent);
+  padding-left: 1.2rem;
+}
+
+.dropdown-icon {
+  font-size: 0.7rem;
+  margin-left: 0.3rem;
+  opacity: 0.5;
+}
+
 /* Common Components */
 
 .user-menu {

@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { NotificationService } from '../services/notification.service';
 import { Router } from '@angular/router';
 
+import { AuthService } from '../services/auth.service';
+
 @Component({
   selector: 'app-resultados-planilla',
   imports: [CommonModule],
@@ -14,6 +16,7 @@ export class ResultadosPlanilla implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly notify = inject(NotificationService);
   private readonly router = inject(Router);
+  protected readonly auth = inject(AuthService);
 
   protected readonly resultados = signal<any[]>([]);
   protected readonly periodos = signal<any[]>([]);
@@ -97,6 +100,10 @@ export class ResultadosPlanilla implements OnInit {
 
   volver() {
     localStorage.removeItem('selectedPeriodoResultados');
-    this.router.navigate(['/periodos-planilla']);
+    if (this.auth.isEmployee()) {
+      this.router.navigate(['/']);
+    } else {
+      this.router.navigate(['/periodos-planilla']);
+    }
   }
 }

@@ -1,5 +1,6 @@
 const { ejecutarConsulta } = require('../db.js');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 class Usuarios {
     constructor() { }
@@ -64,9 +65,13 @@ class Usuarios {
             }
         }
 
+        // ENCRIPTAR CONTRASEÑA
+        const salt = await bcrypt.genSalt(10);
+        const passwordEncriptada = await bcrypt.hash(d.password_hash, salt);
+
         const result = await ejecutarConsulta(
             "INSERT INTO `planillasweb`.`usuarios` (username, password_hash, rol_id, empleado_id, estado, pregunta_seguridad, respuesta_seguridad, token) VALUES (?,?,?,?,?,?,?,?)",
-            [d.username, d.password_hash, rolId, empleadoId, d.estado, d.pregunta_seguridad, d.respuesta_seguridad, null]
+            [d.username, passwordEncriptada, rolId, empleadoId, d.estado, d.pregunta_seguridad, d.respuesta_seguridad, null]
         );
 
         if (result && result.insertId) {
@@ -148,10 +153,20 @@ class Usuarios {
         const filas = await ejecutarConsulta("SELECT * FROM `planillasweb`.`usuarios` WHERE id=?", [id]);
         const valor_anterior = filas.length > 0 ? filas[0] : null;
 
-        const result = await ejecutarConsulta(
-            "UPDATE `planillasweb`.`usuarios` SET username=?, rol_id=?, empleado_id=?, estado=?, pregunta_seguridad=?, respuesta_seguridad=? WHERE id=?",
-            [d.username, d.rol_id, d.empleado_id, d.estado, d.pregunta_seguridad, d.respuesta_seguridad, id]
-        );
+        let query = "UPDATE `planillasweb`.`usuarios` SET username=?, rol_id=?, empleado_id=?, estado=?, pregunta_seguridad=?, respuesta_seguridad=?";
+        let params = [d.username, d.rol_id, d.empleado_id, d.estado, d.pregunta_seguridad, d.respuesta_seguridad];
+
+        if (d.password_hash && d.password_hash.trim() !== '') {
+            const salt = await bcrypt.genSalt(10);
+            const passwordEncriptada = await bcrypt.hash(d.password_hash, salt);
+            query += ", password_hash=?";
+            params.push(passwordEncriptada);
+        }
+
+        query += " WHERE id=?";
+        params.push(id);
+
+        const result = await ejecutarConsulta(query, params);
 
         if (result && result.affectedRows > 0) {
             await ejecutarConsulta(
@@ -188,13 +203,29 @@ class Usuarios {
         if (resultado.length === 0) return false;
         
         const Usuario = resultado[0];
-        if (ClaveSinEncriptar === Usuario.password_hash) {
+
+        // Intento de comparación con Bcrypt
+        let esValida = false;
+        try {
+            esValida = await bcrypt.compare(ClaveSinEncriptar, Usuario.password_hash);
+        } catch (e) {
+            // Si falla el hash (ej. es texto plano antiguo), probamos comparación directa
+            esValida = (ClaveSinEncriptar === Usuario.password_hash);
+        }
+
+        // Fallback por si la DB tiene texto plano (para no bloquear al usuario ahora)
+        if (!esValida) {
+            esValida = (ClaveSinEncriptar === Usuario.password_hash);
+        }
+
+        if (esValida) {
             return this.GenerarToken(Usuario.rol_nombre, Usuario.username, Usuario.empleado_id, Usuario.id);
         }
         return false;
     };
 
     async GenerarToken(rol_nombre, username, empleado_id, usuario_id) {
+        console.log(`Generando token para: ${username}, Rol: ${rol_nombre}`);
         let token = jwt.sign({ 
             rol: rol_nombre, 
             username, 
@@ -202,7 +233,9 @@ class Usuarios {
             usuario_id 
         }, this.PalabraSecreta, { expiresIn: '4h' });
         
-        await ejecutarConsulta('UPDATE usuarios SET token = ? WHERE username = ?', [token, username]);
+        const res = await ejecutarConsulta('UPDATE usuarios SET token = ? WHERE username = ?', [token, username]);
+        console.log(`Token guardado en DB para ${username}. Filas afectadas: ${res?.affectedRows}`);
+        
         return { token, rol: rol_nombre, username, empleado_id };
     }
 
@@ -228,7 +261,7 @@ class Usuarios {
         }
         // Se debe validar que el usuario tenga asignado ese token
         const rows = await ejecutarConsulta('SELECT * FROM usuarios WHERE username = ?', [Resultado.username]);
-        if (rows.length === 0) {
+        if (!rows || rows.length === 0) {
             return false; // usuario no encontrado
         }
         const Usuario = rows[0];

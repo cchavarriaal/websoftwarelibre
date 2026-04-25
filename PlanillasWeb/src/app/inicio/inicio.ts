@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-inicio',
@@ -7,4 +8,6 @@ import { RouterLink } from '@angular/router';
   templateUrl: './inicio.html',
   styleUrl: './inicio.css',
 })
-export class Inicio {}
+export class Inicio {
+  protected readonly auth = inject(AuthService);
+}

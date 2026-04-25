@@ -21,17 +21,15 @@
     margin-bottom: 2.5rem;
 }
 
-.login-header h2 {
-    font-size: 1.8rem;
-    margin: 1rem 0 0.5rem;
+.logo {
+    width: 80px;
+    height: auto;
+    margin-bottom: 1rem;
 }
 
-.login-header p {
-    color: var(--text-muted);
-}
-
-.login-form .form-group {
-    margin-bottom: 1.5rem;
+.login-header h2 span {
+    color: var(--accent);
+    text-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
 }
 
 .input-with-icon {
@@ -42,13 +40,16 @@
 
 .input-with-icon .icon {
     position: absolute;
-    left: 1rem;
-    font-size: 1.2rem;
-    opacity: 0.6;
+    left: 1.2rem;
+    font-size: 1.1rem;
+    opacity: 0.7;
+    z-index: 10;
+    pointer-events: none;
 }
 
 .input-with-icon .form-control {
-    padding-left: 3rem;
+    padding-left: 3.2rem !important;
+    height: 3.5rem;
 }
 
 .login-btn {

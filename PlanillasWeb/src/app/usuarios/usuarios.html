@@ -48,10 +48,9 @@
             <label>Rol de Usuario</label>
             <select class="filter-select" [ngModel]="filterRol()" (ngModelChange)="filterRol.set($event)">
               <option value="all">Cualquiera</option>
-              <option value="Administrador">Administrador</option>
-              <option value="Recursos Humanos">Recursos Humanos</option>
-              <option value="Contador">Contador</option>
-              <option value="Empleado">Empleado</option>
+              @for (rol of rolesList(); track rol.id) {
+                <option [value]="rol.nombre">{{ rol.nombre }}</option>
+              }
             </select>
           </div>
 
@@ -86,7 +85,7 @@
                     </div>
                   </div>
                 </td>
-                <td><span class="badge" [class.badge-admin]="usuario.rol === 'Administrador'" [class.badge-empleado]="usuario.rol !== 'Administrador'">{{ usuario.rol }}</span></td>
+                <td><span class="badge" [class.badge-admin]="usuario.rol_nombre === 'Administrador'" [class.badge-empleado]="usuario.rol_nombre !== 'Administrador'">{{ usuario.rol_nombre }}</span></td>
                 <td>{{ usuario.empleado_nombre || 'Sin Empleado (ID: ' + (usuario.empleado_id || 'N/A') + ')' }}</td>
                 <td>
                   @if (usuario.estado === 1) {
@@ -142,8 +141,8 @@
               </div>
               <div class="detail-item">
                 <label>Rol de Sistema:</label>
-                <span class="badge" [class.badge-admin]="currentUsuario().rol === 'Administrador'" [class.badge-empleado]="currentUsuario().rol !== 'Administrador'">
-                  {{ currentUsuario().rol }}
+                <span class="badge" [class.badge-admin]="currentUsuario().rol_nombre === 'Administrador'" [class.badge-empleado]="currentUsuario().rol_nombre !== 'Administrador'">
+                  {{ currentUsuario().rol_nombre }}
                 </span>
               </div>
               <div class="detail-item">
@@ -239,11 +238,10 @@
 
           <div class="form-group">
             <label>Rol de Sistema <span style="color:#ef4444">*</span></label>
-            <select class="form-control" required name="rol" [(ngModel)]="currentUsuario().rol">
-              <option value="Administrador">Administrador</option>
-              <option value="Recursos Humanos">Recursos Humanos</option>
-              <option value="Contador">Contador</option>
-              <option value="Empleado">Empleado</option>
+            <select class="form-control" required name="rol_id" [(ngModel)]="currentUsuario().rol_id">
+              @for (rol of rolesList(); track rol.id) {
+                <option [ngValue]="rol.id">{{ rol.nombre }}</option>
+              }
             </select>
           </div>
 

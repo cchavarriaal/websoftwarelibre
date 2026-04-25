@@ -9,7 +9,8 @@ interface Usuario {
   id?: number;
   username: string;
   password_hash?: string;
-  rol: string;
+  rol_id: number;
+  rol_nombre?: string;
   empleado_id?: number | null;
   empleado_nombre?: string;
   estado: number;
@@ -42,22 +43,24 @@ export class Usuarios implements OnInit {
     return this.usuarios().filter(u => {
       const matchTerm = !term || 
         (u.username?.toLowerCase() || '').includes(term) ||
-        (u.rol?.toLowerCase() || '').includes(term) ||
+        (u.rol_nombre?.toLowerCase() || '').includes(term) ||
         (u.empleado_nombre?.toLowerCase() || '').includes(term);
 
       const matchEstado = estado === 'all' || u.estado === parseInt(estado, 10);
-      const matchRol = rol === 'all' || u.rol === rol;
+      const matchRol = rol === 'all' || u.rol_nombre === rol;
 
       return matchTerm && matchEstado && matchRol;
     });
   });
+
+  protected readonly rolesList = signal<any[]>([]);
+  protected readonly empleados = signal<any[]>([]);
 
   protected clearFilters() {
     this.searchTerm.set('');
     this.filterEstado.set('all');
     this.filterRol.set('all');
   }
-  protected readonly empleados = signal<any[]>([]);
   protected readonly currentUsuario = signal<Usuario>(this.getEmptyUsuario());
   protected readonly isEditing = signal(false);
   protected readonly isViewing = signal(false);
@@ -77,6 +80,13 @@ export class Usuarios implements OnInit {
     this.loadFromLocalStorage();
     this.loadUsuarios();
     this.loadEmpleados();
+    this.loadRoles();
+  }
+
+  protected loadRoles() {
+    this.http.get<any[]>('http://localhost/roles/listar').subscribe({
+      next: (data) => this.rolesList.set(data)
+    });
   }
 
   private loadFromLocalStorage() {
@@ -100,7 +110,7 @@ export class Usuarios implements OnInit {
     return {
       username: '',
       password_hash: '',
-      rol: 'Empleado',
+      rol_id: 4, // Empleado por defecto
       estado: 1,
       pregunta_seguridad: '',
       respuesta_seguridad: ''

@@ -15,11 +15,13 @@ import { BoletaPago } from './boleta-pago/boleta-pago';
 import { Liquidaciones } from './liquidaciones/liquidaciones';
 import { Login } from './login/login';
 import { authGuard } from './auth.guard';
+import { RolesComponent } from './roles/roles';
 
 export const routes: Routes = [
     { path: 'login', component: Login },
     { path: '', component: Inicio, canActivate: [authGuard] },
     { path: 'usuarios', component: Usuarios, canActivate: [authGuard] },
+    { path: 'roles', component: RolesComponent, canActivate: [authGuard] },
     { path: 'empleados', component: Empleados, canActivate: [authGuard] },
     { path: 'detalle-empleado', component: DetalleEmpleado, canActivate: [authGuard] },
     { path: 'departamentos', component: Departamentos, canActivate: [authGuard] },

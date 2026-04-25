@@ -10,6 +10,7 @@ const rutasDePuestos = require('./puestos.js');
 const rutasDeHorarios = require('./horarios.js');
 const rutasDePlanillaMotor = require('./planilla_motor.js');
 const rutasDeLiquidaciones = require('./liquidaciones.js');
+const rutasDeRoles = require('./Roles.js');
 
 
 function asignarRutasAExpress(app) {
@@ -24,6 +25,7 @@ function asignarRutasAExpress(app) {
     app.use('/horarios', rutasDeHorarios);
     app.use('/planilla', rutasDePlanillaMotor);
     app.use('/liquidaciones', rutasDeLiquidaciones);
+    app.use('/roles', rutasDeRoles);
 }
 
 module.exports = asignarRutasAExpress;

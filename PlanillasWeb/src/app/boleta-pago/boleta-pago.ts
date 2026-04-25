@@ -29,7 +29,7 @@ export class BoletaPago implements OnInit {
 
   loadBoleta(id: number) {
     this.loading.set(true);
-    this.http.get<any>(`http://localhost/planilla/boleta/${id}`).subscribe({
+    this.http.get<any>(`http://localhost/planilla/detalle-boleta/${id}`).subscribe({
       next: (data) => {
         this.boleta.set(data);
         this.loading.set(false);

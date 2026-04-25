@@ -1,6 +1,9 @@
 <div class="crud-container">
   <div class="page-header">
-    <h1 class="page-title">Resultados de Planilla: <span style="color: var(--accent-primary);">{{ periodoNombre() }}</span></h1>
+    <h1 class="page-title">
+      {{ auth.isEmployee() ? 'Historial de Boletas:' : 'Resultados de Planilla:' }}
+      <span style="color: var(--accent-primary);">{{ periodoNombre() }}</span>
+    </h1>
     <button class="btn-secondary" (click)="volver()">
       <span class="icon">⬅</span> Volver
     </button>
@@ -20,7 +23,7 @@
         </div>
       </div>
       <div class="filter-actions-right">
-        @if (resultados().length > 0) {
+        @if (resultados().length > 0 && !auth.isEmployee()) {
           <button class="btn-primary" (click)="exportarBanco()">
             <span class="icon">🏦</span> Archivo Bancario
           </button>

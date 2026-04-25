@@ -16,7 +16,14 @@ router.post('/procesar', async (req, res) => {
 // GET: Obtener los resultados calculados de un periodo
 router.get('/resultados/:periodoId', async (req, res) => {
     try {
-        const empId = req.user?.rol === 'Empleado' ? req.user.empleado_id : null;
+        const isEmployee = req.user?.rol === 'Empleado';
+        const empId = isEmployee ? req.user.empleado_id : null;
+
+        // Seguridad: Si es empleado pero no tiene ID vinculado, no mostrar nada
+        if (isEmployee && !empId) {
+            return res.json([]);
+        }
+
         const resultados = await planillaMotor.obtenerResultados(req.params.periodoId, empId);
         res.json(resultados);
     } catch (error) {

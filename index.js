@@ -20,9 +20,11 @@ app.use(async (req, res, next) => {
     req.user = user;
     next();
   } else {
-    // Para simplificar el demo, si no hay token pero es una ruta de lectura, permitimos
-    // Pero en producción aquí deberías retornar 401
-    next();
+    // Bloqueo estricto para rutas protegidas
+    return res.status(401).json({ 
+      error: 'Sesión inválida o expirada',
+      message: 'Debe iniciar sesión para acceder a este recurso'
+    });
   }
 });
 

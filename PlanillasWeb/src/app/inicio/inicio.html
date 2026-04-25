@@ -1,13 +1,22 @@
 <main>
   <div class="hero-text">
-    <span class="tagline">Portal Interno de Recursos Humanos</span>
-    <h1>Gestión Global de <span>Planillas</span> y Nómina</h1>
-    <p>Bienvenido al sistema central de administración salarial. Utilice esta herramienta para calcular la nómina del periodo, registrar marcas de asistencia, aplicar deducciones correspondientes y gestionar los expedientes de todos los colaboradores de la empresa.</p>
-    
-    <div class="btn-group">
-      <a class="btn" routerLink="/periodos-planilla">Procesar Planilla</a>
-      <a class="btn btn-secondary" routerLink="/empleados">Directorio de Empleados</a>
-    </div>
+    <span class="tagline">Portal de Recursos Humanos</span>
+    @if (!auth.isEmployee()) {
+      <h1>Gestión Global de <span>Planillas</span> y Nómina</h1>
+      <p>Bienvenido al sistema central de administración salarial. Utilice esta herramienta para gestionar la nómina, colaboradores y auditoría de la empresa.</p>
+      
+      <div class="btn-group">
+        <a class="btn" routerLink="/periodos-planilla">Procesar Planilla</a>
+        <a class="btn btn-secondary" routerLink="/empleados">Directorio de Empleados</a>
+      </div>
+    } @else {
+      <h1>Bienvenido, <span>{{ auth.currentUser()?.username }}</span></h1>
+      <p>Bienvenido a su portal personal. Aquí podrá consultar su historial de pagos, boletas de planilla y gestionar su información de colaborador de forma segura.</p>
+      
+      <div class="btn-group">
+        <a class="btn" routerLink="/resultados-planilla">Ver Mis Boletas</a>
+      </div>
+    }
   </div>
   
   <div class="hero-image">
