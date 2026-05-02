@@ -133,6 +133,14 @@
                   {{ currentItem().es_ley ? 'Obligatorio por Ley' : 'Voluntario / Interno' }}
                 </span>
               </div>
+              <div class="detail-item">
+                <label>Porcentaje:</label>
+                <span>{{ currentItem().porcentaje || 0 }}%</span>
+              </div>
+              <div class="detail-item">
+                <label>Monto Fijo:</label>
+                <span>{{ currentItem().monto_fijo | currency:'CRC':'symbol-narrow' }}</span>
+              </div>
             </div>
           </div>
 
@@ -170,6 +178,31 @@
             </div>
             <small style="color: rgba(255,255,255,0.4); font-size:0.75rem; display:block; margin-top:0.4rem;">Indica si este concepto es 100% legal o si es interno de la empresa.</small>
           </div>
+
+          <div class="form-group" style="margin-top: 1rem;">
+            <label>Tipo de Cálculo</label>
+            <select class="form-control" name="modo_calculo" [(ngModel)]="currentItem().modo_calculo" (ngModelChange)="onModoCalculoChange()">
+              <option value="porcentaje">Cálculo por Porcentaje (%)</option>
+              <option value="monto_fijo">Cálculo por Monto Fijo (₡)</option>
+            </select>
+          </div>
+
+          @if (currentItem().modo_calculo === 'porcentaje') {
+            <div class="form-group">
+              <label>Porcentaje (%) <span style="color:#ef4444">*</span></label>
+              <input type="number" class="form-control" name="porcentaje" [(ngModel)]="currentItem().porcentaje" step="0.01" min="0" max="100">
+              <small style="color: rgba(255,255,255,0.4); font-size:0.75rem;">Si es CCSS u otro cálculo porcentual, indícalo aquí (Ej: 9.67)</small>
+            </div>
+          } @else {
+            <div class="form-group">
+              <label>Monto Fijo (₡) <span style="color:#ef4444">*</span></label>
+              <div class="input-with-icon">
+                <span class="currency-symbol">₡</span>
+                <input type="number" class="form-control with-icon" name="monto_fijo" [(ngModel)]="currentItem().monto_fijo" step="0.01" min="0">
+              </div>
+              <small style="color: rgba(255,255,255,0.4); font-size:0.75rem;">Monto fijo a sumar o rebajar. Usa esto si NO es un cálculo porcentual.</small>
+            </div>
+          }
 
           <div class="form-actions" style="margin-top: 2rem;">
             <button type="button" class="btn-secondary" (click)="resetForm()">

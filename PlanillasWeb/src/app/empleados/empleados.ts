@@ -202,4 +202,17 @@ export class Empleados implements OnInit {
     this.currentEmpleado.update(e => ({ ...e, codigo_empleado: 'Auto-generado por DB' }));
     this.showForm.set(true);
   }
+
+  protected onPuestoChange(puestoId: any) {
+    this.currentEmpleado.update(e => {
+      const updated = { ...e, puesto_id: puestoId };
+      if (puestoId) {
+        const puesto = this.puestos().find(p => p.id === puestoId);
+        if (puesto && puesto.salario_base_sugerido) {
+          updated.salario_base = puesto.salario_base_sugerido;
+        }
+      }
+      return updated;
+    });
+  }
 }

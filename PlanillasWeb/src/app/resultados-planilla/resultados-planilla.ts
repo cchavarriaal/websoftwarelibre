@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from '../services/notification.service';
@@ -24,6 +24,10 @@ export class ResultadosPlanilla implements OnInit {
   protected readonly periodoNombre = signal('');
   protected readonly loading = signal(false);
 
+  protected readonly totalPlanilla = computed(() => {
+    return this.resultados().reduce((sum, res) => sum + Number(res.salario_neto || 0), 0);
+  });
+
   ngOnInit() {
     this.loadPeriodos();
     const data = localStorage.getItem('selectedPeriodoResultados');
@@ -37,9 +41,10 @@ export class ResultadosPlanilla implements OnInit {
 
   loadPeriodos() {
     this.http.get<any[]>('http://localhost/periodos_planilla/periodos_planillalistar').subscribe({
-      next: (data) => {
-        // Filtrar solo los que ya han sido procesados o cerrados para ver resultados
-        this.periodos.set(data.filter(p => p.estado !== 'Abierto'));
+      next: (data: any) => {
+        // Asegurarnos de que sea un array y filtrar solo los procesados/cerrados
+        const dataArray = Array.isArray(data) ? data : [];
+        this.periodos.set(dataArray.filter(p => p.estado !== 'Abierto'));
       }
     });
   }

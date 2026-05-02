@@ -9,6 +9,9 @@ export interface IConcepto {
   nombre: string;
   tipo: string;
   es_ley: number;
+  porcentaje?: number;
+  monto_fijo?: number;
+  modo_calculo?: 'porcentaje' | 'monto_fijo';
 }
 
 @Component({
@@ -56,7 +59,7 @@ export class Concepto implements OnInit {
   }
 
   private getEmptyItem(): IConcepto {
-    return { nombre: '', tipo: 'Ingreso', es_ley: 1 };
+    return { nombre: '', tipo: 'Ingreso', es_ley: 1, porcentaje: 0, monto_fijo: 0, modo_calculo: 'porcentaje' };
   }
 
   protected loadItems() {
@@ -82,17 +85,30 @@ export class Concepto implements OnInit {
   }
 
   protected viewItemDetails(item: IConcepto) {
-    this.currentItem.set({ ...item });
+    const modo = (item.monto_fijo && item.monto_fijo > 0) ? 'monto_fijo' : 'porcentaje';
+    this.currentItem.set({ ...item, modo_calculo: modo });
     this.isViewing.set(true);
     this.isEditing.set(false);
     this.showForm.set(true);
   }
 
   protected editItem(item: IConcepto) {
-    this.currentItem.set({ ...item });
+    const modo = (item.monto_fijo && item.monto_fijo > 0) ? 'monto_fijo' : 'porcentaje';
+    this.currentItem.set({ ...item, modo_calculo: modo });
     this.isViewing.set(false);
     this.isEditing.set(true);
     this.showForm.set(true);
+  }
+
+  protected onModoCalculoChange() {
+    this.currentItem.update(item => {
+      if (item.modo_calculo === 'porcentaje') {
+        item.monto_fijo = 0;
+      } else {
+        item.porcentaje = 0;
+      }
+      return item;
+    });
   }
 
   protected clearFilters() {

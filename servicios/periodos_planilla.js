@@ -48,9 +48,19 @@ class PeriodosPlanilla {
     }
     async periodos_planillaeliminar(id) {
         const filas = await ejecutarConsulta("SELECT * FROM `planillasweb`.`periodos_planilla` WHERE id=?", [id]);
+        
+        // Eliminar dependencias primero para evitar error de llave foránea
+        await ejecutarConsulta("DELETE FROM `planillasweb`.`planilla_calculada` WHERE periodo_id=?", [id]);
+        await ejecutarConsulta("DELETE FROM `planillasweb`.`movimientos_planilla` WHERE periodo_id=?", [id]);
+        
         const result = await ejecutarConsulta("DELETE FROM `planillasweb`.`periodos_planilla` WHERE id=?", [id]);
-        if (result && result.affectedRows > 0) { await ejecutarConsulta("INSERT INTO `planillasweb`.`auditoria` (usuario_id, tabla_afectada, registro_id, accion, valor_anterior, valor_nuevo) VALUES (?,?,?,?,?,?)", [null, 'periodos_planilla', id, 'DELETE', JSON.stringify(filas[0] || null), null]); }
-        return result;
+        
+        if (result && result.affectedRows > 0) { 
+            await ejecutarConsulta("INSERT INTO `planillasweb`.`auditoria` (usuario_id, tabla_afectada, registro_id, accion, valor_anterior, valor_nuevo) VALUES (?,?,?,?,?,?)", [null, 'periodos_planilla', id, 'DELETE', JSON.stringify(filas[0] || null), null]); 
+            return { success: true, message: "Periodo eliminado correctamente" };
+        } else {
+            throw new Error("No se pudo eliminar el periodo debido a un error en la base de datos o restricciones adicionales.");
+        }
     }
 }
 

@@ -49,9 +49,9 @@ export class MovimientosPlanilla implements OnInit {
       );
     }
 
-    if (emp !== 'all') list = list.filter(item => item.empleado_id === emp);
-    if (per !== 'all') list = list.filter(item => item.periodo_id === per);
-    if (con !== 'all') list = list.filter(item => item.concepto_id === con);
+    if (emp !== 'all') list = list.filter(item => item.empleado_id === Number(emp));
+    if (per !== 'all') list = list.filter(item => item.periodo_id === Number(per));
+    if (con !== 'all') list = list.filter(item => item.concepto_id === Number(con));
 
     return list;
   });

@@ -14,7 +14,11 @@ Router.put('/periodos_planillaactualizar/:id', async (solicitud, respuesta, next
     return respuesta.json(await PeriodosPlanilla.periodos_planillaactualizar(solicitud.params.id, solicitud.body));
 });
 Router.delete('/periodos_planillaeliminar/:id', async (solicitud, respuesta, next) => {
-    return respuesta.json(await PeriodosPlanilla.periodos_planillaeliminar(solicitud.params.id));
+    try {
+        return respuesta.json(await PeriodosPlanilla.periodos_planillaeliminar(solicitud.params.id));
+    } catch (error) {
+        return respuesta.status(500).json({ error: error.message });
+    }
 });
 
 module.exports = Router;

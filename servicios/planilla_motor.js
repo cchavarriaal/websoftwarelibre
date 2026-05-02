@@ -77,7 +77,6 @@ class PlanillaMotor {
 
                 if (totalDeduccionTardias > 0) {
                     totalDeducciones += totalDeduccionTardias;
-                    // Opcional: Podrías insertar un movimiento_planilla automático aquí para que aparezca en la boleta
                 }
 
                 // C. Obtener y sumar movimientos manuales del periodo

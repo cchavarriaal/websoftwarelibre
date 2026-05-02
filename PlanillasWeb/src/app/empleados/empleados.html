@@ -226,7 +226,7 @@
           <div class="form-group twocol">
             <div class="col">
               <label>Puesto <span style="color:var(--text-muted); font-size:0.75rem;">(Opc.)</span></label>
-              <select class="form-control" name="puesto_id" [(ngModel)]="currentEmpleado().puesto_id">
+              <select class="form-control" name="puesto_id" [ngModel]="currentEmpleado().puesto_id" (ngModelChange)="onPuestoChange($event)">
                 <option [ngValue]="undefined">-- Sin Asignar --</option>
                 @for (p of puestos(); track p.id) {
                   <option [ngValue]="p.id">{{ p.nombre }}</option>
