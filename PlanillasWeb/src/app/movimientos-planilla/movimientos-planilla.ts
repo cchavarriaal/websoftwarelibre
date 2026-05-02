@@ -172,4 +172,26 @@ export class MovimientosPlanilla implements OnInit {
     this.resetForm();
     this.showForm.set(true);
   }
+
+  protected calcularMontoAutomatico() {
+    const item = this.currentItem();
+    if (!item.empleado_id || !item.concepto_id) return;
+
+    const emp = this.empleados().find(e => e.id === item.empleado_id);
+    const con = this.conceptos().find(c => c.id === item.concepto_id);
+
+    if (emp && con) {
+      // Prioridad: Si hay porcentaje, calcularlo sobre el salario base
+      if (con.porcentaje > 0) {
+        const monto = emp.salario_base * (con.porcentaje / 100);
+        this.currentItem.update(curr => ({ ...curr, monto_calculado: parseFloat(monto.toFixed(2)) }));
+        this.notify.info('Cálculo Automático', `Se calculó el ${con.porcentaje}% del salario base.`);
+      } 
+      // Si no hay porcentaje pero hay monto fijo
+      else if (con.monto_fijo > 0) {
+        this.currentItem.update(curr => ({ ...curr, monto_calculado: con.monto_fijo }));
+        this.notify.info('Monto Fijo', `Se aplicó el monto de ${con.monto_fijo} definido en el concepto.`);
+      }
+    }
+  }
 }

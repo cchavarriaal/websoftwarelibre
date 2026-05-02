@@ -248,29 +248,45 @@ class Usuarios {
     async ValidarToken(solicitud) {
         let token;
         try {
-            token = solicitud.headers.authorization.split(" ")[1];
+            const authHeader = solicitud.headers.authorization;
+            if (!authHeader) return false;
+            token = authHeader.split(" ")[1];
         } catch (err) {
-            return err;
-        }
-        let Resultado;
-        // Validación del token
-        try {
-            Resultado = await jwt.verify(token, this.PalabraSecreta);
-        } catch (err) {
-            return err;
-        }
-        // Se debe validar que el usuario tenga asignado ese token
-        const rows = await ejecutarConsulta('SELECT * FROM usuarios WHERE username = ?', [Resultado.username]);
-        if (!rows || rows.length === 0) {
-            return false; // usuario no encontrado
-        }
-        const Usuario = rows[0];
-
-        if (Usuario.token === token) {
-            return Resultado;
-        } else {
             return false;
         }
+
+        let payload;
+        try {
+            payload = await jwt.verify(token, this.PalabraSecreta);
+        } catch (err) {
+            return false;
+        }
+
+        // Buscar información fresca del usuario en la base de datos
+        const rows = await ejecutarConsulta(`
+            SELECT u.*, r.nombre AS rol 
+            FROM usuarios u 
+            JOIN roles r ON u.rol_id = r.id 
+            WHERE u.username = ?`, [payload.username]);
+
+        if (!rows || rows.length === 0) {
+            return false;
+        }
+
+        const usuarioDB = rows[0];
+
+        // Validar que el token coincida con el guardado (Session Control)
+        if (usuarioDB.token !== token) {
+            return false;
+        }
+
+        // Retornar objeto con datos actualizados para que el resto del backend los use
+        return {
+            usuario_id: usuarioDB.id,
+            username: usuarioDB.username,
+            rol: usuarioDB.rol,
+            empleado_id: usuarioDB.empleado_id
+        };
     };
 
     async DesAutenticacion(username) {

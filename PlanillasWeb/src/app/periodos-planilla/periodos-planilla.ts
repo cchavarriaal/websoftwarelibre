@@ -112,7 +112,7 @@ export class PeriodosPlanilla implements OnInit {
   protected async procesarPlanilla(id: number) {
     const confirmed = await this.notify.confirm('¿Procesar Planilla?', 'Se calcularán los salarios netos para todos los empleados activos en este periodo.');
     if (confirmed) {
-      this.http.post(`http://localhost/planilla/procesar/${id}`, {}).subscribe({
+      this.http.post(`http://localhost/planilla/procesar`, { periodoId: id }).subscribe({
         next: (res: any) => {
           this.notify.success('Éxito', res.mensaje || 'Planilla procesada correctamente');
           this.loadItems();

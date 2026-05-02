@@ -3,9 +3,12 @@ const router = express.Router();
 const planillaMotor = require('../servicios/planilla_motor.js');
 
 // POST: Procesar la planilla de un periodo
-router.post('/procesar', async (req, res) => {
+// Acepta ID en el cuerpo (body) o en la URL (params)
+router.post(['/procesar', '/procesar/:id'], async (req, res) => {
     try {
-        const { periodoId } = req.body;
+        const periodoId = req.body.periodoId || req.params.id;
+        if (!periodoId) throw new Error("ID de periodo no proporcionado");
+        
         const resultado = await planillaMotor.procesarPlanilla(periodoId);
         res.json(resultado);
     } catch (error) {

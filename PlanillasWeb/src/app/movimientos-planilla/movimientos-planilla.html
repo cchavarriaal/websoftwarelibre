@@ -163,7 +163,7 @@
           <div class="form-group twocol">
             <div class="col">
               <label>Empleado <span style="color:#ef4444">*</span></label>
-              <select class="form-control" name="empleado_id" required [(ngModel)]="currentItem().empleado_id">
+              <select class="form-control" name="empleado_id" required [(ngModel)]="currentItem().empleado_id" (change)="calcularMontoAutomatico()">
                 <option [ngValue]="0" disabled>-- Seleccionar Empleado --</option>
                 @for (e of empleados(); track e.id) {
                   <option [ngValue]="e.id">{{ e.nombre }} {{ e.apellido }}</option>
@@ -183,7 +183,7 @@
 
           <div class="form-group">
             <label>Concepto Salarial <span style="color:#ef4444">*</span></label>
-            <select class="form-control" name="concepto_id" required [(ngModel)]="currentItem().concepto_id">
+            <select class="form-control" name="concepto_id" required [(ngModel)]="currentItem().concepto_id" (change)="calcularMontoAutomatico()">
               <option [ngValue]="0" disabled>-- Seleccionar Concepto --</option>
               @for (c of conceptos(); track c.id) {
                 <option [ngValue]="c.id">{{ c.nombre }} ({{ c.tipo }})</option>
